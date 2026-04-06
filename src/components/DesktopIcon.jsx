@@ -4,46 +4,42 @@ import Draggable from 'react-draggable';
 const DesktopIcon = ({ label, icon, selected, onClick, onDoubleClick, defaultPosition }) => {
   const nodeRef = useRef(null);
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const dragStartPos = useRef(null);
 
-  const touchStartPos = useRef(null);
-
-  const handleClick = (e) => {
-    e.stopPropagation();
-    onClick();
-    // Allow synthetic double clicks on mobile if touch tracking fails
-    if (isMobile && onDoubleClick && e.type === 'click') {
-      onDoubleClick();
-    }
+  const handleDragStart = (e, data) => {
+    dragStartPos.current = { x: data.x, y: data.y };
   };
 
-  const handleTouchStart = (e) => {
-    touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  };
+  const handleDragStop = (e, data) => {
+    if (!dragStartPos.current) return;
+    const dx = data.x - dragStartPos.current.x;
+    const dy = data.y - dragStartPos.current.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
 
-  const handleTouchEnd = (e) => {
-    if (!touchStartPos.current) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const dist = Math.sqrt(Math.pow(endX - touchStartPos.current.x, 2) + Math.pow(endY - touchStartPos.current.y, 2));
-    
-    // If finger moved less than 10 pixels, treat it as a tap opening
-    if (dist < 10) {
-      e.stopPropagation();
+    // If it barely moved, treat it as a tap
+    if (dist < 5) {
       onClick();
-      if (onDoubleClick) onDoubleClick();
+      // On mobile we simulate double click instantly upon tap
+      if (isMobile && onDoubleClick) {
+        onDoubleClick();
+      }
     }
-    touchStartPos.current = null;
+    dragStartPos.current = null;
   };
 
   return (
-    <Draggable nodeRef={nodeRef} bounds="parent" grid={[20, 20]} defaultPosition={defaultPosition}>
+    <Draggable 
+      nodeRef={nodeRef} 
+      bounds="parent" 
+      grid={[20, 20]} 
+      defaultPosition={defaultPosition}
+      onStart={handleDragStart}
+      onStop={handleDragStop}
+    >
       <div 
         ref={nodeRef}
         className={`icon-container ${selected ? 'selected' : ''}`}
-        onClick={handleClick}
         onDoubleClick={onDoubleClick}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
         <div className="icon-box">{icon}</div>
         <div className="icon-label">{label}</div>

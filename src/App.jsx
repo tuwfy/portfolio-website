@@ -209,10 +209,10 @@ function App() {
         </div>
 
         <div className="control-strip">
+          <div className="control-strip-handle"></div>
           <button 
             onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
-            className="retro-btn"
-            style={{ width: '32px', height: '32px', fontSize: '1.2rem', padding: 0 }}
+            className="control-strip-btn"
             title="Toggle Mute"
           >
             {isMuted ? '🔇' : '🔉'}
