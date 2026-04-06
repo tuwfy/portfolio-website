@@ -1,0 +1,424 @@
+:root {
+  --mac-black: #000000;
+  --mac-white: #ffffff;
+  --mac-gray: #aaaaaa;
+  --mac-light-gray: #dfdfdf;
+  --mac-bg: #5A749C;
+  --mac-platinum: #cccccc;
+  --mac-border-light: #eeeeee;
+  --mac-border-dark: #666666;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'VT323', monospace;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--mac-bg);
+}
+
+/* Mac OS UI Elements */
+
+.window-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.window-container > * {
+  pointer-events: auto;
+}
+
+.mac-menubar {
+  height: 28px;
+  background-color: var(--mac-white);
+  border-bottom: 2px solid var(--mac-black);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 1.3rem;
+  z-index: 10000;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+}
+
+.mac-menu-item {
+  padding: 0 12px;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.mac-menu-item:hover, .mac-menu-item.active {
+  background: var(--mac-black);
+  color: var(--mac-white);
+}
+
+/* Updated Window Style for OS 9.2 */
+.mac-window {
+  background: var(--mac-platinum);
+  border: 2px solid var(--mac-black);
+  box-shadow: 2px 2px 0px var(--mac-black);
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 250px;
+  min-height: 150px;
+}
+
+.mac-titlebar {
+  height: 24px;
+  background: var(--mac-platinum);
+  border-bottom: 2px solid var(--mac-black);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  cursor: grab;
+  padding: 0 6px;
+}
+
+.mac-titlebar:active {
+  cursor: grabbing;
+}
+
+.mac-titlebar-stripes {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 4px;
+  right: 4px;
+  background-image: repeating-linear-gradient(
+    180deg,
+    var(--mac-black),
+    var(--mac-black) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 1;
+}
+
+.mac-titlebar-text {
+  background: var(--mac-platinum);
+  padding: 0 10px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  z-index: 2;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.mac-close-btn {
+  width: 14px;
+  height: 14px;
+  background: #FF605C; /* Red close button as requested */
+  border: 1px solid var(--mac-black);
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 1px 1px 0px rgba(255,255,255,0.5), inset -1px -1px 0px rgba(0,0,0,0.3);
+}
+
+.mac-close-btn:active {
+  background: #c74542;
+  box-shadow: inset 1px 1px 0px rgba(0,0,0,0.5);
+}
+
+/* Spotify Retro Player Specifics */
+.spotify-player {
+  width: 280px;
+  background: var(--mac-light-gray);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.spotify-screen {
+  background: #000;
+  color: #0f0;
+  border: 2px inset var(--mac-gray);
+  padding: 8px;
+  text-align: center;
+  font-family: monospace;
+}
+
+.spotify-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.spotify-btn {
+  flex-grow: 1;
+  padding: 4px;
+  background: var(--mac-platinum);
+  border: 2px outset #fff;
+  border-bottom-color: #888;
+  border-right-color: #888;
+  cursor: pointer;
+  font-family: 'VT323', monospace;
+}
+
+.spotify-btn:active {
+  border: 2px inset #fff;
+  border-top-color: #888;
+  border-left-color: #888;
+  padding-top: 5px;
+  padding-left: 5px;
+  padding-bottom: 3px;
+  padding-right: 3px;
+}
+
+.mac-zoom-btn {
+  width: 14px;
+  height: 14px;
+  background: var(--mac-white);
+  border: 1px solid var(--mac-black);
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+}
+
+.mac-content {
+  padding: 1px;
+  flex-grow: 1;
+  overflow: auto;
+  font-size: 1.2rem;
+  background: var(--mac-platinum);
+}
+
+.mac-content-inner {
+  background: var(--mac-white);
+  border: 1px solid var(--mac-black);
+  margin: 2px;
+  padding: 10px;
+  min-height: calc(100% - 4px);
+}
+
+/* About Window Specifics */
+.about-header {
+  display: flex;
+  padding: 20px;
+  border-bottom: 2px solid var(--mac-black);
+  background: #eee;
+}
+
+.about-logo-container {
+  width: 80px;
+  height: 80px;
+  margin-right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-info h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  letter-spacing: -1px;
+}
+
+.about-details {
+  border-top: 1px solid var(--mac-gray);
+  padding: 10px 20px;
+  font-size: 1rem;
+}
+
+.memory-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.memory-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #000;
+}
+
+.memory-label {
+  width: 120px;
+  text-align: right;
+  margin-right: 15px;
+}
+
+.memory-bar-container {
+  flex-grow: 1;
+  height: 14px;
+  border: 1px solid #000;
+  position: relative;
+  background: #fff;
+}
+
+.memory-bar-fill {
+  height: 100%;
+  background: #4A90E2;
+  border-right: 1px solid #000;
+}
+
+.memory-text {
+  font-size: 0.9rem;
+  margin-left: 10px;
+  width: 60px;
+}
+
+.desktop-area {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px;
+  /* Removed flex to allow Draggable free movement */
+}
+
+.icon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  cursor: pointer;
+  padding: 4px;
+  user-select: none;
+  position: absolute; /* Added absolute for Draggable */
+}
+
+.icon-container .icon-box {
+  width: 48px;
+  height: 48px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.icon-label {
+  background: var(--mac-white);
+  border: 1px solid var(--mac-black);
+  padding: 0 6px;
+  text-align: center;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.icon-container:active .icon-box,
+.icon-container.selected .icon-box {
+  filter: invert(100%);
+}
+
+.icon-container:active .icon-label,
+.icon-container.selected .icon-label {
+  background: var(--mac-black);
+  color: var(--mac-white);
+}
+
+/* Rainbow Logo colors */
+.rainbow-green { fill: #5EBD3E; }
+.rainbow-yellow { fill: #FFB900; }
+.rainbow-orange { fill: #F78200; }
+.rainbow-red { fill: #E23838; }
+.rainbow-purple { fill: #973999; }
+.rainbow-blue { fill: #009CDF; }
+
+/* Custom Scrollbar for Retro Feel */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: repeating-conic-gradient(#dfdfdf 0% 25%, #ffffff 0% 50%) 50% / 2px 2px;
+  border: 1px solid #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mac-platinum);
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 #fff;
+}
+
+::-webkit-scrollbar-button {
+  background: var(--mac-platinum);
+  border: 1px solid #000;
+  display: block;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .mac-menubar {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    font-size: 1.1rem;
+    padding-bottom: 2px;
+  }
+  
+  .mac-menubar::-webkit-scrollbar {
+    height: 4px; /* Tiny scrollbar for the menu bar on mobile */
+  }
+
+  .mac-window {
+    min-width: unset;
+    width: 95vw !important; /* Force width constraint on mobile */
+    max-width: 95vw;
+  }
+  
+  .spotify-player {
+    width: 95vw;
+    max-width: 320px;
+  }
+  
+  .about-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .about-logo-container {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  
+  .about-info h1 {
+    font-size: 2rem;
+  }
+  
+  .memory-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .memory-label {
+    text-align: left;
+    margin-bottom: 5px;
+  }
+}
