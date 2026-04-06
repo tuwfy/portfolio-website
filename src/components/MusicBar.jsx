@@ -61,13 +61,6 @@ const MusicBar = ({ isMuted }) => {
   const audioRef = useRef(null);
 
   useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio('/niche.mp3');
-      audioRef.current.loop = true;
-    }
-  }, []);
-
-  useEffect(() => {
     if (audioRef.current) {
       audioRef.current.muted = isMuted;
     }
@@ -85,6 +78,7 @@ const MusicBar = ({ isMuted }) => {
 
   return (
     <div className="music-bar" onClick={(e) => e.stopPropagation()}>
+      <audio ref={audioRef} src="/niche.mp3" loop onEnded={() => setIsPlaying(false)} />
       <div className="music-icon">🎼</div>
       <div className="now-playing">niche.mp3</div>
       <div className="controls">

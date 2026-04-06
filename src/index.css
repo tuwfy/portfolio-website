@@ -372,6 +372,66 @@ html, body, #root {
   display: block;
 }
 
+/* --- Control Strip --- */
+.control-strip {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  background: var(--mac-platinum);
+  border: 1px solid #000;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  padding: 4px 10px;
+  box-shadow: inset 1px 1px 0 #fff, 2px 2px 4px rgba(0,0,0,0.3);
+  z-index: 500;
+  gap: 10px;
+}
+
+.control-strip .music-bar {
+  border: none;
+  box-shadow: none;
+  position: static;
+  padding: 0;
+}
+
+/* --- Dropdown Menus --- */
+.menu-dropdown-container {
+  position: relative;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 150px;
+  background: var(--mac-platinum);
+  border: 1px solid #000;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  display: none;
+  flex-direction: column;
+  z-index: 2000;
+}
+
+.menu-dropdown-container:hover .menu-dropdown,
+.menu-dropdown-container.active .menu-dropdown {
+  display: flex;
+}
+
+.menu-dropdown-item {
+  padding: 4px 15px;
+  cursor: default;
+  color: #000;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.menu-dropdown-item:hover {
+  background: #000ea5;
+  color: #fff;
+}
+
 /* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
   .mac-menubar {

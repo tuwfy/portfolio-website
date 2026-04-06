@@ -208,11 +208,11 @@ function App() {
           ))}
         </div>
 
-        <div style={{ position: 'absolute', bottom: isMobile ? '10px' : '20px', left: isMobile ? '10px' : '20px', display: 'flex', alignItems: 'flex-end', gap: '15px', zIndex: 500 }}>
+        <div className="control-strip">
           <button 
             onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
             className="retro-btn"
-            style={{ width: '44px', height: '44px', fontSize: '1.4rem', fontWeight: 'normal' }}
+            style={{ width: '32px', height: '32px', fontSize: '1.2rem', padding: 0 }}
             title="Toggle Mute"
           >
             {isMuted ? '🔇' : '🔉'}
