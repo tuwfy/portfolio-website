@@ -11,6 +11,7 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
   const nodeRef = useRef(null);
   const isResizing = useRef(false);
   const contentRef = useRef(null);
+  const hasUserMovedRef = useRef(false);
   const [size, setSize] = useState({ width: 420, height: 280 });
   const [position, setPosition] = useState({ x: 100, y: 80 });
 
@@ -34,29 +35,54 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
 
   const measureAndFit = () => {
     if (!contentRef.current) return;
+    const contentRoot = contentRef.current.firstElementChild || contentRef.current;
     const { maxWidth, maxHeight } = getViewportLimits();
-    const measuredWidth = contentRef.current.scrollWidth + CHROME_WIDTH;
-    const measuredHeight = contentRef.current.scrollHeight + CHROME_HEIGHT;
+    const measuredWidth = Math.max(contentRoot.scrollWidth, contentRoot.clientWidth) + CHROME_WIDTH;
+    const measuredHeight = Math.max(contentRoot.scrollHeight, contentRoot.clientHeight) + CHROME_HEIGHT;
     const fittedSize = {
       width: Math.min(maxWidth, Math.max(MIN_WIDTH, measuredWidth)),
       height: Math.min(maxHeight, Math.max(MIN_HEIGHT, measuredHeight))
     };
     setSize(fittedSize);
-    setPosition(getCenteredPosition(fittedSize));
+    if (!hasUserMovedRef.current) {
+      setPosition(getCenteredPosition(fittedSize));
+    }
   };
 
   useEffect(() => {
-    const raf = requestAnimationFrame(measureAndFit);
-    return () => cancelAnimationFrame(raf);
+    hasUserMovedRef.current = false;
+    const raf1 = requestAnimationFrame(measureAndFit);
+    const raf2 = requestAnimationFrame(measureAndFit);
+    const delayed = setTimeout(measureAndFit, 120);
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      clearTimeout(delayed);
+    };
   }, [children]);
 
   useEffect(() => {
     const handleViewportResize = () => {
       measureAndFit();
     };
+
+    let observer = null;
+    if (contentRef.current && typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(() => {
+        measureAndFit();
+      });
+      observer.observe(contentRef.current);
+      if (contentRef.current.firstElementChild) {
+        observer.observe(contentRef.current.firstElementChild);
+      }
+    }
+
     window.addEventListener('resize', handleViewportResize);
-    return () => window.removeEventListener('resize', handleViewportResize);
-  }, []);
+    return () => {
+      window.removeEventListener('resize', handleViewportResize);
+      if (observer) observer.disconnect();
+    };
+  }, [children]);
 
   const handleResizeStart = (e) => {
     e.stopPropagation();
@@ -99,6 +125,10 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
     <Draggable
       nodeRef={nodeRef}
       position={position}
+      bounds="parent"
+      onStart={() => {
+        hasUserMovedRef.current = true;
+      }}
       onDrag={(_, data) => {
         setPosition({ x: data.x, y: data.y });
       }}

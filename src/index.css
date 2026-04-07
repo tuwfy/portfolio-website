@@ -401,7 +401,20 @@ html, body, #root {
   padding: 0;
 }
 
+.work-sketch-frame {
+  width: min(920px, 72vw);
+  height: min(620px, 62vh);
+  min-width: 420px;
+  min-height: 320px;
+}
+
 /* About Window Specifics */
+.about-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 620px;
+}
+
 .about-header {
   display: flex;
   padding: 20px;
@@ -428,6 +441,12 @@ html, body, #root {
   border-top: 1px solid var(--mac-gray);
   padding: 10px 20px;
   font-size: 1rem;
+}
+
+.about-footer {
+  text-align: right;
+  font-size: 0.7rem;
+  padding: 8px 12px 10px;
 }
 
 .memory-row {
@@ -470,6 +489,23 @@ html, body, #root {
   font-size: 0.9rem;
   margin-left: 10px;
   width: 60px;
+}
+
+.cv-content {
+  min-width: 620px;
+  padding: 16px 18px;
+  line-height: 1.45;
+  font-size: 1.35rem;
+}
+
+.cv-section {
+  margin-bottom: 18px;
+}
+
+.cv-header {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 
 .desktop-area {
@@ -710,5 +746,12 @@ canvas {
   .memory-label {
     text-align: left;
     margin-bottom: 5px;
+  }
+
+  .about-container,
+  .cv-content,
+  .work-sketch-frame {
+    min-width: 0;
+    width: 100%;
   }
 }

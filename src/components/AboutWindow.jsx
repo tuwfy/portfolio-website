@@ -23,13 +23,6 @@ const AboutWindow = () => {
         </div>
       </div>
       <div className="about-details" style={{ padding: '15px' }}>
-              <div style={{ padding: '10px 0', borderBottom: '1px solid #666', marginBottom: '10px' }}>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  <li style={{ marginBottom: '5px' }}>Turning my penny stocks into vintage Carhartt jackets.</li>
-                  <li style={{ marginBottom: '5px' }}>Treating my closet of vintage tees like a diversified investment portfolio.</li>
-                  <li>Living life on my own terms (and wearing 90s denim).</li>
-                </ul>
-              </div>
         <div className="memory-row">
           <div className="memory-icon" style={{ backgroundColor: '#fff', border: '1px solid #000', fontSize: '0.8rem', fontWeight: 'bold' }}>IE</div>
           <div className="memory-label" style={{ fontSize: '1rem' }}>Internet Explorer</div>
@@ -47,7 +40,7 @@ const AboutWindow = () => {
           <div className="memory-text">43 MB</div>
         </div>
       </div>
-      <div style={{ position: 'absolute', right: '10px', bottom: '10px', fontSize: '0.7rem' }}>
+      <div className="about-footer">
         ™ & © Apple Computer, Inc. 1983-2001
       </div>
     </div>

@@ -7,8 +7,8 @@ const WorkApp = () => {
 
   // Particle configuration
   const particles = useRef([]);
-  const numParticles = 150;
-  const colors = ['#333333', '#444444', '#555555', '#2a2a2a'];
+  const numParticles = 120;
+  const colors = ['#d6d8db', '#9fa5ac'];
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -30,17 +30,20 @@ const WorkApp = () => {
       reset() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
-        this.size = Math.random() * 2 + 1;
+        this.vx = (Math.random() - 0.5) * 0.25;
+        this.vy = (Math.random() - 0.5) * 0.25;
+        this.size = Math.random() * 2.4 + 0.8;
         this.color = colors[Math.floor(Math.random() * colors.length)];
         this.baseX = this.x;
         this.baseY = this.y;
-        this.drag = Math.random() * 0.03 + 0.02;
-        this.maxDistance = 150 + Math.random() * 100;
+        this.drag = Math.random() * 0.02 + 0.01;
+        this.maxDistance = 120 + Math.random() * 90;
+        this.pulse = Math.random() * Math.PI * 2;
       }
 
       update(mouse) {
+        this.pulse += 0.01;
+        this.size = Math.max(0.6, this.size + Math.sin(this.pulse) * 0.003);
         if (!mouse.active) {
           // Stillness - drift at rest
           this.x += this.vx;
@@ -51,27 +54,29 @@ const WorkApp = () => {
           const dy = this.y - this.baseY;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          if (distance > 50) {
-            this.x -= dx * 0.005;
-            this.y -= dy * 0.005;
+          if (distance > 48) {
+            this.x -= dx * 0.004;
+            this.y -= dy * 0.004;
           }
         } else {
           // Interaction - respond to cursor
           const dx = mouse.x - this.x;
           const dy = mouse.y - this.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          const force = Math.min(1, distance / this.maxDistance);
+          const force = Math.max(0, 1 - distance / this.maxDistance);
 
-          // Gently attract to cursor
+          // Gently attract, then slightly swirl around cursor
           if (distance < this.maxDistance) {
             this.x += dx * force * this.drag;
             this.y += dy * force * this.drag;
+            this.x += -dy * 0.0009 * this.maxDistance * force;
+            this.y += dx * 0.0009 * this.maxDistance * force;
           }
 
           // Return to base when cursor moves away
-          if (!mouse.active || distance > 100) {
-            this.x += (this.baseX - this.x) * 0.01;
-            this.y += (this.baseY - this.y) * 0.01;
+          if (!mouse.active || distance > 90) {
+            this.x += (this.baseX - this.x) * 0.012;
+            this.y += (this.baseY - this.y) * 0.012;
           }
         }
       }
@@ -95,7 +100,7 @@ const WorkApp = () => {
     // Animation loop
     const render = () => {
       // Clear canvas with subtle trail effect
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillStyle = 'rgba(8, 8, 8, 0.11)';
       ctx.fillRect(0, 0, width, height);
 
       // Update and draw particles
@@ -103,6 +108,26 @@ const WorkApp = () => {
         particle.update(mouseRef.current);
         particle.draw(ctx);
       });
+
+      // Draw gentle connective lines for an organic "processing" feel.
+      for (let i = 0; i < particles.current.length; i++) {
+        for (let j = i + 1; j < particles.current.length; j++) {
+          const a = particles.current[i];
+          const b = particles.current[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 56) {
+            const alpha = (1 - dist / 56) * 0.16;
+            ctx.strokeStyle = `rgba(190, 194, 199, ${alpha})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
 
       requestRef.current = requestAnimationFrame(render);
     };
@@ -158,7 +183,7 @@ const WorkApp = () => {
   }, []);
 
   return (
-    <div className="mac-content-inner" data-component="work" style={{ margin: 0, padding: 0, width: '100%', height: '100%' }}>
+    <div className="mac-content-inner work-sketch-frame" data-component="work">
       <canvas
         ref={canvasRef}
         style={{
