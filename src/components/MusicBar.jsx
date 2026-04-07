@@ -1,38 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useContext } from 'react';
+import { AudioContext } from '../AudioProvider';
 
-const MusicBar = ({ isMuted }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef(null);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.muted = isMuted;
-    }
-  }, [isMuted]);
-
-  const togglePlay = (e) => {
-    e.stopPropagation();
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      audioRef.current.play().catch(e => console.log(e));
-      setIsPlaying(true);
-    }
-  };
+const MusicBar = () => {
+  const { currentTrack, isPlaying, togglePlay, isMuted, toggleMute } = useContext(AudioContext);
 
   return (
-    <>
-      <audio ref={audioRef} src="/niche.mp3" loop onEnded={() => setIsPlaying(false)} />
+    <div className="control-strip" onClick={(e) => e.stopPropagation()}>
+      <div className="control-strip-handle"></div>
+      <button 
+        onClick={toggleMute}
+        className="control-strip-btn"
+        title="Toggle Mute"
+      >
+        {isMuted ? '🔇' : '🔉'}
+      </button>
       <button onClick={togglePlay} className="control-strip-btn" title="Play/Pause">
         {isPlaying ? '⏸' : '▶'}
       </button>
       <div className="control-strip-module">
         <span style={{ fontFamily: 'Arial, sans-serif', fontSize: '10px', overflow: 'hidden', maxWidth: '80px', textOverflow: 'ellipsis' }}>
-          {isPlaying ? 'niche.mp3' : 'Ready'}
+          {currentTrack ? currentTrack.name : 'Ready'}
         </span>
       </div>
-    </>
+    </div>
   );
 };
 

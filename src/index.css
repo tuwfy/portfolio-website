@@ -79,6 +79,8 @@ html, body, #root {
   flex-direction: column;
   min-width: 250px;
   min-height: 150px;
+  resize: both;
+  overflow: hidden; /* Enables resizing handle at bottom right */
 }
 
 .mac-titlebar {
@@ -143,50 +145,120 @@ html, body, #root {
   box-shadow: inset 1px 1px 0px rgba(0,0,0,0.5);
 }
 
-/* Spotify Retro Player Specifics */
-.spotify-player {
+/* Winamp Retro Player Specifics */
+.winamp-player {
   width: 280px;
-  background: var(--mac-light-gray);
-  padding: 10px;
+  background: #c0c0c0;
+  border: 2px outset #dfdfdf;
+  padding: 4px 8px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
-.spotify-screen {
-  background: #000;
-  color: #0f0;
-  border: 2px inset var(--mac-gray);
-  padding: 8px;
-  text-align: center;
-  font-family: monospace;
+.winamp-menu {
+  display: flex;
+  gap: 12px;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  margin-bottom: 4px;
 }
 
-.spotify-controls {
+.winamp-menu .ul {
+  text-decoration: underline;
+}
+
+.winamp-main {
+  display: flex;
+  gap: 6px;
+}
+
+.winamp-visualizer {
+  width: 80px;
+  height: 80px;
+  border: 2px inset #fff;
+  background: #9fae48; /* Classic beige-green */
+}
+
+.winamp-controls-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.winamp-top-row {
   display: flex;
   justify-content: space-between;
-  gap: 5px;
+  align-items: center;
 }
 
-.spotify-btn {
-  flex-grow: 1;
-  padding: 4px;
-  background: var(--mac-platinum);
-  border: 2px outset #fff;
-  border-bottom-color: #888;
-  border-right-color: #888;
+.winamp-toggles {
+  display: flex;
+  gap: 2px;
+}
+
+.winamp-format {
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  text-align: right;
+}
+
+.winamp-playback-row {
+  display: flex;
+  gap: 2px;
+}
+
+.winamp-btn {
+  background: #c0c0c0;
+  border: 2px outset #efefef;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 4px;
   cursor: pointer;
-  font-family: 'VT323', monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.spotify-btn:active {
-  border: 2px inset #fff;
-  border-top-color: #888;
-  border-left-color: #888;
-  padding-top: 5px;
-  padding-left: 5px;
-  padding-bottom: 3px;
-  padding-right: 3px;
+.winamp-btn:active {
+  border: 2px inset #efefef;
+  padding: 3px 3px 1px 5px;
+}
+
+.winamp-play {
+  flex-grow: 1;
+}
+
+.winamp-info-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.winamp-info-field {
+  background: #fff;
+  border: 2px inset #efefef;
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  padding: 2px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.winamp-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+}
+
+.winamp-slider {
+  flex-grow: 1;
+  height: 10px;
 }
 
 .mac-zoom-btn {

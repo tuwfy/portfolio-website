@@ -7,7 +7,7 @@ import MusicBar from './components/MusicBar';
 import AboutWindow from './components/AboutWindow';
 import HelpWindow from './components/HelpWindow';
 import SpotifyApp from './components/SpotifyApp';
-import { MuteContext } from './MuteContext';
+import { AudioProvider } from './AudioProvider';
 
 // Pre-load audio for zero-latency clicks on mobile and desktop
 const clickDownAudio = typeof window !== 'undefined' ? new window.Audio('/click-down.mp3') : null;
@@ -18,18 +18,17 @@ function App() {
   const [windows, setWindows] = useState([]);
   const [activeWindow, setActiveWindow] = useState(null);
   const [selectedIcon, setSelectedIcon] = useState(null);
-  const [isMuted, setIsMuted] = useState(false);
 
   // Play realistic mechanical clicks with zero latency
   useEffect(() => {
     const playDown = () => {
-      if (isMuted || !clickDownAudio) return;
+      if (!clickDownAudio) return;
       clickDownAudio.currentTime = 0;
       clickDownAudio.volume = 0.5;
       clickDownAudio.play().catch(() => {});
     };
     const playUp = () => {
-      if (isMuted || !clickUpAudio) return;
+      if (!clickUpAudio) return;
       clickUpAudio.currentTime = 0;
       clickUpAudio.volume = 0.5;
       clickUpAudio.play().catch(() => {});
@@ -47,7 +46,7 @@ function App() {
       window.removeEventListener('mouseup', playUp);
       window.removeEventListener('touchend', playUp);
     }
-  }, [booted, isMuted]);
+  }, [booted]);
 
   const openWindow = (id, title, content, isCentered = false) => {
     if (!windows.find(w => w.id === id)) {
@@ -106,7 +105,7 @@ function App() {
   };
 
   return (
-    <MuteContext.Provider value={isMuted}>
+    <AudioProvider>
       <MenuBar onOpenHelp={() => openWindow('help', 'Wiz Tree', <HelpWindow />, true)} />
       <div className="desktop-area" onClick={() => setSelectedIcon(null)}>
         
@@ -208,19 +207,9 @@ function App() {
           ))}
         </div>
 
-        <div className="control-strip">
-          <div className="control-strip-handle"></div>
-          <button 
-            onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
-            className="control-strip-btn"
-            title="Toggle Mute"
-          >
-            {isMuted ? '🔇' : '🔉'}
-          </button>
-          <MusicBar isMuted={isMuted} />
-        </div>
+        <MusicBar />
       </div>
-    </MuteContext.Provider>
+    </AudioProvider>
   );
 }
 
