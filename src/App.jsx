@@ -7,6 +7,8 @@ import MusicBar from './components/MusicBar';
 import AboutWindow from './components/AboutWindow';
 import HelpWindow from './components/HelpWindow';
 import SpotifyApp from './components/SpotifyApp';
+import WorkApp from './components/WorkApp';
+import CVApp from './components/CVApp';
 import { AudioProvider } from './AudioProvider';
 
 // Pre-load audio for zero-latency clicks on mobile and desktop
@@ -59,8 +61,8 @@ function App() {
     setBooted(true);
     setTimeout(() => {
       openWindow(
-        'about-system', 
-        'About This Computer', 
+        'about-system',
+        'About This Computer',
         <AboutWindow />,
         true
       );
@@ -96,6 +98,7 @@ function App() {
   }
 
   const screenW = typeof window !== 'undefined' ? window.innerWidth : 1000;
+  const screenH = typeof window !== 'undefined' ? window.innerHeight : 600;
   const isMobile = screenW <= 768;
   const rightX = isMobile ? screenW - 90 : screenW - 120;
   const leftX = isMobile ? 10 : 20;
@@ -104,16 +107,19 @@ function App() {
     if (isMobile) {
       return { x: screenW * 0.025, y: 50 + index * 20 };
     }
-    return win.isCentered ? { x: screenW/2 - 250, y: 100 } : { x: 100 + index * 40, y: 100 + index * 40 };
+    if (win.isCentered) {
+      return { x: screenW / 2 - 250, y: (screenH / 2 - 350) };
+    }
+    return { x: 100 + index * 40, y: 100 + index * 40 };
   };
 
   return (
     <AudioProvider>
       <MenuBar onOpenHelp={() => openWindow('help', 'Wiz Tree', <HelpWindow />, true)} />
       <div className="desktop-area" onClick={() => setSelectedIcon(null)}>
-        
-        <DesktopIcon 
-          label="Macintosh HD" 
+
+        <DesktopIcon
+          label="Macintosh HD"
           icon="💾"
           selected={selectedIcon === 'hd'}
           onClick={() => setSelectedIcon('hd')}
@@ -121,14 +127,14 @@ function App() {
           defaultPosition={{ x: rightX, y: 20 }}
         />
 
-        <DesktopIcon 
-          label="About Me" 
+        <DesktopIcon
+          label="About Me"
           icon="👤"
           selected={selectedIcon === 'about'}
           onClick={() => setSelectedIcon('about')}
           onDoubleClick={() => openWindow(
-            'about', 
-            'About Me', 
+            'about',
+            'About Me',
             <div className="mac-content-inner">
               <p>Welcome to my classic space.</p>
               <p>I am a creative. I stand to Normalize Niche.</p>
@@ -137,56 +143,62 @@ function App() {
           )}
           defaultPosition={{ x: rightX, y: 100 }}
         />
-        <DesktopIcon 
-          label="Work" 
+        <DesktopIcon
+          label="Work"
           icon="📂"
           selected={selectedIcon === 'work'}
           onClick={() => setSelectedIcon('work')}
           onDoubleClick={() => openWindow(
-            'work', 
-            'Work', 
-            <div className="mac-content-inner">
-              <ul>
-                <li>Turning my penny stocks into vintage Carhartt jackets.</li>
-                <li>Treating my closet of vintage tees like a diversified investment portfolio.</li>
-                <li>Living life on my own terms (and wearing 90s denim).</li>
-              </ul>
-            </div>
+            'work',
+            'Work',
+            <WorkApp />
           )}
-          defaultPosition={{ x: rightX, y: 180 }}
+          defaultPosition={{ x: rightX, y: 160 }}
         />
-        <DesktopIcon 
-          label="LinkedIn" 
+        <DesktopIcon
+          label="CV"
+          icon="📄"
+          selected={selectedIcon === 'cv'}
+          onClick={() => setSelectedIcon('cv')}
+          onDoubleClick={() => openWindow(
+            'cv',
+            'CV',
+            <CVApp />
+          )}
+          defaultPosition={{ x: rightX, y: 240 }}
+        />
+        <DesktopIcon
+          label="LinkedIn"
           icon="🔗"
           selected={selectedIcon === 'linkedin'}
           onClick={() => setSelectedIcon('linkedin')}
           onDoubleClick={openLinkedIn}
-          defaultPosition={{ x: rightX, y: 260 }}
+          defaultPosition={{ x: rightX, y: 320 }}
         />
-        <DesktopIcon 
-          label="Contact" 
+        <DesktopIcon
+          label="Contact"
           icon="✉️"
           selected={selectedIcon === 'contact'}
           onClick={() => setSelectedIcon('contact')}
-          onDoubleClick={() => openWindow('contact', 'Contact', 
+          onDoubleClick={() => openWindow('contact', 'Contact',
             <div className="mac-content-inner">
               <p>Email: tyler.riccardi7@gmail.com</p>
             </div>
           )}
-          defaultPosition={{ x: rightX, y: 340 }}
+          defaultPosition={{ x: rightX, y: 400 }}
         />
-        
-        <DesktopIcon 
-          label="readme.txt" 
+
+        <DesktopIcon
+          label="readme.txt"
           icon="📝"
           selected={selectedIcon === 'readme'}
           onClick={() => setSelectedIcon('readme')}
           onDoubleClick={downloadResume}
           defaultPosition={{ x: leftX, y: 20 }}
         />
-        
-        <DesktopIcon 
-          label="spotify.exe" 
+
+        <DesktopIcon
+          label="spotify.exe"
           icon="🎵"
           selected={selectedIcon === 'spotify'}
           onClick={() => setSelectedIcon('spotify')}
@@ -196,8 +208,8 @@ function App() {
 
         <div className="window-container">
           {windows.map((win, index) => (
-            <Window 
-              key={win.id} 
+            <Window
+              key={win.id}
               id={win.id}
               title={win.title}
               zIndex={activeWindow === win.id ? 1000 : 100 + index}

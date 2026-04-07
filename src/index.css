@@ -393,6 +393,14 @@ html, body, #root {
   min-height: calc(100% - 4px);
 }
 
+/* WorkApp canvas - remove border and padding */
+.mac-content-inner[data-component='work'] {
+  background: #000;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
 /* About Window Specifics */
 .about-header {
   display: flex;
@@ -544,6 +552,12 @@ html, body, #root {
 ::-webkit-scrollbar-button {
   background: var(--mac-platinum);
   border: 1px solid #000;
+  display: block;
+}
+
+/* WorkApp Canvas Styling */
+canvas {
+  background: #000;
   display: block;
 }
 

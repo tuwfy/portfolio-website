@@ -6,7 +6,6 @@ const AboutWindow = () => {
       <div className="about-header">
         <div className="about-logo-container">
           <svg width="80" height="80" viewBox="0 0 100 100">
-             {/* Square blue face logo with line in middle */}
              <rect x="10" y="10" width="80" height="80" fill="#4A90E2" stroke="black" strokeWidth="2" />
              <path d="M50 10 L50 90" stroke="black" strokeWidth="2" />
              <circle cx="35" cy="40" r="4" fill="black" />
@@ -24,6 +23,13 @@ const AboutWindow = () => {
         </div>
       </div>
       <div className="about-details" style={{ padding: '15px' }}>
+              <div style={{ padding: '10px 0', borderBottom: '1px solid #666', marginBottom: '10px' }}>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  <li style={{ marginBottom: '5px' }}>Turning my penny stocks into vintage Carhartt jackets.</li>
+                  <li style={{ marginBottom: '5px' }}>Treating my closet of vintage tees like a diversified investment portfolio.</li>
+                  <li>Living life on my own terms (and wearing 90s denim).</li>
+                </ul>
+              </div>
         <div className="memory-row">
           <div className="memory-icon" style={{ backgroundColor: '#fff', border: '1px solid #000', fontSize: '0.8rem', fontWeight: 'bold' }}>IE</div>
           <div className="memory-label" style={{ fontSize: '1rem' }}>Internet Explorer</div>
