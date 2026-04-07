@@ -148,8 +148,9 @@ html, body, #root {
 /* Winamp Retro Player Specifics */
 .winamp-player {
   width: 280px;
-  background: #c0c0c0;
-  border: 2px outset #dfdfdf;
+  background: var(--mac-platinum);
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 #fff inset;
   padding: 4px 8px;
   display: flex;
   flex-direction: column;
@@ -186,9 +187,10 @@ html, body, #root {
 .winamp-visualizer {
   width: 80px;
   height: 80px;
-  border: 2px inset #fff;
+  border: 1px solid #000;
   background: #9fae48; /* Fallback color */
   transition: background-color 0.3s ease;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5);
 }
 
 .winamp-controls-wrapper {
@@ -212,23 +214,45 @@ html, body, #root {
 .winamp-volume-container {
   display: flex;
   align-items: center;
-  background: #fff;
-  border: 1px inset #888;
-  padding: 0 4px;
-  height: 14px;
+  gap: 2px;
+  flex-grow: 1;
+  padding: 0 2px;
+}
+
+.winamp-volume-icon {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
 }
 
 .winamp-volume-slider {
-  width: 40px;
+  flex-grow: 1;
   height: 2px;
+  background: #666;
+  appearance: none;
   cursor: pointer;
-  accent-color: #000;
+  outline: none;
+  border-radius: 1px;
 }
 
-.winamp-format {
-  font-family: Arial, sans-serif;
-  font-size: 10px;
-  text-align: right;
+.winamp-volume-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--mac-platinum);
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 #fff inset;
+  cursor: pointer;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.3) 2px,
+    rgba(0,0,0,0.3) 3px
+  );
 }
 
 .winamp-playback-row {
@@ -236,25 +260,28 @@ html, body, #root {
   gap: 2px;
 }
 
-.winamp-btn {
-  background: #c0c0c0;
-  border: 2px outset #efefef;
-  font-size: 10px;
-  font-weight: bold;
+.retro-mac-btn {
+  background: var(--mac-platinum);
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 #fff inset, 1px 1px 0 rgba(0,0,0,0.2);
+  font-family: 'VT323', monospace;
+  font-size: 11px;
   padding: 2px 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  color: #000;
+  text-decoration: none;
 }
 
-.winamp-btn:active {
-  border: 2px inset #efefef;
-  padding: 3px 3px 1px 5px;
-}
-
-.winamp-play {
-  flex-grow: 1;
+.retro-mac-btn:active {
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.4);
+  background: #bbb;
+  padding-top: 3px;
+  padding-left: 5px;
 }
 
 .winamp-info-blocks {
@@ -265,28 +292,76 @@ html, body, #root {
 
 .winamp-info-field {
   background: #fff;
-  border: 2px inset #efefef;
+  border: 1px solid #000;
   font-family: Arial, sans-serif;
   font-size: 10px;
   padding: 2px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
 }
 
 .winamp-bottom-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 4px;
+  margin-top: 4px;
   font-family: Arial, sans-serif;
   font-size: 10px;
 }
 
 .winamp-slider {
   flex-grow: 1;
-  height: 10px;
+  height: 4px;
+  background: #666;
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+  border-radius: 2px;
+}
+
+.winamp-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 8px;
+  height: 14px;
+  background: var(--mac-platinum);
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 #fff inset;
+}
+
+/* Resize Handle Style */
+.mac-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+  z-index: 10;
+  padding: 4px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.mac-resize-handle::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background-image: linear-gradient(
+    135deg,
+    transparent 50%,
+    var(--mac-border-dark) 50%,
+    var(--mac-border-dark) 60%,
+    transparent 60%,
+    transparent 70%,
+    var(--mac-border-dark) 70%,
+    var(--mac-border-dark) 80%,
+    transparent 80%
+  );
+  background-size: 4px 4px;
 }
 
 .mac-zoom-btn {

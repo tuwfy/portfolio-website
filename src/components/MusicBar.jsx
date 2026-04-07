@@ -14,8 +14,13 @@ const MusicBar = () => {
       >
         {isMuted ? '🔇' : '🔉'}
       </button>
-      <button onClick={togglePlay} className="control-strip-btn" title="Play/Pause">
-        {isPlaying ? '⏸' : '▶'}
+      <button 
+        onClick={(e) => { e.stopPropagation(); togglePlay(); }} 
+        className="control-strip-btn" 
+        title="Play/Pause"
+        style={{ width: '40px', fontSize: '10px', fontWeight: 'bold' }}
+      >
+        {isPlaying ? 'PAUSE' : 'PLAY'}
       </button>
       <div className="control-strip-module">
         <span style={{ fontFamily: 'Arial, sans-serif', fontSize: '10px', overflow: 'hidden', maxWidth: '80px', textOverflow: 'ellipsis' }}>

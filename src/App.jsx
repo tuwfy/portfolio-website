@@ -68,7 +68,10 @@ function App() {
   };
 
   const closeWindow = (id) => {
-    setWindows(windows.filter(w => w.id !== id));
+    setWindows(prev => prev.filter(w => w.id !== id));
+    if (activeWindow === id) {
+      setActiveWindow(null);
+    }
   };
 
   const focusWindow = (id) => {
