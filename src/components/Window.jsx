@@ -1,38 +1,62 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Draggable from 'react-draggable';
 
-const Window = ({ id, title, children, onClose, defaultPosition, zIndex, onClick, isCentered = false }) => {
+const CHROME_WIDTH = 8;
+const CHROME_HEIGHT = 32;
+const VIEWPORT_PADDING = 20;
+const MIN_WIDTH = 240;
+const MIN_HEIGHT = 150;
+
+const Window = ({ title, children, onClose, zIndex, onClick }) => {
   const nodeRef = useRef(null);
   const isResizing = useRef(false);
   const contentRef = useRef(null);
+  const [size, setSize] = useState({ width: 420, height: 280 });
+  const [position, setPosition] = useState({ x: 100, y: 80 });
 
-  // Calculate content size on mount and when content changes
-  useEffect(() => {
-    const measureContent = () => {
-      if (contentRef.current) {
-        const content = contentRef.current;
-        const scrollWidth = content.scrollWidth;
-        const scrollHeight = content.scrollHeight;
-
-        const chromeHeight = 35;
-        const chromeWidth = 35;
-
-        const desiredWidth = Math.max(450, scrollWidth + chromeWidth);
-        const desiredHeight = Math.max(400, scrollHeight + chromeHeight);
-
-        return { width: desiredWidth, height: desiredHeight };
-      }
-      return { width: 450, height: 400 };
+  const getViewportLimits = () => {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight - 28; // account for menu bar
+    return {
+      maxWidth: Math.max(MIN_WIDTH, viewportWidth - VIEWPORT_PADDING * 2),
+      maxHeight: Math.max(MIN_HEIGHT, viewportHeight - VIEWPORT_PADDING * 2)
     };
+  };
 
-    const timeoutId = setTimeout(() => {
-      setSize(measureContent());
-    }, 50);
+  const getCenteredPosition = (targetSize) => {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight - 28;
+    return {
+      x: Math.max(VIEWPORT_PADDING, Math.floor((viewportWidth - targetSize.width) / 2)),
+      y: Math.max(VIEWPORT_PADDING, Math.floor((viewportHeight - targetSize.height) / 2))
+    };
+  };
 
-    return () => clearTimeout(timeoutId);
+  const measureAndFit = () => {
+    if (!contentRef.current) return;
+    const { maxWidth, maxHeight } = getViewportLimits();
+    const measuredWidth = contentRef.current.scrollWidth + CHROME_WIDTH;
+    const measuredHeight = contentRef.current.scrollHeight + CHROME_HEIGHT;
+    const fittedSize = {
+      width: Math.min(maxWidth, Math.max(MIN_WIDTH, measuredWidth)),
+      height: Math.min(maxHeight, Math.max(MIN_HEIGHT, measuredHeight))
+    };
+    setSize(fittedSize);
+    setPosition(getCenteredPosition(fittedSize));
+  };
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(measureAndFit);
+    return () => cancelAnimationFrame(raf);
   }, [children]);
 
-  const [size, setSize] = useState(() => measureContent());
+  useEffect(() => {
+    const handleViewportResize = () => {
+      measureAndFit();
+    };
+    window.addEventListener('resize', handleViewportResize);
+    return () => window.removeEventListener('resize', handleViewportResize);
+  }, []);
 
   const handleResizeStart = (e) => {
     e.stopPropagation();
@@ -50,8 +74,9 @@ const Window = ({ id, title, children, onClose, defaultPosition, zIndex, onClick
       const currentX = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientX : moveEvent.clientX;
       const currentY = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientY : moveEvent.clientY;
 
-      const newWidth = Math.max(200, startWidth + (currentX - startX));
-      const newHeight = Math.max(150, startHeight + (currentY - startY));
+      const { maxWidth, maxHeight } = getViewportLimits();
+      const newWidth = Math.min(maxWidth, Math.max(MIN_WIDTH, startWidth + (currentX - startX)));
+      const newHeight = Math.min(maxHeight, Math.max(MIN_HEIGHT, startHeight + (currentY - startY)));
 
       setSize({ width: newWidth, height: newHeight });
     };
@@ -73,7 +98,10 @@ const Window = ({ id, title, children, onClose, defaultPosition, zIndex, onClick
   return (
     <Draggable
       nodeRef={nodeRef}
-      defaultPosition={defaultPosition}
+      position={position}
+      onDrag={(_, data) => {
+        setPosition({ x: data.x, y: data.y });
+      }}
       onMouseDown={onClick}
       handle=".mac-titlebar"
       cancel=".mac-close-btn, .mac-content, .mac-resize-handle"

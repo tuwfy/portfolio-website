@@ -98,20 +98,9 @@ function App() {
   }
 
   const screenW = typeof window !== 'undefined' ? window.innerWidth : 1000;
-  const screenH = typeof window !== 'undefined' ? window.innerHeight : 600;
   const isMobile = screenW <= 768;
   const rightX = isMobile ? screenW - 90 : screenW - 120;
   const leftX = isMobile ? 10 : 20;
-
-  const getWindowPosition = (win, index) => {
-    if (isMobile) {
-      return { x: screenW * 0.025, y: 50 + index * 20 };
-    }
-    if (win.isCentered) {
-      return { x: screenW / 2 - 250, y: (screenH / 2 - 350) };
-    }
-    return { x: 100 + index * 40, y: 100 + index * 40 };
-  };
 
   return (
     <AudioProvider>
@@ -139,6 +128,12 @@ function App() {
               <p>Welcome to my classic space.</p>
               <p>I am a creative. I stand to Normalize Niche.</p>
               <p>Doing passions because I want to.</p>
+              <hr style={{ border: 0, borderTop: '1px solid #8b8b8b', margin: '14px 0 10px' }} />
+              <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                <li>Turning my penny stocks into vintage Carhartt jackets.</li>
+                <li>Treating my closet of vintage tees like a diversified investment portfolio.</li>
+                <li>Living life on my own terms (and wearing 90s denim).</li>
+              </ul>
             </div>
           )}
           defaultPosition={{ x: rightX, y: 100 }}
@@ -215,7 +210,6 @@ function App() {
               zIndex={activeWindow === win.id ? 1000 : 100 + index}
               onClick={() => focusWindow(win.id)}
               onClose={() => closeWindow(win.id)}
-              defaultPosition={getWindowPosition(win, index)}
             >
               {win.content}
             </Window>

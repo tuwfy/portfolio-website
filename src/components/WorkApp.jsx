@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 const WorkApp = () => {
   const canvasRef = useRef(null);
@@ -108,10 +108,15 @@ const WorkApp = () => {
     };
 
     // Event listeners
-    const handleMouseMove = (e) => {
-      mouseRef.current.x = e.clientX;
-      mouseRef.current.y = e.clientY;
+    const updateMousePosition = (clientX, clientY) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current.x = clientX - rect.left;
+      mouseRef.current.y = clientY - rect.top;
       mouseRef.current.active = true;
+    };
+
+    const handleMouseMove = (e) => {
+      updateMousePosition(e.clientX, e.clientY);
     };
 
     const handleMouseLeave = () => {
@@ -120,9 +125,7 @@ const WorkApp = () => {
 
     const handleTouchMove = (e) => {
       if (e.touches.length > 0) {
-        mouseRef.current.x = e.touches[0].clientX;
-        mouseRef.current.y = e.touches[0].clientY;
-        mouseRef.current.active = true;
+        updateMousePosition(e.touches[0].clientX, e.touches[0].clientY);
       }
     };
 
@@ -155,7 +158,7 @@ const WorkApp = () => {
   }, []);
 
   return (
-    <div className="mac-content-inner" data-component="work" style={{ margin: 0, padding: 0 }}>
+    <div className="mac-content-inner" data-component="work" style={{ margin: 0, padding: 0, width: '100%', height: '100%' }}>
       <canvas
         ref={canvasRef}
         style={{
