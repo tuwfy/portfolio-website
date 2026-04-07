@@ -161,6 +161,17 @@ html, body, #root {
   font-family: Arial, sans-serif;
   font-size: 11px;
   margin-bottom: 4px;
+  user-select: none;
+}
+
+.winamp-menu-item {
+  padding: 0 6px;
+  cursor: pointer;
+}
+
+.winamp-menu-item:hover {
+  background: #000;
+  color: #fff;
 }
 
 .winamp-menu .ul {
@@ -176,7 +187,8 @@ html, body, #root {
   width: 80px;
   height: 80px;
   border: 2px inset #fff;
-  background: #9fae48; /* Classic beige-green */
+  background: #9fae48; /* Fallback color */
+  transition: background-color 0.3s ease;
 }
 
 .winamp-controls-wrapper {
@@ -195,6 +207,22 @@ html, body, #root {
 .winamp-toggles {
   display: flex;
   gap: 2px;
+}
+
+.winamp-volume-container {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px inset #888;
+  padding: 0 4px;
+  height: 14px;
+}
+
+.winamp-volume-slider {
+  width: 40px;
+  height: 2px;
+  cursor: pointer;
+  accent-color: #000;
 }
 
 .winamp-format {

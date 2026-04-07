@@ -4,25 +4,32 @@ export const AudioContext = createContext();
 
 export const AudioProvider = ({ children }) => {
   const tracks = [
-    { name: 'Avril 14th', src: '/Aphex Twin - Avril 14th.mp3' },
-    { name: 'Mac Miller', src: '/Mac Miller - Objects in the Mirror (SPOTISAVER).mp3' },
-    { name: 'niche.mp3', src: '/niche.mp3' }
+    { name: 'Avril 14th', src: '/Aphex Twin - Avril 14th.mp3', color: '#ffd1dc' },
+    { name: 'Show Me', src: '/show me.mp3', color: '#fff9ae' },
+    { name: 'Objects in the Mirror', src: '/Mac Miller - Objects in the Mirror (SPOTISAVER).mp3', color: '#a2cffe' }
   ];
 
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(0.8);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const audioRef = useRef(typeof window !== 'undefined' ? new window.Audio() : null);
+  const audioRef = useRef(null);
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      audioRef.current = new window.Audio();
+      audioRef.current.preload = 'auto';
+    }
+
     const audio = audioRef.current;
     if (!audio) return;
 
     audio.src = tracks[currentTrackIndex].src;
-    
+    audio.volume = isMuted ? 0 : volume;
+
     const setAudioData = () => setDuration(audio.duration);
     const setAudioTime = () => setCurrentTime(audio.currentTime);
     const handleEnded = () => nextTrack();
@@ -35,6 +42,7 @@ export const AudioProvider = ({ children }) => {
       audio.removeEventListener('loadedmetadata', setAudioData);
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleEnded);
+      audio.pause();
     };
   }, []);
 
@@ -42,29 +50,32 @@ export const AudioProvider = ({ children }) => {
     const audio = audioRef.current;
     if (!audio) return;
     
-    // Change src only if it differs, so we don't restart current track unnecessarily
-    if (!audio.src.endsWith(encodeURI(tracks[currentTrackIndex].src))) {
-      audio.src = tracks[currentTrackIndex].src;
+    const currentSrc = tracks[currentTrackIndex].src;
+    if (!audio.src.endsWith(encodeURI(currentSrc))) {
+      audio.pause();
+      audio.src = currentSrc;
       audio.load();
       if (isPlaying) {
-        audio.play().catch(e => console.log(e));
+        audio.play().catch(e => console.log("Playback error:", e));
       }
     }
-  }, [currentTrackIndex, isPlaying]);
+  }, [currentTrackIndex]);
 
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.muted = isMuted;
+      audioRef.current.volume = isMuted ? 0 : volume;
     }
-  }, [isMuted]);
+  }, [isMuted, volume]);
 
   useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.play().catch(e => console.log(e));
-      } else {
-        audioRef.current.pause();
-      }
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.play().catch(e => console.log("Playback error:", e));
+    } else {
+      audio.pause();
     }
   }, [isPlaying]);
 
@@ -93,12 +104,15 @@ export const AudioProvider = ({ children }) => {
   return (
     <AudioContext.Provider value={{
       currentTrack,
+      currentTrackIndex,
       isPlaying,
       isMuted,
+      volume,
       currentTime,
       duration,
       togglePlay,
       toggleMute,
+      setVolume,
       nextTrack,
       prevTrack,
       seek

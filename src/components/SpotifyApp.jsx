@@ -10,7 +10,9 @@ const SpotifyApp = () => {
     togglePlay, 
     nextTrack, 
     prevTrack, 
-    seek 
+    seek,
+    volume,
+    setVolume
   } = useContext(AudioContext);
 
   const formatTime = (seconds) => {
@@ -27,14 +29,14 @@ const SpotifyApp = () => {
   return (
     <div className="winamp-player">
       <div className="winamp-menu">
-        <span><span className="ul">D</span>isc</span>
-        <span><span className="ul">V</span>iew</span>
-        <span><span className="ul">O</span>ptions</span>
-        <span><span className="ul">H</span>elp</span>
+        <span className="winamp-menu-item"><span className="ul">D</span>isc</span>
+        <span className="winamp-menu-item"><span className="ul">V</span>iew</span>
+        <span className="winamp-menu-item"><span className="ul">O</span>ptions</span>
+        <span className="winamp-menu-item"><span className="ul">H</span>elp</span>
       </div>
       
       <div className="winamp-main">
-        <div className="winamp-visualizer"></div>
+        <div className="winamp-visualizer" style={{ backgroundColor: currentTrack?.color || '#9fae48' }}></div>
         
         <div className="winamp-controls-wrapper">
           <div className="winamp-top-row">
@@ -42,16 +44,26 @@ const SpotifyApp = () => {
               <button className="winamp-btn" title="Shuffle">🔀</button>
               <button className="winamp-btn" title="Repeat">🔁</button>
             </div>
+            <div className="winamp-volume-container">
+              <span style={{ fontSize: '9px', marginRight: '4px' }}>VOL</span>
+              <input 
+                type="range" 
+                min="0" 
+                max="1" 
+                step="0.05"
+                value={volume}
+                onChange={(e) => setVolume(parseFloat(e.target.value))}
+                className="winamp-volume-slider"
+              />
+            </div>
             <div className="winamp-format">MP3 | 48 khz</div>
           </div>
           
           <div className="winamp-playback-row">
             <button className="winamp-btn winamp-nav" onClick={prevTrack} title="Previous Track">|&lt;&lt;</button>
-            <button className="winamp-btn winamp-nav" onClick={() => seek(Math.max(0, currentTime - 5))} title="Rewind">&lt;&lt;</button>
             <button className="winamp-btn winamp-play" onClick={togglePlay} title="Play/Pause">
               {isPlaying ? '⏸' : '▶'}
             </button>
-            <button className="winamp-btn winamp-nav" onClick={() => seek(Math.min(duration, currentTime + 5))} title="Fast Forward">&gt;&gt;</button>
             <button className="winamp-btn winamp-nav" onClick={nextTrack} title="Next Track">&gt;&gt;|</button>
           </div>
           
