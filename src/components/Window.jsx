@@ -13,8 +13,12 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
   const isResizing = useRef(false);
   const contentRef = useRef(null);
   const hasUserMovedRef = useRef(false);
+  /** When true, content measurement must not override the user's chosen window size. */
+  const userManuallySizedRef = useRef(false);
+  const sizeRef = useRef({ width: 420, height: 280 });
   const [size, setSize] = useState({ width: 420, height: 280 });
   const [position, setPosition] = useState({ x: 100, y: 80 });
+  sizeRef.current = size;
 
   const getViewportLimits = () => {
     const viewportWidth = window.innerWidth;
@@ -35,6 +39,7 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
   };
 
   const measureAndFit = () => {
+    if (userManuallySizedRef.current) return;
     if (!contentRef.current) return;
     const contentRoot = contentRef.current.firstElementChild || contentRef.current;
     const { maxWidth, maxHeight } = getViewportLimits();
@@ -52,6 +57,7 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
 
   useEffect(() => {
     hasUserMovedRef.current = false;
+    userManuallySizedRef.current = false;
     const raf1 = requestAnimationFrame(measureAndFit);
     const raf2 = requestAnimationFrame(measureAndFit);
     const delayed = setTimeout(measureAndFit, 120);
@@ -64,24 +70,27 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
 
   useEffect(() => {
     const handleViewportResize = () => {
-      measureAndFit();
-    };
-
-    let observer = null;
-    if (contentRef.current && typeof ResizeObserver !== 'undefined') {
-      observer = new ResizeObserver(() => {
+      if (userManuallySizedRef.current) {
+        const { maxWidth, maxHeight } = getViewportLimits();
+        const w = Math.min(Math.max(MIN_WIDTH, sizeRef.current.width), maxWidth);
+        const h = Math.min(Math.max(MIN_HEIGHT, sizeRef.current.height), maxHeight);
+        setSize({ width: w, height: h });
+        setPosition((pos) => {
+          const vw = window.innerWidth;
+          const vh = window.innerHeight - 28;
+          return {
+            x: Math.max(VIEWPORT_PADDING, Math.min(pos.x, vw - w - VIEWPORT_PADDING)),
+            y: Math.max(VIEWPORT_PADDING, Math.min(pos.y, vh - h - VIEWPORT_PADDING)),
+          };
+        });
+      } else {
         measureAndFit();
-      });
-      observer.observe(contentRef.current);
-      if (contentRef.current.firstElementChild) {
-        observer.observe(contentRef.current.firstElementChild);
       }
-    }
+    };
 
     window.addEventListener('resize', handleViewportResize);
     return () => {
       window.removeEventListener('resize', handleViewportResize);
-      if (observer) observer.disconnect();
     };
   }, [children]);
 
@@ -110,6 +119,7 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
 
     const onEnd = () => {
       isResizing.current = false;
+      userManuallySizedRef.current = true;
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onEnd);
       window.removeEventListener('touchmove', onMove);
