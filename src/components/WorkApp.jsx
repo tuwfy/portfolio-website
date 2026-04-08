@@ -2,15 +2,55 @@ import React, { useRef, useEffect } from 'react';
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const lerp = (a, b, t) => a + (b - a) * t;
+const smoothstep = (t) => t * t * (3 - 2 * t);
+const fract = (x) => x - Math.floor(x);
+const hash2 = (x, y) => {
+  const h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
+  return fract(h);
+};
+const valueNoise2D = (x, y) => {
+  const x0 = Math.floor(x);
+  const y0 = Math.floor(y);
+  const x1 = x0 + 1;
+  const y1 = y0 + 1;
+  const sx = smoothstep(x - x0);
+  const sy = smoothstep(y - y0);
+  const n00 = hash2(x0, y0);
+  const n10 = hash2(x1, y0);
+  const n01 = hash2(x0, y1);
+  const n11 = hash2(x1, y1);
+  const ix0 = lerp(n00, n10, sx);
+  const ix1 = lerp(n01, n11, sx);
+  return lerp(ix0, ix1, sy);
+};
+const fbm2D = (x, y, octaves = 5) => {
+  let amp = 0.55;
+  let freq = 1;
+  let sum = 0;
+  let norm = 0;
+  for (let i = 0; i < octaves; i += 1) {
+    sum += amp * valueNoise2D(x * freq, y * freq);
+    norm += amp;
+    amp *= 0.52;
+    freq *= 2.03;
+  }
+  return sum / Math.max(1e-6, norm);
+};
 
 const CreativeCanvas = ({ mode }) => {
   const canvasRef = useRef(null);
   const requestRef = useRef(0);
   const entitiesRef = useRef([]);
-  const extraRef = useRef([]);
   const mouseRef = useRef({ x: -1000, y: -1000, active: false });
   const metricsRef = useRef({ width: 0, height: 0, dpr: 1, mobile: false });
   const lastTimeRef = useRef(0);
+  const cachesRef = useRef({
+    grassSky: null,
+    starsSky: null,
+    waterSky: null,
+    w: 0,
+    h: 0,
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -18,61 +58,48 @@ const CreativeCanvas = ({ mode }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const randRange = (a, b) => a + Math.random() * (b - a);
+    const buildStars = (count) => Array.from({ length: count }, () => {
+      const z = Math.random();
+      const temp = randRange(0, 1);
+      // warmer stars less common
+      const hue = temp < 0.18 ? randRange(28, 52) : randRange(200, 240);
+      return {
+        x: Math.random(),
+        y: Math.random(),
+        z,
+        hue,
+        tw: randRange(0, Math.PI * 2),
+        // intrinsic magnitude
+        mag: Math.pow(1 - z, 2.2) * randRange(0.4, 1.0)
+      };
+    });
+    const buildGrassBlades = (count) => Array.from({ length: count }, () => ({
+      x: Math.random(),
+      // normalized depth: 0 far, 1 near
+      d: Math.pow(Math.random(), 1.8),
+      seed: Math.random() * 1000,
+      twist: randRange(0, Math.PI * 2),
+      tint: randRange(92, 135),
+    }));
+    const buildWaterSamples = (count) => Array.from({ length: count }, (_, i) => ({
+      y: i / Math.max(1, count - 1),
+      seed: Math.random() * 1000
+    }));
+
     const populateScene = (width, height, mobile) => {
+      cachesRef.current.w = width;
+      cachesRef.current.h = height;
+      cachesRef.current.grassSky = null;
+      cachesRef.current.starsSky = null;
+      cachesRef.current.waterSky = null;
+
       if (mode === 'stars') {
-        const count = mobile ? 130 : 260;
-        const hazeCount = mobile ? 2 : 3;
-        entitiesRef.current = Array.from({ length: count }, () => ({
-          x: Math.random(),
-          y: Math.random(),
-          z: Math.random(),
-          twinkle: Math.random() * Math.PI * 2,
-          hue: 210 + Math.random() * 40
-        }));
-        extraRef.current = Array.from({ length: hazeCount }, (_, i) => ({
-          x: (i + 1) / (hazeCount + 1),
-          y: 0.24 + Math.random() * 0.5,
-          r: (mobile ? 120 : 180) + Math.random() * (mobile ? 90 : 160),
-          alpha: 0.08 + Math.random() * 0.1
-        }));
+        entitiesRef.current = buildStars(mobile ? 650 : 1400);
       } else if (mode === 'grass') {
-        const bladeCount = mobile ? 180 : 340;
-        entitiesRef.current = Array.from({ length: bladeCount }, (_, i) => ({
-          x: i / bladeCount,
-          rootY: 0.66 + Math.random() * 0.33,
-          length: (mobile ? 32 : 44) + Math.random() * (mobile ? 56 : 88),
-          width: 0.8 + Math.random() * 1.5,
-          phase: Math.random() * Math.PI * 2,
-          stiffness: 0.65 + Math.random() * 1.1,
-          tone: 90 + Math.random() * 40
-        }));
-        const fireflyCount = mobile ? 12 : 22;
-        extraRef.current = Array.from({ length: fireflyCount }, () => ({
-          x: Math.random() * width,
-          y: height * (0.12 + Math.random() * 0.45),
-          vx: (Math.random() - 0.5) * 0.15,
-          vy: (Math.random() - 0.5) * 0.09,
-          phase: Math.random() * Math.PI * 2
-        }));
+        entitiesRef.current = buildGrassBlades(mobile ? 520 : 1100);
       } else {
-        const bandCount = mobile ? 34 : 58;
-        entitiesRef.current = Array.from({ length: bandCount }, (_, i) => ({
-          y: i / (bandCount - 1),
-          ampA: 3 + Math.random() * 9,
-          ampB: 2 + Math.random() * 6,
-          freqA: 0.009 + Math.random() * 0.014,
-          freqB: 0.015 + Math.random() * 0.02,
-          phase: Math.random() * Math.PI * 2,
-          speed: 0.35 + Math.random() * 0.65
-        }));
-        const foamCount = mobile ? 70 : 120;
-        extraRef.current = Array.from({ length: foamCount }, () => ({
-          x: Math.random() * width,
-          y: height * (0.25 + Math.random() * 0.65),
-          radius: 0.5 + Math.random() * 2.2,
-          drift: 0.1 + Math.random() * 0.25,
-          phase: Math.random() * Math.PI * 2
-        }));
+        entitiesRef.current = buildWaterSamples(mobile ? 40 : 64);
       }
     };
 
@@ -95,70 +122,117 @@ const CreativeCanvas = ({ mode }) => {
       mouseRef.current.active = true;
     };
 
+    const getCachedBackground = (key, draw) => {
+      const { width, height } = metricsRef.current;
+      const cache = cachesRef.current[key];
+      if (cache && cache.w === width && cache.h === height) return cache.canvas;
+      const off = document.createElement('canvas');
+      off.width = Math.floor(width);
+      off.height = Math.floor(height);
+      const offCtx = off.getContext('2d');
+      if (!offCtx) return null;
+      draw(offCtx, width, height);
+      cachesRef.current[key] = { canvas: off, w: width, h: height };
+      return off;
+    };
+
+    const drawStarsBackground = (time) => {
+      const bg = getCachedBackground('starsSky', (bctx, width, height) => {
+        const g = bctx.createLinearGradient(0, 0, 0, height);
+        g.addColorStop(0, '#02030a');
+        g.addColorStop(1, '#081231');
+        bctx.fillStyle = g;
+        bctx.fillRect(0, 0, width, height);
+
+        // Milky way band via FBM noise + soft rotation
+        const img = bctx.createImageData(width, height);
+        const data = img.data;
+        const cx = width * 0.5;
+        const cy = height * 0.52;
+        const angle = -0.35;
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        const invW = 1 / Math.max(1, width);
+        const invH = 1 / Math.max(1, height);
+        for (let y = 0; y < height; y += 1) {
+          for (let x = 0; x < width; x += 1) {
+            const nx = (x - cx) * invW;
+            const ny = (y - cy) * invH;
+            const rx = nx * cos - ny * sin;
+            const ry = nx * sin + ny * cos;
+            const band = Math.exp(-Math.pow(ry * 2.2, 2));
+            const n = fbm2D(rx * 3.4 + 10, ry * 3.4 + 20, 5);
+            const dust = Math.pow(n, 2.6) * band;
+            const idx = (y * width + x) * 4;
+            const r = 8 + dust * 55;
+            const g = 10 + dust * 34;
+            const b = 20 + dust * 78;
+            data[idx + 0] = r;
+            data[idx + 1] = g;
+            data[idx + 2] = b;
+            data[idx + 3] = Math.floor(clamp(dust * 255 * 0.55, 0, 255));
+          }
+        }
+        bctx.putImageData(img, 0, 0);
+
+        // vignette
+        const vg = bctx.createRadialGradient(width * 0.5, height * 0.55, height * 0.1, width * 0.5, height * 0.55, height * 0.8);
+        vg.addColorStop(0, 'rgba(0,0,0,0)');
+        vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+        bctx.fillStyle = vg;
+        bctx.fillRect(0, 0, width, height);
+      });
+      if (bg) ctx.drawImage(bg, 0, 0);
+    };
+
+    const drawGrassBackground = () => {
+      const bg = getCachedBackground('grassSky', (bctx, width, height) => {
+        const sky = bctx.createLinearGradient(0, 0, 0, height);
+        sky.addColorStop(0, '#cbe4b5');
+        sky.addColorStop(0.4, '#7fb55e');
+        sky.addColorStop(1, '#1c3b20');
+        bctx.fillStyle = sky;
+        bctx.fillRect(0, 0, width, height);
+
+        const haze = bctx.createRadialGradient(width * 0.6, height * 0.22, 40, width * 0.6, height * 0.22, height * 0.55);
+        haze.addColorStop(0, 'rgba(255,255,255,0.22)');
+        haze.addColorStop(1, 'rgba(255,255,255,0)');
+        bctx.fillStyle = haze;
+        bctx.fillRect(0, 0, width, height);
+
+        const hill = bctx.createRadialGradient(width * 0.35, height * 0.9, height * 0.14, width * 0.35, height * 0.9, height * 0.95);
+        hill.addColorStop(0, 'rgba(190, 222, 140, 0.45)');
+        hill.addColorStop(1, 'rgba(26, 63, 24, 0)');
+        bctx.fillStyle = hill;
+        bctx.fillRect(0, 0, width, height);
+      });
+      if (bg) ctx.drawImage(bg, 0, 0);
+    };
+
+    const drawWaterBackground = () => {
+      const bg = getCachedBackground('waterSky', (bctx, width, height) => {
+        // sky reflection gradient
+        const sky = bctx.createLinearGradient(0, 0, 0, height);
+        sky.addColorStop(0, '#a7dbf2');
+        sky.addColorStop(0.35, '#4a98c8');
+        sky.addColorStop(1, '#0e2e4d');
+        bctx.fillStyle = sky;
+        bctx.fillRect(0, 0, width, height);
+
+        const sun = bctx.createRadialGradient(width * 0.72, height * 0.18, 6, width * 0.72, height * 0.18, height * 0.55);
+        sun.addColorStop(0, 'rgba(255,255,255,0.65)');
+        sun.addColorStop(1, 'rgba(255,255,255,0)');
+        bctx.fillStyle = sun;
+        bctx.fillRect(0, 0, width, height);
+      });
+      if (bg) ctx.drawImage(bg, 0, 0);
+    };
+
     const drawBackground = (time, dt) => {
       const { width, height, mobile } = metricsRef.current;
-      if (mode === 'grass') {
-        const sky = ctx.createLinearGradient(0, 0, 0, height);
-        sky.addColorStop(0, '#b6d4a0');
-        sky.addColorStop(0.4, '#6aa250');
-        sky.addColorStop(1, '#204a24');
-        ctx.fillStyle = sky;
-        ctx.fillRect(0, 0, width, height);
-
-        const hill = ctx.createRadialGradient(width * 0.35, height * 0.88, height * 0.12, width * 0.35, height * 0.88, height * 0.92);
-        hill.addColorStop(0, 'rgba(178, 209, 121, 0.4)');
-        hill.addColorStop(1, 'rgba(26, 63, 24, 0)');
-        ctx.fillStyle = hill;
-        ctx.fillRect(0, 0, width, height);
-
-        const flies = extraRef.current;
-        flies.forEach((f) => {
-          f.phase += dt * 0.0016;
-          f.x += Math.cos(f.phase * 0.7) * 0.35 + f.vx;
-          f.y += Math.sin(f.phase) * 0.2 + f.vy;
-          if (f.x < -10) f.x = width + 10;
-          if (f.x > width + 10) f.x = -10;
-          if (f.y < height * 0.08) f.y = height * 0.62;
-          if (f.y > height * 0.72) f.y = height * 0.12;
-          const glow = 1.2 + (Math.sin(f.phase * 3) + 1) * 0.9;
-          ctx.fillStyle = 'rgba(255, 244, 174, 0.2)';
-          ctx.beginPath();
-          ctx.arc(f.x, f.y, glow * 3.8, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = 'rgba(255, 246, 190, 0.88)';
-          ctx.beginPath();
-          ctx.arc(f.x, f.y, glow, 0, Math.PI * 2);
-          ctx.fill();
-        });
-      } else if (mode === 'water') {
-        const g = ctx.createLinearGradient(0, 0, 0, height);
-        g.addColorStop(0, '#92cde8');
-        g.addColorStop(0.38, '#3f8ec0');
-        g.addColorStop(1, '#123c60');
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, width, height);
-
-        const glow = ctx.createRadialGradient(width * 0.72, height * 0.2, 12, width * 0.72, height * 0.2, mobile ? 120 : 180);
-        glow.addColorStop(0, 'rgba(255,255,255,0.6)');
-        glow.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = glow;
-        ctx.fillRect(0, 0, width, height);
-      } else {
-        const g = ctx.createLinearGradient(0, 0, 0, height);
-        g.addColorStop(0, '#03050f');
-        g.addColorStop(1, '#0c1231');
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, width, height);
-
-        extraRef.current.forEach((cloud) => {
-          const radius = cloud.r + Math.sin(time * 0.0003 + cloud.x * 8) * 10;
-          const gradient = ctx.createRadialGradient(width * cloud.x, height * cloud.y, radius * 0.12, width * cloud.x, height * cloud.y, radius);
-          gradient.addColorStop(0, `rgba(149, 130, 255, ${cloud.alpha})`);
-          gradient.addColorStop(1, 'rgba(149, 130, 255, 0)');
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, width, height);
-        });
-      }
+      if (mode === 'grass') drawGrassBackground();
+      else if (mode === 'water') drawWaterBackground();
+      else drawStarsBackground(time);
     };
 
     const render = (time) => {
@@ -170,133 +244,208 @@ const CreativeCanvas = ({ mode }) => {
       const entities = entitiesRef.current;
 
       if (mode === 'stars') {
-        entities.forEach((p) => {
-          p.twinkle += dt * (0.001 + p.z * 0.0018);
-          p.x += dt * (0.000007 + (1 - p.z) * 0.00004);
-          p.y += Math.sin(p.twinkle * 0.4 + p.z * 9) * 0.00008;
-          if (p.x > 1.03) p.x = -0.03;
+        const t = time * 0.0006;
+        const driftX = 0.000015 * dt;
+        const lensR = mobile ? 110 : 150;
+        const lensStrength = mobile ? 0.9 : 1.2;
+        const mx = mouseRef.current.x;
+        const my = mouseRef.current.y;
+        const mActive = mouseRef.current.active;
 
-          const sx = p.x * width;
-          const sy = p.y * height;
-          const baseSize = lerp(0.6, 2.7, 1 - p.z);
-          const twinkle = 0.55 + (Math.sin(p.twinkle) + 1) * 0.45;
-          let influence = 1;
-          if (mouseRef.current.active) {
-            const dx = mouseRef.current.x - sx;
-            const dy = mouseRef.current.y - sy;
-            const d = Math.hypot(dx, dy) || 1;
-            if (d < 140) {
-              const lens = (1 - d / 140) * 0.65;
-              influence += lens;
-            }
+        // stars + bloom
+        for (let i = 0; i < entities.length; i += 1) {
+          const s = entities[i];
+          s.tw += dt * (0.0009 + (1 - s.z) * 0.0018);
+          s.x += driftX * (0.55 + (1 - s.z) * 3.2);
+          if (s.x > 1.02) s.x = -0.02;
+
+          const sx = s.x * width;
+          const sy = s.y * height;
+          const tw = 0.55 + (Math.sin(s.tw) + 1) * 0.45;
+          let focus = 1;
+          if (mActive) {
+            const d = Math.hypot(mx - sx, my - sy);
+            if (d < lensR) focus += (1 - d / lensR) * lensStrength;
           }
 
-          const size = baseSize * twinkle * influence;
-          const core = ctx.createRadialGradient(sx, sy, 0, sx, sy, size * 3.2);
-          core.addColorStop(0, `hsla(${p.hue}, 88%, 90%, 0.95)`);
-          core.addColorStop(1, `hsla(${p.hue}, 80%, 70%, 0)`);
-          ctx.fillStyle = core;
+          const size = (0.35 + s.mag * 2.4) * tw * focus;
+          const bloom = ctx.createRadialGradient(sx, sy, 0, sx, sy, size * 9);
+          bloom.addColorStop(0, `hsla(${s.hue}, 100%, 92%, ${0.22 + s.mag * 0.18})`);
+          bloom.addColorStop(0.22, `hsla(${s.hue}, 90%, 86%, ${0.12 + s.mag * 0.1})`);
+          bloom.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.fillStyle = bloom;
           ctx.beginPath();
-          ctx.arc(sx, sy, size * 3.2, 0, Math.PI * 2);
+          ctx.arc(sx, sy, size * 9, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.fillStyle = `hsla(${p.hue}, 100%, 96%, 0.85)`;
+          ctx.fillStyle = `hsla(${s.hue}, 100%, 96%, ${0.55 + s.mag * 0.35})`;
           ctx.beginPath();
-          ctx.arc(sx, sy, Math.max(0.35, size * 0.42), 0, Math.PI * 2);
+          ctx.arc(sx, sy, Math.max(0.35, size), 0, Math.PI * 2);
           ctx.fill();
-        });
+        }
 
+        // faint scintillation grain (cheap)
         if (!mobile) {
-          const linkLimit = 62;
-          for (let i = 0; i < entities.length; i += 1) {
-            const a = entities[i];
-            const ax = a.x * width;
-            const ay = a.y * height;
-            for (let j = i + 1; j < entities.length; j += 1) {
-              const b = entities[j];
-              const bx = b.x * width;
-              const by = b.y * height;
-              const dist = Math.hypot(ax - bx, ay - by);
-              if (dist < linkLimit) {
-                const alpha = (1 - dist / linkLimit) * 0.16;
-                ctx.strokeStyle = `rgba(170, 192, 255, ${alpha})`;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(ax, ay);
-                ctx.lineTo(bx, by);
-                ctx.stroke();
-              }
-            }
+          ctx.globalAlpha = 0.08;
+          ctx.fillStyle = '#ffffff';
+          for (let i = 0; i < 420; i += 1) {
+            const gx = (hash2(i, Math.floor(t * 1000)) * width) | 0;
+            const gy = (hash2(i + 17, Math.floor(t * 900)) * height) | 0;
+            ctx.fillRect(gx, gy, 1, 1);
           }
+          ctx.globalAlpha = 1;
         }
       } else if (mode === 'grass') {
-        entities.forEach((b, i) => {
-          const rootX = b.x * width;
-          const rootY = b.rootY * height;
-          const wind = Math.sin(time * 0.0012 + b.phase + rootX * 0.01) * (12 / b.stiffness);
-          const gust = Math.cos(time * 0.0007 + rootY * 0.03) * (6 / b.stiffness);
-          let localPush = 0;
-          if (mouseRef.current.active) {
-            const dx = mouseRef.current.x - rootX;
-            const dy = mouseRef.current.y - (rootY - b.length * 0.5);
+        const t = time * 0.001;
+        const mx = mouseRef.current.x;
+        const my = mouseRef.current.y;
+        const mActive = mouseRef.current.active;
+        const influenceR = mobile ? 120 : 160;
+
+        // ground occlusion
+        const oc = ctx.createLinearGradient(0, height * 0.65, 0, height);
+        oc.addColorStop(0, 'rgba(0,0,0,0)');
+        oc.addColorStop(1, 'rgba(0,0,0,0.32)');
+        ctx.fillStyle = oc;
+        ctx.fillRect(0, height * 0.65, width, height * 0.35);
+
+        // draw blades back-to-front for depth
+        const blades = entities.slice().sort((a, b) => a.d - b.d);
+        for (let i = 0; i < blades.length; i += 1) {
+          const b = blades[i];
+          const depth = b.d; // 0 far, 1 near
+          const px = b.x * width;
+          const rootY = lerp(height * 0.58, height * 0.98, depth);
+          const bladeLen = lerp(mobile ? 42 : 62, mobile ? 170 : 240, depth) * (0.75 + fbm2D(b.seed * 0.03, depth * 2, 3) * 0.55);
+          const bladeW = lerp(0.35, mobile ? 1.4 : 1.8, depth);
+
+          // wind field: low-frequency + gust noise
+          const wx = fbm2D(px * 0.004 + t * 0.25, depth * 2 + 10, 4) * 2 - 1;
+          const gust = fbm2D(px * 0.01 + t * 0.6, depth * 5 + 40, 3) * 2 - 1;
+          let bend = (wx * 22 + gust * 12) * (0.25 + depth * 0.9);
+
+          // mouse interaction
+          if (mActive) {
+            const dx = mx - px;
+            const dy = my - (rootY - bladeLen * 0.55);
             const d = Math.hypot(dx, dy) || 1;
-            if (d < 140) localPush = (1 - d / 140) * 26 * Math.sign(dx);
+            if (d < influenceR) bend += (1 - d / influenceR) * 42 * Math.sign(dx);
           }
 
-          const tipX = rootX + wind + gust + localPush;
-          const midX = rootX + (wind + localPush) * 0.45;
-          const tipY = rootY - b.length;
+          const tipX = px + bend;
+          const tipY = rootY - bladeLen;
 
-          ctx.strokeStyle = `hsl(${b.tone}, 52%, ${i % 4 === 0 ? 62 : 41}%)`;
-          ctx.lineWidth = b.width;
+          // lighting: sun from upper-right
+          const sunX = width * 0.82;
+          const sunY = height * 0.15;
+          const toSunX = (sunX - px) / width;
+          const toSunY = (sunY - (rootY - bladeLen * 0.7)) / height;
+          const light = clamp(0.65 + toSunX * 0.35 - toSunY * 0.25, 0.35, 1.15);
+
+          const hue = b.tint + (gust * 6);
+          const sat = lerp(34, 62, depth);
+          const baseL = lerp(24, 52, depth) * light;
+
+          ctx.lineWidth = bladeW;
+          ctx.lineCap = 'round';
+
+          // blade gradient (dark base -> bright tip)
+          const grad = ctx.createLinearGradient(px, rootY, tipX, tipY);
+          grad.addColorStop(0, `hsla(${hue}, ${sat}%, ${clamp(baseL * 0.7, 8, 60)}%, 0.9)`);
+          grad.addColorStop(0.65, `hsla(${hue + 10}, ${sat + 8}%, ${clamp(baseL, 14, 72)}%, 0.95)`);
+          grad.addColorStop(1, `hsla(${hue + 18}, ${sat + 14}%, ${clamp(baseL * 1.25, 20, 82)}%, 0.95)`);
+          ctx.strokeStyle = grad;
+
+          // curved blade (two control points for s-curve)
+          const c1x = lerp(px, tipX, 0.35) + Math.sin(b.twist + t * 0.6) * 6 * (0.2 + depth);
+          const c1y = lerp(rootY, tipY, 0.35);
+          const c2x = lerp(px, tipX, 0.72) + Math.cos(b.twist + t * 0.9) * 10 * (0.15 + depth);
+          const c2y = lerp(rootY, tipY, 0.72);
           ctx.beginPath();
-          ctx.moveTo(rootX, rootY);
-          ctx.quadraticCurveTo(midX, rootY - b.length * 0.5, tipX, tipY);
+          ctx.moveTo(px, rootY);
+          ctx.bezierCurveTo(c1x, c1y, c2x, c2y, tipX, tipY);
           ctx.stroke();
 
-          if (i % 17 === 0) {
-            ctx.fillStyle = 'rgba(234, 255, 187, 0.22)';
+          // specular rim highlight for near blades
+          if (depth > 0.68 && i % 6 === 0) {
+            ctx.lineWidth = bladeW * 0.6;
+            ctx.strokeStyle = `rgba(240, 255, 210, ${0.18 + (depth - 0.68) * 0.45})`;
             ctx.beginPath();
-            ctx.ellipse(tipX, tipY, 1.2, 2.7, 0, 0, Math.PI * 2);
+            ctx.moveTo(px + bladeW * 0.4, rootY);
+            ctx.bezierCurveTo(c1x + bladeW * 0.4, c1y, c2x + bladeW * 0.4, c2y, tipX + bladeW * 0.2, tipY);
+            ctx.stroke();
+          }
+        }
+      } else {
+        const t = time * 0.001;
+        const mx = mouseRef.current.x;
+        const my = mouseRef.current.y;
+        const mActive = mouseRef.current.active;
+        const rippleR = mobile ? 140 : 180;
+
+        // water surface: shaded field sampled as scanlines (fast, realistic enough)
+        const horizon = height * 0.22;
+        const rows = mobile ? 120 : 180;
+        for (let r = 0; r < rows; r += 1) {
+          const v = r / (rows - 1);
+          const y = lerp(horizon, height, v);
+          // perspective: fewer samples near horizon, more near camera
+          const step = Math.floor(lerp(mobile ? 10 : 8, mobile ? 3 : 2, v));
+          ctx.beginPath();
+          for (let x = 0; x <= width; x += step) {
+            const nx = x / width;
+            const n = fbm2D(nx * 5 + t * 0.45, v * 2.6 + t * 0.18, 5);
+            const m = fbm2D(nx * 10 - t * 0.85, v * 5 + 40 + t * 0.25, 4);
+            // "height" of wave
+            let h = (n * 2 - 1) * (6 + v * 24) + (m * 2 - 1) * (2 + v * 10);
+
+            if (mActive) {
+              const d = Math.hypot(x - mx, y - my);
+              if (d < rippleR) h += Math.cos(d * 0.09 - t * 14) * (1 - d / rippleR) * (8 + v * 10);
+            }
+
+            const yy = y + h;
+            if (x === 0) ctx.moveTo(x, yy);
+            else ctx.lineTo(x, yy);
+          }
+
+          // Fresnel-ish shading: darker facing away, brighter near horizon + highlights
+          const shade = clamp(0.18 + (1 - v) * 0.35, 0.08, 0.55);
+          ctx.strokeStyle = `rgba(210, 245, 255, ${shade})`;
+          ctx.lineWidth = lerp(0.6, 1.8, 1 - v);
+          ctx.stroke();
+        }
+
+        // specular glints
+        const glints = mobile ? 60 : 120;
+        for (let i = 0; i < glints; i += 1) {
+          const rx = hash2(i, Math.floor(t * 120)) * width;
+          const rv = Math.pow(hash2(i + 33, Math.floor(t * 140)), 1.6);
+          const ry = lerp(horizon, height, rv);
+          const sparkle = fbm2D(rx * 0.02 + t * 2.4, ry * 0.02 + t * 1.2, 3);
+          if (sparkle > 0.72) {
+            const a = (sparkle - 0.72) * 1.8;
+            ctx.fillStyle = `rgba(255, 255, 255, ${a * 0.65})`;
+            ctx.fillRect(rx, ry, 1.2, 1.2);
+          }
+        }
+
+        // foam belt
+        ctx.globalAlpha = 0.85;
+        for (let i = 0; i < (mobile ? 110 : 180); i += 1) {
+          const rx = hash2(i + 10, Math.floor(t * 70)) * width;
+          const rv = 0.35 + hash2(i + 70, Math.floor(t * 60)) * 0.62;
+          const ry = lerp(horizon, height, rv);
+          const n = fbm2D(rx * 0.01, ry * 0.01 + t * 0.7, 4);
+          if (n > 0.62) {
+            const rad = 0.6 + (n - 0.62) * 4.5;
+            ctx.fillStyle = 'rgba(235, 250, 255, 0.55)';
+            ctx.beginPath();
+            ctx.arc(rx, ry, rad, 0, Math.PI * 2);
             ctx.fill();
           }
-        });
-      } else {
-        entities.forEach((band, i) => {
-          const yBase = lerp(height * 0.2, height * 0.92, band.y);
-          const alpha = 0.12 + (1 - band.y) * 0.22;
-          ctx.strokeStyle = `rgba(205, 241, 255, ${alpha})`;
-          ctx.lineWidth = 1 + (1 - band.y) * 0.7;
-          ctx.beginPath();
-          const step = mobile ? 12 : 8;
-          for (let x = 0; x <= width; x += step) {
-            const waveA = Math.sin(x * band.freqA + band.phase + time * 0.0016 * band.speed) * band.ampA;
-            const waveB = Math.cos(x * band.freqB - band.phase + time * 0.0021 * band.speed) * band.ampB;
-            let mouseRipple = 0;
-            if (mouseRef.current.active) {
-              const dx = x - mouseRef.current.x;
-              const dy = yBase - mouseRef.current.y;
-              const d = Math.hypot(dx, dy);
-              if (d < 160) mouseRipple = Math.cos(d * 0.07 - time * 0.01) * (1 - d / 160) * 9;
-            }
-            const y = yBase + waveA + waveB + mouseRipple;
-            if (x === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-          }
-          ctx.stroke();
-        });
-        const foam = extraRef.current;
-        foam.forEach((f) => {
-          f.phase += dt * 0.0013;
-          f.x += Math.sin(f.phase * 0.7) * f.drift;
-          if (f.x < -10) f.x = width + 10;
-          if (f.x > width + 10) f.x = -10;
-          const y = f.y + Math.cos(f.phase) * 2.8;
-          ctx.fillStyle = 'rgba(233, 250, 255, 0.5)';
-          ctx.beginPath();
-          ctx.arc(f.x, y, f.radius, 0, Math.PI * 2);
-          ctx.fill();
-        });
+        }
+        ctx.globalAlpha = 1;
       }
 
       requestRef.current = requestAnimationFrame(render);
@@ -333,7 +482,6 @@ const WorkApp = () => (
     <div className="work-section-copy">
       <h3>Creative Code Studies</h3>
       <p>Three physically-inspired interactive sketches: wind-driven prairie dynamics, deep-space volumetric star simulation, and layered ocean swell optics.</p>
-      <p>Each sketch is tuned for desktop and mobile with responsive sampling, density scaling, and interaction fields.</p>
     </div>
     <div className="work-sketch-card">
       <h4>Wind Through Tall Grass - Physically Inspired Blade Field</h4>
