@@ -32,28 +32,18 @@ const CreativeCanvas = ({ mode }) => {
         }));
       } else {
         const count =
-          mode === 'grass'
-            ? isMobile()
-              ? 480
-              : 2000
-            : isMobile()
-              ? 24
-              : 36;
+          mode === 'grass' ? (isMobile() ? 240 : 520) : isMobile() ? 24 : 36;
         entitiesRef.current = Array.from({ length: count }, (_, i) => ({
-          x: (i / count) * width * 1.04 + (Math.random() - 0.5) * (width / count) * 3.2,
+          x: (i / count) * width * 1.02 + (Math.random() - 0.5) * (width / count) * 2.4,
           baseY:
             mode === 'grass'
-              ? height * (0.52 + Math.random() * 0.48)
+              ? height * (0.56 + Math.random() * 0.44)
               : height * (0.26 + (i % 12) * 0.052),
-          length: mode === 'grass' ? 28 + Math.random() * 132 : 0,
+          length: mode === 'grass' ? 38 + Math.random() * 118 : 0,
           amp: mode === 'grass' ? 7 + Math.random() * 18 : 5 + Math.random() * 15,
           phase: Math.random() * Math.PI * 2,
-          lw: mode === 'grass' ? 0.28 + Math.random() * 1.65 : 0,
-          depth: mode === 'grass' ? Math.random() : 0,
-          stiff: mode === 'grass' ? 0.72 + Math.random() * 0.26 : 0,
-          rigidity: mode === 'grass' ? 0.82 + Math.random() * 0.16 : 0,
-          hue: mode === 'grass' ? Math.random() : 0,
-          segs: mode === 'grass' ? 4 + Math.floor(Math.random() * 5) : 0
+          lw: mode === 'grass' ? 0.65 + Math.random() * 1.55 : 0,
+          depth: mode === 'grass' ? Math.random() : 0
         }));
       }
     };
@@ -89,20 +79,12 @@ const CreativeCanvas = ({ mode }) => {
       ctx.fillRect(0, 0, width, height);
 
       if (mode === 'grass') {
-        const haze = ctx.createLinearGradient(0, 0, 0, height * 0.68);
-        haze.addColorStop(0, 'rgba(228, 236, 222, 0.42)');
-        haze.addColorStop(0.28, 'rgba(175, 205, 155, 0.14)');
+        const haze = ctx.createLinearGradient(0, 0, 0, height * 0.62);
+        haze.addColorStop(0, 'rgba(230, 236, 228, 0.35)');
+        haze.addColorStop(0.35, 'rgba(180, 210, 170, 0.12)');
         haze.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = haze;
-        ctx.fillRect(0, 0, width, height * 0.68);
-        if (!isMobile()) {
-          ctx.fillStyle = 'rgba(40, 65, 32, 0.04)';
-          for (let i = 0; i < 320; i++) {
-            const gx = Math.random() * width;
-            const gy = height * (0.55 + Math.random() * 0.45);
-            ctx.fillRect(gx, gy, 1.2, 1.2);
-          }
-        }
+        ctx.fillRect(0, 0, width, height * 0.62);
       }
 
       if (mode === 'water') {
@@ -162,89 +144,59 @@ const CreativeCanvas = ({ mode }) => {
         });
         ctx.globalAlpha = 1;
       } else if (mode === 'grass') {
-        const windField = (x, y, t) => {
-          const w1 = Math.sin(x * 0.0068 + t * 0.00112) * 16;
-          const w2 = Math.sin(x * 0.0175 - y * 0.011 + t * 0.00092) * 11;
-          const w3 = Math.sin(t * 0.00058 + x * 0.0026) * 6;
-          const w4 = Math.cos(x * 0.038 + t * 0.00048) * 4.2;
-          const w5 = Math.sin(x * 0.11 + y * 0.04 + t * 0.00035) * 2.8;
-          return w1 + w2 + w3 + w4 + w5;
-        };
-
         const blades = [...entities].sort((a, b) => a.baseY - b.baseY);
-        const drawBladeStroke = (b, bladeIndex, alphaMul, lwMul, lighten) => {
+        blades.forEach((b, i) => {
           const baseX = b.x;
           const baseY = b.baseY;
           const len = b.length;
-          const depth = (baseY / height - 0.5) / 0.5;
-          const wf = windField(baseX, baseY, time);
-          const gust = Math.sin(time * 0.00072 + baseX * 0.004) * 3.2;
-
-          let hover = 0;
+          const wind =
+            Math.sin(baseX * 0.014 + time * 0.0014 + b.phase) * b.amp +
+            Math.sin(baseX * 0.031 - time * 0.0009 + b.depth * 4) * (b.amp * 0.35);
+          const localWave = Math.sin(baseY * 0.028 + time * 0.0011) * 5.5;
+          let hoverBend = 0;
           if (mouseRef.current.active) {
             const hx = mouseRef.current.x;
             const hy = mouseRef.current.y;
             const dx = hx - baseX;
-            const dy = hy - (baseY - len * 0.5);
+            const dy = hy - (baseY - len * 0.55);
             const d = Math.sqrt(dx * dx + dy * dy) || 1;
-            if (d < 168) {
-              const fall = (1 - d / 168) ** 1.45;
-              hover = fall * 52 * Math.sign(dx || 1) * (0.55 + b.depth * 0.45);
+            if (d < 155) {
+              const fall = (1 - d / 155) ** 1.35;
+              hoverBend = fall * 42 * Math.sign(dx || 1) * (0.65 + b.depth * 0.35);
             }
           }
-
-          const baseBend = (wf + gust + hover) * b.stiff;
-          const segs = b.segs || 6;
-          let px = baseX;
-          let py = baseY;
-          ctx.beginPath();
-          ctx.moveTo(px, py);
-          for (let s = 1; s <= segs; s++) {
-            const u = s / segs;
-            const taper = u ** 1.52;
-            const flutter =
-              Math.sin(b.phase + time * 0.0026 + u * 9) * (1.2 + u * 11) * b.rigidity * (0.25 + b.depth * 0.75);
-            const micro = Math.sin(time * 0.0018 + baseX * 0.055 + u * 14) * (u * 3.2);
-            const sway = baseBend * taper + flutter + micro;
-            const tx = baseX + sway;
-            const ty = baseY - len * u;
-            const cpx = px + (tx - px) * 0.52 + sway * 0.06;
-            const cpy = py + (ty - py) * 0.52;
-            ctx.quadraticCurveTo(cpx, cpy, tx, ty);
-            px = tx;
-            py = ty;
-          }
-          const g = 58 + depth * 102 + b.hue * 18;
-          const r = 18 + depth * 52 + b.hue * 12;
-          const bl = 24 + depth * 42;
-          const a = (0.42 + depth * 0.48) * alphaMul;
-          const lr = lighten ? Math.min(255, r + 35) : r;
-          const lg = lighten ? Math.min(255, g + 48) : g;
-          const lb = lighten ? Math.min(255, bl + 22) : bl;
-          ctx.strokeStyle = `rgba(${lr},${lg},${lb},${a})`;
-          ctx.lineWidth = Math.max(0.22, b.lw * lwMul * (0.75 + depth * 0.45));
+          const bend = wind + localWave + hoverBend;
+          const depth = (baseY / height - 0.52) / 0.48;
+          const g = 72 + depth * 95;
+          const r = 22 + depth * 48;
+          const bl = 28 + depth * 38;
+          ctx.strokeStyle = `rgba(${r},${g},${bl},${0.55 + depth * 0.4})`;
+          ctx.lineWidth = b.lw;
           ctx.lineCap = 'round';
-          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          ctx.moveTo(baseX, baseY);
+          ctx.bezierCurveTo(
+            baseX + bend * 0.28,
+            baseY - len * 0.34,
+            baseX + bend * 0.62,
+            baseY - len * 0.68,
+            baseX + bend * 1.02,
+            baseY - len
+          );
           ctx.stroke();
-
-          if (!isMobile() && b.depth > 0.35 && bladeIndex % 7 === 0) {
-            const u = 0.55;
-            const bx = baseX + baseBend * (u ** 1.4) * b.stiff * 0.9;
-            const by = baseY - len * u;
-            ctx.strokeStyle = `rgba(${lr},${lg},${lb},${a * 0.35})`;
-            ctx.lineWidth = 0.35;
-            ctx.beginPath();
-            ctx.moveTo(bx - 3, by);
-            ctx.lineTo(bx + 3, by - 1.5);
-            ctx.stroke();
-          }
-        };
-
-        blades.forEach((b, i) => {
-          drawBladeStroke(b, i, 1, 1, false);
-          if (!isMobile()) {
-            drawBladeStroke(b, i, 0.55, 0.42, true);
-          }
+          ctx.strokeStyle = `rgba(${Math.min(255, r + 40)},${Math.min(255, g + 50)},${bl + 20},${0.25 + depth * 0.25})`;
+          ctx.lineWidth = Math.max(0.4, b.lw * 0.45);
+          ctx.beginPath();
+          ctx.moveTo(baseX + 1.2, baseY);
+          ctx.bezierCurveTo(
+            baseX + bend * 0.28 + 1.2,
+            baseY - len * 0.34,
+            baseX + bend * 0.62 + 0.8,
+            baseY - len * 0.68,
+            baseX + bend * 1.02,
+            baseY - len * 0.98
+          );
+          ctx.stroke();
         });
       } else {
         entities.forEach((line, i) => {
