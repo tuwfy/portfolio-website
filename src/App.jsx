@@ -9,6 +9,7 @@ import HelpWindow from './components/HelpWindow';
 import SpotifyApp from './components/SpotifyApp';
 import WorkApp from './components/WorkApp';
 import CVApp from './components/CVApp';
+import DoomApp from './components/DoomApp';
 import { AudioProvider } from './AudioProvider';
 
 // Pre-load audio for zero-latency clicks on mobile and desktop
@@ -99,8 +100,9 @@ function App() {
 
   const screenW = typeof window !== 'undefined' ? window.innerWidth : 1000;
   const isMobile = screenW <= 768;
-  const rightX = isMobile ? screenW - 90 : screenW - 120;
-  const leftX = isMobile ? 10 : 20;
+  const leftColumnX = isMobile ? 12 : 24;
+  const rightColumnX = isMobile ? Math.max(108, screenW - 96) : 124;
+  const iconY = (row) => (isMobile ? 14 + row * 78 : 20 + row * 82);
 
   return (
     <AudioProvider>
@@ -113,7 +115,7 @@ function App() {
           selected={selectedIcon === 'hd'}
           onClick={() => setSelectedIcon('hd')}
           onDoubleClick={() => openWindow('hd', 'Macintosh HD', <div className="mac-content-inner"><p>Hard Drive is healthy.</p></div>)}
-          defaultPosition={{ x: rightX, y: 20 }}
+          defaultPosition={{ x: leftColumnX, y: iconY(0) }}
         />
 
         <DesktopIcon
@@ -136,7 +138,7 @@ function App() {
               </ul>
             </div>
           )}
-          defaultPosition={{ x: rightX, y: 100 }}
+          defaultPosition={{ x: leftColumnX, y: iconY(1) }}
         />
         <DesktopIcon
           label="Work"
@@ -148,7 +150,7 @@ function App() {
             'Work',
             <WorkApp />
           )}
-          defaultPosition={{ x: rightX, y: 160 }}
+          defaultPosition={{ x: leftColumnX, y: iconY(2) }}
         />
         <DesktopIcon
           label="CV"
@@ -160,7 +162,19 @@ function App() {
             'CV',
             <CVApp />
           )}
-          defaultPosition={{ x: rightX, y: 240 }}
+          defaultPosition={{ x: leftColumnX, y: iconY(3) }}
+        />
+        <DesktopIcon
+          label="Doom"
+          icon="🎮"
+          selected={selectedIcon === 'doom'}
+          onClick={() => setSelectedIcon('doom')}
+          onDoubleClick={() => openWindow(
+            'doom',
+            'Doom',
+            <DoomApp />
+          )}
+          defaultPosition={{ x: leftColumnX, y: iconY(4) }}
         />
         <DesktopIcon
           label="LinkedIn"
@@ -168,7 +182,7 @@ function App() {
           selected={selectedIcon === 'linkedin'}
           onClick={() => setSelectedIcon('linkedin')}
           onDoubleClick={openLinkedIn}
-          defaultPosition={{ x: rightX, y: 320 }}
+          defaultPosition={{ x: rightColumnX, y: iconY(0) }}
         />
         <DesktopIcon
           label="Contact"
@@ -177,10 +191,10 @@ function App() {
           onClick={() => setSelectedIcon('contact')}
           onDoubleClick={() => openWindow('contact', 'Contact',
             <div className="mac-content-inner">
-              <p>Email: tyler.riccardi7@gmail.com</p>
+              <p>Email: tyriccardi@gmail.com</p>
             </div>
           )}
-          defaultPosition={{ x: rightX, y: 400 }}
+          defaultPosition={{ x: rightColumnX, y: iconY(1) }}
         />
 
         <DesktopIcon
@@ -189,7 +203,7 @@ function App() {
           selected={selectedIcon === 'readme'}
           onClick={() => setSelectedIcon('readme')}
           onDoubleClick={downloadResume}
-          defaultPosition={{ x: leftX, y: 20 }}
+          defaultPosition={{ x: rightColumnX, y: iconY(2) }}
         />
 
         <DesktopIcon
@@ -198,7 +212,7 @@ function App() {
           selected={selectedIcon === 'spotify'}
           onClick={() => setSelectedIcon('spotify')}
           onDoubleClick={() => openWindow('spotify', 'Spotify Player', <SpotifyApp />)}
-          defaultPosition={{ x: leftX, y: 100 }}
+          defaultPosition={{ x: rightColumnX, y: iconY(3) }}
         />
 
         <div className="window-container">

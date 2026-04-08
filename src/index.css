@@ -402,17 +402,55 @@ html, body, #root {
 }
 
 .work-sketch-frame {
-  width: min(920px, 72vw);
-  height: min(620px, 62vh);
-  min-width: 420px;
-  min-height: 320px;
+  width: 100%;
+  height: 320px;
+  min-height: 260px;
+}
+
+.work-app-scroll {
+  display: block;
+  width: min(920px, 86vw);
+  min-height: 560px;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.work-section-copy h3,
+.work-sketch-card h4 {
+  margin: 0 0 8px;
+}
+
+.work-section-copy {
+  border: 1px solid #000;
+  background: #f2f2f2;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.work-section-copy p {
+  margin: 5px 0;
+}
+
+.work-sketch-card {
+  border: 1px solid #000;
+  background: #f2f2f2;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.creative-canvas {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #000;
+  touch-action: none;
 }
 
 /* About Window Specifics */
 .about-container {
   display: flex;
   flex-direction: column;
-  min-width: 620px;
+  min-width: 520px;
+  max-width: 620px;
 }
 
 .about-header {
@@ -433,7 +471,7 @@ html, body, #root {
 
 .about-info h1 {
   margin: 0;
-  font-size: 2.5rem;
+  font-size: 2.1rem;
   letter-spacing: -1px;
 }
 
@@ -515,7 +553,31 @@ html, body, #root {
   right: 0;
   bottom: 0;
   padding: 10px;
-  /* Removed flex to allow Draggable free movement */
+}
+
+.doom-app {
+  width: min(740px, 88vw);
+  min-width: 320px;
+  padding: 10px;
+}
+
+.doom-note,
+.doom-status {
+  margin: 4px 0 8px;
+}
+
+.doom-canvas {
+  width: 100%;
+  height: 360px;
+  border: 1px solid #000;
+  background: #111;
+}
+
+.doom-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .icon-container {
@@ -750,8 +812,14 @@ canvas {
 
   .about-container,
   .cv-content,
-  .work-sketch-frame {
+  .work-sketch-frame,
+  .work-app-scroll,
+  .doom-app {
     min-width: 0;
     width: 100%;
+  }
+
+  .doom-canvas {
+    height: 280px;
   }
 }

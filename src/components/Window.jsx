@@ -6,6 +6,7 @@ const CHROME_HEIGHT = 32;
 const VIEWPORT_PADDING = 20;
 const MIN_WIDTH = 240;
 const MIN_HEIGHT = 150;
+const MAX_WIDTH_RATIO = 0.88;
 
 const Window = ({ title, children, onClose, zIndex, onClick }) => {
   const nodeRef = useRef(null);
@@ -19,7 +20,7 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight - 28; // account for menu bar
     return {
-      maxWidth: Math.max(MIN_WIDTH, viewportWidth - VIEWPORT_PADDING * 2),
+      maxWidth: Math.max(MIN_WIDTH, Math.min(viewportWidth - VIEWPORT_PADDING * 2, viewportWidth * MAX_WIDTH_RATIO)),
       maxHeight: Math.max(MIN_HEIGHT, viewportHeight - VIEWPORT_PADDING * 2)
     };
   };

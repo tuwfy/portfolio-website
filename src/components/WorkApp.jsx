@@ -1,130 +1,115 @@
 import React, { useRef, useEffect } from 'react';
 
-const WorkApp = () => {
+const OUTDOOR_COLORS = ['#d9c8a7', '#6e7f5f', '#3f4e3f', '#9e8664'];
+const STAR_COLORS = ['#f2f4ff', '#c6d4ff', '#95a7ff', '#6277d8'];
+
+const CreativeCanvas = ({ mode }) => {
   const canvasRef = useRef(null);
   const requestRef = useRef(null);
+  const pointsRef = useRef([]);
   const mouseRef = useRef({ x: -1000, y: -1000, active: false });
-
-  // Particle configuration
-  const particles = useRef([]);
-  const numParticles = 120;
-  const colors = ['#d6d8db', '#9fa5ac'];
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let width, height;
+    let width = 0;
+    let height = 0;
 
-    // Initialize canvas size
     const resize = () => {
-      width = canvas.width = canvas.parentElement.clientWidth;
-      height = canvas.height = canvas.parentElement.clientHeight;
+      width = canvas.width = canvas.clientWidth;
+      height = canvas.height = canvas.clientHeight;
+      pointsRef.current = Array.from({ length: mode === 'outdoors' ? 90 : 140 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * (mode === 'outdoors' ? 0.22 : 0.16),
+        vy: (Math.random() - 0.5) * (mode === 'outdoors' ? 0.18 : 0.14),
+        size: Math.random() * (mode === 'outdoors' ? 3.2 : 2.4) + 0.8,
+        phase: Math.random() * Math.PI * 2,
+        color: (mode === 'outdoors' ? OUTDOOR_COLORS : STAR_COLORS)[Math.floor(Math.random() * 4)]
+      }));
     };
 
-    // Particle class
-    class Particle {
-      constructor() {
-        this.reset();
+    const updateMouse = (cx, cy) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current.x = cx - rect.left;
+      mouseRef.current.y = cy - rect.top;
+      mouseRef.current.active = true;
+    };
+
+    const drawBackground = (time) => {
+      if (mode === 'outdoors') {
+        const g = ctx.createLinearGradient(0, 0, 0, height);
+        g.addColorStop(0, '#d8c4a2');
+        g.addColorStop(0.55, '#7d8f76');
+        g.addColorStop(1, '#2f3b30');
+        ctx.fillStyle = g;
+      } else {
+        const g = ctx.createLinearGradient(0, 0, 0, height);
+        g.addColorStop(0, '#03050f');
+        g.addColorStop(1, '#0c1231');
+        ctx.fillStyle = g;
       }
-
-      reset() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.vx = (Math.random() - 0.5) * 0.25;
-        this.vy = (Math.random() - 0.5) * 0.25;
-        this.size = Math.random() * 2.4 + 0.8;
-        this.color = colors[Math.floor(Math.random() * colors.length)];
-        this.baseX = this.x;
-        this.baseY = this.y;
-        this.drag = Math.random() * 0.02 + 0.01;
-        this.maxDistance = 120 + Math.random() * 90;
-        this.pulse = Math.random() * Math.PI * 2;
-      }
-
-      update(mouse) {
-        this.pulse += 0.01;
-        this.size = Math.max(0.6, this.size + Math.sin(this.pulse) * 0.003);
-        if (!mouse.active) {
-          // Stillness - drift at rest
-          this.x += this.vx;
-          this.y += this.vy;
-
-          // Gently return to center if drifted too far
-          const dx = this.x - this.baseX;
-          const dy = this.y - this.baseY;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance > 48) {
-            this.x -= dx * 0.004;
-            this.y -= dy * 0.004;
-          }
-        } else {
-          // Interaction - respond to cursor
-          const dx = mouse.x - this.x;
-          const dy = mouse.y - this.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const force = Math.max(0, 1 - distance / this.maxDistance);
-
-          // Gently attract, then slightly swirl around cursor
-          if (distance < this.maxDistance) {
-            this.x += dx * force * this.drag;
-            this.y += dy * force * this.drag;
-            this.x += -dy * 0.0009 * this.maxDistance * force;
-            this.y += dx * 0.0009 * this.maxDistance * force;
-          }
-
-          // Return to base when cursor moves away
-          if (!mouse.active || distance > 90) {
-            this.x += (this.baseX - this.x) * 0.012;
-            this.y += (this.baseY - this.y) * 0.012;
-          }
+      ctx.fillRect(0, 0, width, height);
+      if (mode === 'outdoors') {
+        ctx.fillStyle = 'rgba(24, 31, 24, 0.32)';
+        for (let i = 0; i < 22; i++) {
+          const x = (i / 21) * width;
+          const h = 30 + Math.sin(i + time * 0.0008) * 12 + Math.random() * 28;
+          ctx.fillRect(x, height - h, 2, h);
         }
       }
-
-      draw(ctx) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-      }
-    }
-
-    // Initialize particles
-    const initParticles = () => {
-      particles.current = [];
-      for (let i = 0; i < numParticles; i++) {
-        particles.current.push(new Particle());
-      }
     };
 
-    // Animation loop
-    const render = () => {
-      // Clear canvas with subtle trail effect
-      ctx.fillStyle = 'rgba(8, 8, 8, 0.11)';
-      ctx.fillRect(0, 0, width, height);
+    const render = (time) => {
+      drawBackground(time);
+      const points = pointsRef.current;
 
-      // Update and draw particles
-      particles.current.forEach(particle => {
-        particle.update(mouseRef.current);
-        particle.draw(ctx);
+      points.forEach((p) => {
+        p.phase += mode === 'outdoors' ? 0.02 : 0.012;
+        p.x += p.vx + Math.cos(p.phase) * (mode === 'outdoors' ? 0.06 : 0.03);
+        p.y += p.vy + Math.sin(p.phase) * (mode === 'outdoors' ? 0.04 : 0.02);
+        if (p.x < -8) p.x = width + 8;
+        if (p.x > width + 8) p.x = -8;
+        if (p.y < -8) p.y = height + 8;
+        if (p.y > height + 8) p.y = -8;
+
+        if (mouseRef.current.active) {
+          const dx = mouseRef.current.x - p.x;
+          const dy = mouseRef.current.y - p.y;
+          const d = Math.sqrt(dx * dx + dy * dy) || 1;
+          const radius = mode === 'outdoors' ? 120 : 160;
+          if (d < radius) {
+            const pull = (1 - d / radius) * (mode === 'outdoors' ? 0.05 : 0.08);
+            p.x += dx * pull;
+            p.y += dy * pull;
+          }
+        }
+
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = mode === 'outdoors' ? 0.7 : 0.9;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
       });
+      ctx.globalAlpha = 1;
 
-      // Draw gentle connective lines for an organic "processing" feel.
-      for (let i = 0; i < particles.current.length; i++) {
-        for (let j = i + 1; j < particles.current.length; j++) {
-          const a = particles.current[i];
-          const b = particles.current[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 56) {
-            const alpha = (1 - dist / 56) * 0.16;
-            ctx.strokeStyle = `rgba(190, 194, 199, ${alpha})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
+      if (mode === 'stars') {
+        for (let i = 0; i < points.length; i++) {
+          for (let j = i + 1; j < points.length; j++) {
+            const a = points[i];
+            const b = points[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 62) {
+              const alpha = (1 - dist / 62) * 0.18;
+              ctx.strokeStyle = `rgba(173, 190, 255, ${alpha})`;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+            }
           }
         }
       }
@@ -132,69 +117,49 @@ const WorkApp = () => {
       requestRef.current = requestAnimationFrame(render);
     };
 
-    // Event listeners
-    const updateMousePosition = (clientX, clientY) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseRef.current.x = clientX - rect.left;
-      mouseRef.current.y = clientY - rect.top;
-      mouseRef.current.active = true;
+    resize();
+    requestRef.current = requestAnimationFrame(render);
+    const onMouseMove = (e) => updateMouse(e.clientX, e.clientY);
+    const onTouchMove = (e) => {
+      if (e.touches[0]) updateMouse(e.touches[0].clientX, e.touches[0].clientY);
     };
-
-    const handleMouseMove = (e) => {
-      updateMousePosition(e.clientX, e.clientY);
-    };
-
-    const handleMouseLeave = () => {
+    const onLeave = () => {
       mouseRef.current.active = false;
     };
-
-    const handleTouchMove = (e) => {
-      if (e.touches.length > 0) {
-        updateMousePosition(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    };
-
-    // Handle resize
-    const handleResize = () => {
-      resize();
-      initParticles();
-    };
-
-    // Setup
-    resize();
-    initParticles();
-    requestRef.current = requestAnimationFrame(render);
-
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseleave', handleMouseLeave);
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup
+    window.addEventListener('resize', resize);
+    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('touchmove', onTouchMove, { passive: true });
+    canvas.addEventListener('mouseleave', onLeave);
+    canvas.addEventListener('touchend', onLeave);
     return () => {
-      if (requestRef.current) {
-        cancelAnimationFrame(requestRef.current);
-      }
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
-      canvas.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('resize', handleResize);
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      window.removeEventListener('resize', resize);
+      canvas.removeEventListener('mousemove', onMouseMove);
+      canvas.removeEventListener('touchmove', onTouchMove);
+      canvas.removeEventListener('mouseleave', onLeave);
+      canvas.removeEventListener('touchend', onLeave);
     };
-  }, []);
+  }, [mode]);
 
-  return (
-    <div className="mac-content-inner work-sketch-frame" data-component="work">
-      <canvas
-        ref={canvasRef}
-        style={{
-          display: 'block',
-          width: '100%',
-          height: '100%',
-          cursor: 'default'
-        }}
-      />
-    </div>
-  );
+  return <canvas ref={canvasRef} className="creative-canvas" />;
 };
+
+const WorkApp = () => (
+  <div className="mac-content-inner work-app-scroll">
+    <div className="work-section-copy">
+      <h3>Creative Code Studies</h3>
+      <p>Two interactive sketches: a vintage outdoors atmosphere on top, and a polished reactive starfield below.</p>
+      <p>Move your cursor or finger across each sketch to gently influence the motion.</p>
+    </div>
+    <div className="work-sketch-card">
+      <h4>Outdoors + Vintage</h4>
+      <CreativeCanvas mode="outdoors" />
+    </div>
+    <div className="work-sketch-card">
+      <h4>Night Stars</h4>
+      <CreativeCanvas mode="stars" />
+    </div>
+  </div>
+);
 
 export default WorkApp;
