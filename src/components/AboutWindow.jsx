@@ -1,15 +1,12 @@
 import React from 'react';
+import FinderLogo from './FinderLogo';
 
 const AboutWindow = () => {
   return (
     <div className="about-container">
       <div className="about-header">
         <div className="about-logo-container">
-          <img
-            src="/finder-logo.png"
-            alt="Finder"
-            className="finder-logo finder-logo--about"
-          />
+          <FinderLogo className="finder-logo finder-logo--about" />
         </div>
         <div className="about-info" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <h1 style={{ margin: '0', fontSize: '3rem', fontWeight: 'bold' }}>Mac OS 9.2</h1>

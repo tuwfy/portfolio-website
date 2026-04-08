@@ -71,7 +71,6 @@ html, body, #root {
 
 .finder-logo {
   display: block;
-  image-rendering: pixelated;
 }
 
 .finder-logo--menubar {

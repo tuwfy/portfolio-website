@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import FinderLogo from './FinderLogo';
 
 const MenuDropdown = ({ label, items }) => {
   const [active, setActive] = useState(false);
@@ -53,11 +54,7 @@ const MenuBar = ({ onOpenHelp }) => {
       <div style={{ flexGrow: 1 }}></div>
       <div className="mac-menu-item" style={{ fontSize: '1rem', fontWeight: 'bold' }}>{time}</div>
       <div className="mac-menu-item">
-        <img
-          src="/finder-logo.png"
-          alt=""
-          className="finder-logo finder-logo--menubar"
-        />
+        <FinderLogo className="finder-logo finder-logo--menubar" />
         <span style={{ marginRight: '6px' }}>Finder</span>
       </div>
     </div>
