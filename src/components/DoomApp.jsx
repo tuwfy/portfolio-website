@@ -26,6 +26,7 @@ const HUD_GLYPHS = {
 };
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const normalizeAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
 
 const loadImage = (src) =>
   new Promise((resolve, reject) => {
@@ -393,7 +394,8 @@ const DoomApp = () => {
     };
 
     const drawViewport = (now) => {
-      const roomPan = Math.sin(game.player.angle) * 8 + game.player.x * 6;
+      const relativeViewAngle = normalizeAngle(game.player.angle + Math.PI / 2);
+      const roomPan = clamp(relativeViewAngle * 18 + game.player.x * 6, -28, 28);
 
       bctx.clearRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
       bctx.fillStyle = '#101010';
