@@ -27,6 +27,8 @@ const DesktopIcon = ({ label, icon, selected, onClick, onDoubleClick, defaultPos
     dragStartPos.current = null;
   };
 
+  const isImageIcon = typeof icon === 'string' && (icon.startsWith('/') || icon.startsWith('./') || icon.startsWith('../'));
+
   return (
     <Draggable 
       nodeRef={nodeRef} 
@@ -41,7 +43,9 @@ const DesktopIcon = ({ label, icon, selected, onClick, onDoubleClick, defaultPos
         className={`icon-container ${selected ? 'selected' : ''}`}
         onDoubleClick={onDoubleClick}
       >
-        <div className="icon-box">{icon}</div>
+        <div className="icon-box">
+          {isImageIcon ? <img src={icon} alt={label} className="desktop-icon-image" /> : icon}
+        </div>
         <div className="icon-label">{label}</div>
       </div>
     </Draggable>

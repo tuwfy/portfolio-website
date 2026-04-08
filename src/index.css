@@ -561,23 +561,29 @@ html, body, #root {
   padding: 10px;
 }
 
+.doom-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.doom-badge {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
 .doom-note,
 .doom-status {
   margin: 4px 0 8px;
 }
 
-.doom-canvas {
+.doom-iframe {
   width: 100%;
-  height: 360px;
+  height: 420px;
   border: 1px solid #000;
   background: #111;
-}
-
-.doom-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
 }
 
 .icon-container {
@@ -600,6 +606,13 @@ html, body, #root {
   justify-content: center;
   font-size: 24px;
   margin-bottom: 5px;
+}
+
+.desktop-icon-image {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  image-rendering: pixelated;
 }
 
 .icon-label {
@@ -819,7 +832,7 @@ canvas {
     width: 100%;
   }
 
-  .doom-canvas {
+  .doom-iframe {
     height: 280px;
   }
 }

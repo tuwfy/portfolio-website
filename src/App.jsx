@@ -101,7 +101,7 @@ function App() {
   const screenW = typeof window !== 'undefined' ? window.innerWidth : 1000;
   const isMobile = screenW <= 768;
   const leftColumnX = isMobile ? 12 : 24;
-  const rightColumnX = isMobile ? Math.max(108, screenW - 96) : 124;
+  const rightColumnX = isMobile ? Math.max(108, screenW - 96) : 132;
   const iconY = (row) => (isMobile ? 14 + row * 78 : 20 + row * 82);
 
   return (
@@ -150,7 +150,7 @@ function App() {
             'Work',
             <WorkApp />
           )}
-          defaultPosition={{ x: leftColumnX, y: iconY(2) }}
+          defaultPosition={{ x: rightColumnX, y: iconY(0) }}
         />
         <DesktopIcon
           label="CV"
@@ -162,11 +162,11 @@ function App() {
             'CV',
             <CVApp />
           )}
-          defaultPosition={{ x: leftColumnX, y: iconY(3) }}
+          defaultPosition={{ x: rightColumnX, y: iconY(1) }}
         />
         <DesktopIcon
           label="Doom"
-          icon="🎮"
+          icon="/doom-icon.png"
           selected={selectedIcon === 'doom'}
           onClick={() => setSelectedIcon('doom')}
           onDoubleClick={() => openWindow(
@@ -182,7 +182,7 @@ function App() {
           selected={selectedIcon === 'linkedin'}
           onClick={() => setSelectedIcon('linkedin')}
           onDoubleClick={openLinkedIn}
-          defaultPosition={{ x: rightColumnX, y: iconY(0) }}
+          defaultPosition={{ x: rightColumnX, y: iconY(2) }}
         />
         <DesktopIcon
           label="Contact"
@@ -194,7 +194,7 @@ function App() {
               <p>Email: tyriccardi@gmail.com</p>
             </div>
           )}
-          defaultPosition={{ x: rightColumnX, y: iconY(1) }}
+          defaultPosition={{ x: rightColumnX, y: iconY(3) }}
         />
 
         <DesktopIcon
@@ -203,7 +203,7 @@ function App() {
           selected={selectedIcon === 'readme'}
           onClick={() => setSelectedIcon('readme')}
           onDoubleClick={downloadResume}
-          defaultPosition={{ x: rightColumnX, y: iconY(2) }}
+          defaultPosition={{ x: leftColumnX, y: iconY(2) }}
         />
 
         <DesktopIcon
@@ -212,7 +212,7 @@ function App() {
           selected={selectedIcon === 'spotify'}
           onClick={() => setSelectedIcon('spotify')}
           onDoubleClick={() => openWindow('spotify', 'Spotify Player', <SpotifyApp />)}
-          defaultPosition={{ x: rightColumnX, y: iconY(3) }}
+          defaultPosition={{ x: leftColumnX, y: iconY(3) }}
         />
 
         <div className="window-container">
