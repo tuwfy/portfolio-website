@@ -138,10 +138,11 @@ const CreativeCanvas = ({ mode }) => {
 
     const drawStarsBackground = (time) => {
       const bg = getCachedBackground('starsSky', (bctx, width, height) => {
-        const g = bctx.createLinearGradient(0, 0, 0, height);
-        g.addColorStop(0, '#02030a');
-        g.addColorStop(1, '#081231');
-        bctx.fillStyle = g;
+        const g0 = bctx.createLinearGradient(0, 0, 0, height);
+        g0.addColorStop(0, '#020109');
+        g0.addColorStop(0.55, '#050817');
+        g0.addColorStop(1, '#02030a');
+        bctx.fillStyle = g0;
         bctx.fillRect(0, 0, width, height);
 
         // Milky way band via FBM noise + soft rotation
@@ -162,23 +163,23 @@ const CreativeCanvas = ({ mode }) => {
             const ry = nx * sin + ny * cos;
             const band = Math.exp(-Math.pow(ry * 2.2, 2));
             const n = fbm2D(rx * 3.4 + 10, ry * 3.4 + 20, 5);
-            const dust = Math.pow(n, 2.6) * band;
+            const dust = Math.pow(n, 2.7) * band;
             const idx = (y * width + x) * 4;
-            const r = 8 + dust * 55;
-            const g = 10 + dust * 34;
-            const b = 20 + dust * 78;
+            const r = 4 + dust * 42;
+            const g = 6 + dust * 28;
+            const b = 14 + dust * 72;
             data[idx + 0] = r;
             data[idx + 1] = g;
             data[idx + 2] = b;
-            data[idx + 3] = Math.floor(clamp(dust * 255 * 0.55, 0, 255));
+            data[idx + 3] = Math.floor(clamp(dust * 255 * 0.38, 0, 255));
           }
         }
         bctx.putImageData(img, 0, 0);
 
         // vignette
-        const vg = bctx.createRadialGradient(width * 0.5, height * 0.55, height * 0.1, width * 0.5, height * 0.55, height * 0.8);
+        const vg = bctx.createRadialGradient(width * 0.5, height * 0.55, height * 0.1, width * 0.5, height * 0.55, height * 0.85);
         vg.addColorStop(0, 'rgba(0,0,0,0)');
-        vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+        vg.addColorStop(1, 'rgba(0,0,0,0.78)');
         bctx.fillStyle = vg;
         bctx.fillRect(0, 0, width, height);
       });
@@ -245,9 +246,9 @@ const CreativeCanvas = ({ mode }) => {
 
       if (mode === 'stars') {
         const t = time * 0.0006;
-        const driftX = 0.000015 * dt;
+        const driftX = 0.000012 * dt;
         const lensR = mobile ? 110 : 150;
-        const lensStrength = mobile ? 0.9 : 1.2;
+        const lensStrength = mobile ? 0.7 : 1.0;
         const mx = mouseRef.current.x;
         const my = mouseRef.current.y;
         const mActive = mouseRef.current.active;
@@ -268,17 +269,17 @@ const CreativeCanvas = ({ mode }) => {
             if (d < lensR) focus += (1 - d / lensR) * lensStrength;
           }
 
-          const size = (0.35 + s.mag * 2.4) * tw * focus;
-          const bloom = ctx.createRadialGradient(sx, sy, 0, sx, sy, size * 9);
-          bloom.addColorStop(0, `hsla(${s.hue}, 100%, 92%, ${0.22 + s.mag * 0.18})`);
-          bloom.addColorStop(0.22, `hsla(${s.hue}, 90%, 86%, ${0.12 + s.mag * 0.1})`);
+          const size = (0.3 + s.mag * 2.1) * tw * focus;
+          const bloom = ctx.createRadialGradient(sx, sy, 0, sx, sy, size * 5.5);
+          bloom.addColorStop(0, `hsla(${s.hue}, 90%, 88%, ${0.16 + s.mag * 0.12})`);
+          bloom.addColorStop(0.25, `hsla(${s.hue}, 80%, 82%, ${0.08 + s.mag * 0.08})`);
           bloom.addColorStop(1, 'rgba(255,255,255,0)');
           ctx.fillStyle = bloom;
           ctx.beginPath();
-          ctx.arc(sx, sy, size * 9, 0, Math.PI * 2);
+          ctx.arc(sx, sy, size * 5.5, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.fillStyle = `hsla(${s.hue}, 100%, 96%, ${0.55 + s.mag * 0.35})`;
+          ctx.fillStyle = `hsla(${s.hue}, 100%, 93%, ${0.45 + s.mag * 0.25})`;
           ctx.beginPath();
           ctx.arc(sx, sy, Math.max(0.35, size), 0, Math.PI * 2);
           ctx.fill();
@@ -300,7 +301,7 @@ const CreativeCanvas = ({ mode }) => {
         const mx = mouseRef.current.x;
         const my = mouseRef.current.y;
         const mActive = mouseRef.current.active;
-        const influenceR = mobile ? 120 : 160;
+        const influenceR = mobile ? 170 : 220;
 
         // ground occlusion
         const oc = ctx.createLinearGradient(0, height * 0.65, 0, height);
@@ -315,21 +316,24 @@ const CreativeCanvas = ({ mode }) => {
           const b = blades[i];
           const depth = b.d; // 0 far, 1 near
           const px = b.x * width;
-          const rootY = lerp(height * 0.58, height * 0.98, depth);
-          const bladeLen = lerp(mobile ? 42 : 62, mobile ? 170 : 240, depth) * (0.75 + fbm2D(b.seed * 0.03, depth * 2, 3) * 0.55);
+          const rootY = lerp(height * 0.6, height * 1.0, depth);
+          const bladeLen = lerp(mobile ? 46 : 70, mobile ? 180 : 260, depth) * (0.7 + fbm2D(b.seed * 0.03, depth * 2, 3) * 0.5);
           const bladeW = lerp(0.35, mobile ? 1.4 : 1.8, depth);
 
           // wind field: low-frequency + gust noise
-          const wx = fbm2D(px * 0.004 + t * 0.25, depth * 2 + 10, 4) * 2 - 1;
-          const gust = fbm2D(px * 0.01 + t * 0.6, depth * 5 + 40, 3) * 2 - 1;
-          let bend = (wx * 22 + gust * 12) * (0.25 + depth * 0.9);
+          const wx = fbm2D(px * 0.003 + t * 0.22, depth * 2 + 10, 4) * 2 - 1;
+          const gust = fbm2D(px * 0.008 + t * 0.55, depth * 5 + 40, 3) * 2 - 1;
+          let bend = (wx * 16 + gust * 10) * (0.2 + depth * 0.9);
 
           // mouse interaction
           if (mActive) {
             const dx = mx - px;
-            const dy = my - (rootY - bladeLen * 0.55);
+            const dy = my - (rootY - bladeLen * 0.5);
             const d = Math.hypot(dx, dy) || 1;
-            if (d < influenceR) bend += (1 - d / influenceR) * 42 * Math.sign(dx);
+            if (d < influenceR) {
+              const falloff = smoothstep(1 - d / influenceR);
+              bend += falloff * 60 * Math.sign(dx);
+            }
           }
 
           const tipX = px + bend;
