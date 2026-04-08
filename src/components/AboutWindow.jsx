@@ -5,14 +5,11 @@ const AboutWindow = () => {
     <div className="about-container">
       <div className="about-header">
         <div className="about-logo-container">
-          <svg width="80" height="80" viewBox="0 0 100 100">
-             <rect x="10" y="10" width="80" height="80" fill="#4A90E2" stroke="black" strokeWidth="2" />
-             <path d="M50 10 L50 90" stroke="black" strokeWidth="2" />
-             <circle cx="35" cy="40" r="4" fill="black" />
-             <circle cx="65" cy="40" r="4" fill="black" />
-             <path d="M30 65 Q50 75 70 65" stroke="black" strokeWidth="2" fill="none" />
-             <path d="M50 45 L45 55 L50 55" stroke="black" strokeWidth="2" fill="none" />
-          </svg>
+          <img
+            src="/finder-logo.png"
+            alt="Finder"
+            className="finder-logo finder-logo--about"
+          />
         </div>
         <div className="about-info" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <h1 style={{ margin: '0', fontSize: '3rem', fontWeight: 'bold' }}>Mac OS 9.2</h1>

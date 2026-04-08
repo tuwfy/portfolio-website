@@ -53,10 +53,12 @@ const MenuBar = ({ onOpenHelp }) => {
       <div style={{ flexGrow: 1 }}></div>
       <div className="mac-menu-item" style={{ fontSize: '1rem', fontWeight: 'bold' }}>{time}</div>
       <div className="mac-menu-item">
+        <img
+          src="/finder-logo.png"
+          alt=""
+          className="finder-logo finder-logo--menubar"
+        />
         <span style={{ marginRight: '6px' }}>Finder</span>
-        <div style={{ width: '16px', height: '16px', border: '1px solid black', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '10px', height: '10px', backgroundColor: 'black' }}></div>
-        </div>
       </div>
     </div>
   );
