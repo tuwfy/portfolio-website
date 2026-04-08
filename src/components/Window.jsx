@@ -6,15 +6,18 @@ const CHROME_HEIGHT = 32;
 const VIEWPORT_PADDING = 20;
 const MIN_WIDTH = 240;
 const MIN_HEIGHT = 150;
-const MAX_WIDTH_RATIO = 0.88;
+const MAX_WIDTH_RATIO = 0.97;
 
 const Window = ({ title, children, onClose, zIndex, onClick }) => {
   const nodeRef = useRef(null);
   const isResizing = useRef(false);
   const contentRef = useRef(null);
   const hasUserMovedRef = useRef(false);
+  const userManuallySizedRef = useRef(false);
+  const sizeRef = useRef({ width: 420, height: 280 });
   const [size, setSize] = useState({ width: 420, height: 280 });
   const [position, setPosition] = useState({ x: 100, y: 80 });
+  sizeRef.current = size;
 
   const getViewportLimits = () => {
     const viewportWidth = window.innerWidth;
@@ -35,6 +38,7 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
   };
 
   const measureAndFit = () => {
+    if (userManuallySizedRef.current) return;
     if (!contentRef.current) return;
     const contentRoot = contentRef.current.firstElementChild || contentRef.current;
     const { maxWidth, maxHeight } = getViewportLimits();
@@ -52,6 +56,7 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
 
   useEffect(() => {
     hasUserMovedRef.current = false;
+    userManuallySizedRef.current = false;
     const raf1 = requestAnimationFrame(measureAndFit);
     const raf2 = requestAnimationFrame(measureAndFit);
     const delayed = setTimeout(measureAndFit, 120);
@@ -64,7 +69,22 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
 
   useEffect(() => {
     const handleViewportResize = () => {
-      measureAndFit();
+      if (userManuallySizedRef.current) {
+        const { maxWidth, maxHeight } = getViewportLimits();
+        const clampedWidth = Math.min(Math.max(MIN_WIDTH, sizeRef.current.width), maxWidth);
+        const clampedHeight = Math.min(Math.max(MIN_HEIGHT, sizeRef.current.height), maxHeight);
+        setSize({ width: clampedWidth, height: clampedHeight });
+        setPosition((prev) => {
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight - 28;
+          return {
+            x: Math.max(VIEWPORT_PADDING, Math.min(prev.x, viewportWidth - clampedWidth - VIEWPORT_PADDING)),
+            y: Math.max(VIEWPORT_PADDING, Math.min(prev.y, viewportHeight - clampedHeight - VIEWPORT_PADDING)),
+          };
+        });
+      } else {
+        measureAndFit();
+      }
     };
 
     let observer = null;
@@ -89,14 +109,17 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
     e.stopPropagation();
     e.preventDefault();
     isResizing.current = true;
+    userManuallySizedRef.current = true;
 
     const startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
     const startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-    const startWidth = size.width;
-    const startHeight = size.height;
+    const startWidth = sizeRef.current.width;
+    const startHeight = sizeRef.current.height;
+    const touchMoveOptions = { passive: false };
 
     const onMove = (moveEvent) => {
       if (!isResizing.current) return;
+      moveEvent.preventDefault();
 
       const currentX = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientX : moveEvent.clientX;
       const currentY = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientY : moveEvent.clientY;
@@ -112,13 +135,13 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
       isResizing.current = false;
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onEnd);
-      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchmove', onMove, touchMoveOptions);
       window.removeEventListener('touchend', onEnd);
     };
 
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
-    window.addEventListener('touchmove', onMove);
+    window.addEventListener('touchmove', onMove, touchMoveOptions);
     window.addEventListener('touchend', onEnd);
   };
 
