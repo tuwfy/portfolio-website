@@ -8,28 +8,39 @@ const FinderLogo = ({ className = '', size = 64 }) => (
     aria-hidden="true"
     className={className}
   >
-    <rect x="0" y="0" width="64" height="64" fill="#d9d9d9" />
-    <rect x="10" y="10" width="44" height="44" fill="#6f8fd9" />
-    <path d="M32 10v44" stroke="#111" strokeWidth="1.5" />
-    <rect x="18.2" y="19.5" width="2.3" height="7" fill="#111" />
-    <rect x="39.2" y="22.5" width="2.3" height="2.3" fill="#111" />
+    <rect x="0" y="0" width="64" height="64" fill="#d7d7d7" />
+    <rect x="11" y="11" width="42" height="42" fill="#6d8fd7" />
+    <path d="M32 11v42" stroke="#0f0f0f" strokeWidth="1.6" />
+
+    {/* left eye */}
+    <rect x="18.5" y="18.8" width="2.6" height="7.2" fill="#0f0f0f" />
+
+    {/* right eye */}
+    <circle cx="39.8" cy="22.8" r="1.5" fill="#0f0f0f" />
+
+    {/* left face smile */}
     <path
-      d="M16.8 42.2c4.9 4.8 15.7 5.4 20.4-.6"
-      stroke="#111"
-      strokeWidth="1.8"
+      d="M16.8 40.8C20.8 44.4 27.4 44.7 31.3 40.8"
+      stroke="#0f0f0f"
+      strokeWidth="1.9"
       fill="none"
       strokeLinecap="round"
     />
+
+    {/* top left finder curl */}
     <path
-      d="M27.5 13.5c-4.6 3.4-6.8 8.5-6.6 13.2 3.6.2 7-1.3 9.2-4 2.2-2.7 3.4-6.4 3-10-2 .2-3.9.6-5.6 1.6z"
-      fill="#111"
+      d="M28.4 13.8c-4.9 3.3-7.1 8.2-6.7 12.6 3.6-.1 6.7-1.6 8.8-4.1 2.1-2.4 3.1-5.8 2.7-9.4-1.8.2-3.4.6-4.8.9z"
+      fill="#0f0f0f"
     />
+
+    {/* right profile outline */}
     <path
-      d="M40 15.5c-1.6 2.8-2.5 7.5-1.7 12.4m-.1.1c1.7 10.5 1.2 20.2-1.7 29.6"
-      stroke="#111"
-      strokeWidth="1.8"
+      d="M39.4 15.4C37.2 18.6 36 24 36.8 29.7c1 6.3.8 12.3-.3 18.1-0.4 2.2-0.9 3.9-1.5 5.2"
+      stroke="#0f0f0f"
+      strokeWidth="2.1"
       fill="none"
       strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
