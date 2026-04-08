@@ -81,8 +81,8 @@ html, body, #root {
 }
 
 .finder-logo--about {
-  width: 56px;
-  height: 56px;
+  width: 58px;
+  height: 58px;
   object-fit: contain;
 }
 
@@ -478,23 +478,28 @@ html, body, #root {
   flex-direction: column;
   width: 540px;
   max-width: 92vw;
+  background: #d8d8d8;
 }
 
 .about9-top {
-  background: #fff;
+  background: #d8d8d8;
   border-bottom: 1px solid #000;
+  padding: 6px 7px 0;
 }
 
 .about9-top-inner {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  padding: 16px 18px 8px;
-  gap: 16px;
+  background: #fff;
+  border: 1px solid #000;
+  padding: 10px 14px 10px;
+  gap: 14px;
 }
 
 .about9-logo {
   flex-shrink: 0;
+  padding-top: 2px;
 }
 
 .about9-info {
@@ -504,18 +509,19 @@ html, body, #root {
 
 .about9-title {
   font-family: "Apple Garamond", Garamond, "Palatino Linotype", Palatino, Georgia, serif;
-  font-size: 52px;
+  font-size: 66px;
   font-weight: 400;
-  line-height: 0.9;
-  letter-spacing: -0.5px;
+  line-height: 0.84;
+  letter-spacing: -1px;
   color: #000;
-  margin: 0 0 8px;
+  margin: -2px 0 8px;
+  -webkit-font-smoothing: antialiased;
 }
 
 .about9-stats {
   border-collapse: collapse;
   font-size: 13px;
-  line-height: 1.35;
+  line-height: 1.2;
 }
 
 .about9-stats td {
@@ -533,20 +539,21 @@ html, body, #root {
   text-align: right;
   font-size: 11px;
   color: #222;
-  padding: 0 18px 8px;
+  padding: 4px 12px 8px;
 }
 
 .about9-bottom {
   background: #d8d8d8;
-  border-top: 1px solid #9c9c9c;
-  padding: 6px 10px 10px;
+  padding: 3px 7px 9px;
 }
 
 .about9-mem-row {
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   gap: 8px;
+  padding: 2px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.75);
 }
 
 .about9-mem-row:last-child {
@@ -589,14 +596,18 @@ html, body, #root {
   flex: 1;
   min-width: 120px;
   height: 12px;
-  background: #ffffff;
+  background: #f9f9f9;
   border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .about9-mem-bar-fill {
   height: 100%;
-  background: linear-gradient(180deg, #76d9ff 0%, #35a6eb 45%, #1878c6 100%);
-  border-right: 1px solid rgba(0, 0, 0, 0.35);
+  background: linear-gradient(180deg, #98ecff 0%, #45c3ff 28%, #1f95e4 62%, #166fbf 100%);
+  border-right: 1px solid rgba(0, 0, 0, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 0 5px rgba(63, 205, 255, 0.35);
 }
 
 .cv-content {
