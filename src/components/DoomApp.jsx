@@ -203,10 +203,16 @@ const DoomApp = () => {
   return (
     <div className="mac-content-inner doom-app">
       <div className="doom-header">
-        <img src="/doom-icon.png" alt="Doom icon" className="doom-badge" />
-        <p className="doom-note">Mini Doom-style one-room shooter. Move: WASD/Arrows. Shoot: Space.</p>
+        <img src="/doom-logo.png" alt="Doom logo" className="doom-logo-wide" />
+        <p className="doom-note">One-room Doom shooter. Move: WASD/Arrows, turn: A/D or Left/Right, shoot: Space.</p>
       </div>
       <canvas ref={canvasRef} className="doom-iframe" />
+      <div className="doom-mobile-controls">
+        <button className="retro-mac-btn" onMouseDown={() => (keysRef.current.ArrowUp = true)} onMouseUp={() => (keysRef.current.ArrowUp = false)} onTouchStart={() => (keysRef.current.ArrowUp = true)} onTouchEnd={() => (keysRef.current.ArrowUp = false)}>Forward</button>
+        <button className="retro-mac-btn" onMouseDown={() => (keysRef.current.ArrowLeft = true)} onMouseUp={() => (keysRef.current.ArrowLeft = false)} onTouchStart={() => (keysRef.current.ArrowLeft = true)} onTouchEnd={() => (keysRef.current.ArrowLeft = false)}>Turn L</button>
+        <button className="retro-mac-btn" onMouseDown={() => (keysRef.current[' '] = true)} onMouseUp={() => (keysRef.current[' '] = false)} onTouchStart={() => (keysRef.current[' '] = true)} onTouchEnd={() => (keysRef.current[' '] = false)}>Shoot</button>
+        <button className="retro-mac-btn" onMouseDown={() => (keysRef.current.ArrowRight = true)} onMouseUp={() => (keysRef.current.ArrowRight = false)} onTouchStart={() => (keysRef.current.ArrowRight = true)} onTouchEnd={() => (keysRef.current.ArrowRight = false)}>Turn R</button>
+      </div>
       <p className="doom-status">{status}</p>
     </div>
   );
