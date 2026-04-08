@@ -472,111 +472,131 @@ html, body, #root {
   image-rendering: auto;
 }
 
-/* About Window Specifics */
-.about-container {
+/* About This Computer */
+.about9 {
   display: flex;
   flex-direction: column;
-  min-width: 520px;
-  max-width: 560px;
+  width: 540px;
+  max-width: 92vw;
 }
 
-.about-header {
+.about9-top {
+  background: #fff;
+  border-bottom: 1px solid #000;
+}
+
+.about9-top-inner {
   display: flex;
+  flex-direction: row;
   align-items: flex-start;
-  gap: 14px;
-  padding: 12px 14px 10px;
-  border-bottom: 2px solid var(--mac-black);
-  background: #eee;
+  padding: 16px 18px 8px;
+  gap: 16px;
 }
 
-.about-logo-container {
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  margin-top: 2px;
+.about9-logo {
+  flex-shrink: 0;
 }
 
-.about-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+.about9-info {
+  flex: 1;
   min-width: 0;
 }
 
-.about-info h1 {
-  margin: 0;
-  font-family: "Apple Garamond", Garamond, "Palatino Linotype", serif;
+.about9-title {
+  font-family: "Apple Garamond", Garamond, "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 52px;
   font-weight: 400;
-  font-size: 4.2rem;
   line-height: 0.9;
-  letter-spacing: 0;
+  letter-spacing: -0.5px;
+  color: #000;
+  margin: 0 0 8px;
 }
 
-.about-info p {
-  margin: 2px 0;
-  font-size: 0.9rem;
-  line-height: 1.2;
+.about9-stats {
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
-.about-info p:first-of-type {
-  margin-top: 8px;
-  font-size: 1.08rem;
+.about9-stats td {
+  padding: 0 6px 0 0;
+  vertical-align: top;
 }
 
-.about-details {
-  border-top: 1px solid var(--mac-gray);
-  padding: 10px 20px;
-  font-size: 1rem;
+.about9-stat-label {
+  font-weight: 700;
+  white-space: nowrap;
+  padding-right: 8px !important;
 }
 
-.about-footer {
+.about9-copyright {
   text-align: right;
-  font-size: 0.7rem;
-  padding: 8px 12px 10px;
+  font-size: 11px;
+  color: #222;
+  padding: 0 18px 8px;
 }
 
-.memory-row {
+.about9-bottom {
+  background: #d8d8d8;
+  border-top: 1px solid #9c9c9c;
+  padding: 6px 10px 10px;
+}
+
+.about9-mem-row {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 4px;
+  gap: 8px;
 }
 
-.memory-icon {
-  width: 30px;
-  height: 30px;
-  margin-right: 15px;
+.about9-mem-row:last-child {
+  margin-bottom: 0;
+}
+
+.about9-mem-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
   border: 1px solid #000;
+  background: #f4f4f4;
 }
 
-.memory-label {
-  width: 120px;
+.about9-mem-icon-ie {
+  color: #0066cc;
+  font-style: italic;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.about9-mem-name {
+  width: 132px;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.about9-mem-size {
+  width: 52px;
+  flex-shrink: 0;
   text-align: right;
-  margin-right: 15px;
+  font-size: 12px;
 }
 
-.memory-bar-container {
-  flex-grow: 1;
-  height: 14px;
+.about9-mem-bar-track {
+  flex: 1;
+  min-width: 120px;
+  height: 12px;
+  background: #ffffff;
   border: 1px solid #000;
-  position: relative;
-  background: #fff;
 }
 
-.memory-bar-fill {
+.about9-mem-bar-fill {
   height: 100%;
-  background: #4A90E2;
-  border-right: 1px solid #000;
-}
-
-.memory-text {
-  font-size: 0.9rem;
-  margin-left: 10px;
-  width: 60px;
+  background: linear-gradient(180deg, #76d9ff 0%, #35a6eb 45%, #1878c6 100%);
+  border-right: 1px solid rgba(0, 0, 0, 0.35);
 }
 
 .cv-content {
@@ -879,22 +899,26 @@ canvas {
   .about-logo-container {
     margin-bottom: 8px;
   }
-  
-  .about-info h1 {
-    font-size: 2rem;
-  }
-  
-  .memory-row {
+
+  .about9-top-inner {
     flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .memory-label {
-    text-align: left;
-    margin-bottom: 5px;
+    align-items: center;
+    text-align: center;
   }
 
-  .about-container,
+  .about9-title {
+    font-size: 34px;
+  }
+
+  .about9-copyright {
+    text-align: center;
+  }
+
+  .about9-mem-row {
+    flex-wrap: wrap;
+  }
+
+  .about9,
   .cv-content,
   .work-sketch-frame,
   .work-app-scroll,
