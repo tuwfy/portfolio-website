@@ -12,26 +12,26 @@ const PLAYER_SPAWN = { x: 1.5, y: 1.5, angle: 0 };
 const MAP = [
   '111111111111',
   '100000000001',
-  '102001110001',
-  '100000000201',
-  '101110100001',
-  '100010100301',
-  '103000000001',
-  '100011111001',
   '100000000001',
-  '101101001001',
+  '100020000001',
+  '100000000001',
+  '100003300001',
+  '100000000001',
+  '100022000001',
+  '100000000001',
+  '100000000001',
   '100000000001',
   '111111111111'
 ];
 const SPAWN_POINTS = [
-  { x: 9.5, y: 2.5 },
-  { x: 8.5, y: 5.5 },
-  { x: 2.5, y: 6.5 },
-  { x: 9.5, y: 8.5 },
-  { x: 3.5, y: 9.5 },
-  { x: 6.5, y: 3.5 },
-  { x: 5.5, y: 8.5 },
-  { x: 2.5, y: 2.5 }
+  { x: 4.5, y: 2.5 },
+  { x: 8.5, y: 2.5 },
+  { x: 9.5, y: 5.5 },
+  { x: 8.5, y: 8.5 },
+  { x: 5.5, y: 9.5 },
+  { x: 2.5, y: 8.5 },
+  { x: 2.5, y: 5.5 },
+  { x: 6.5, y: 6.5 }
 ];
 const ASSET_RECTS = {
   hud: { src: '/doom-ref-room-3.png', x: 0, y: 430, w: 1024, h: 147 }
@@ -375,6 +375,65 @@ const createWeaponSprite = (isFlash = false) =>
     }
   });
 
+const createFloorTexture = () =>
+  createSpriteCanvas(64, 64, (ctx) => {
+    for (let y = 0; y < 64; y += 1) {
+      for (let x = 0; x < 64; x += 1) {
+        const tile = ((Math.floor(x / 16) + Math.floor(y / 16)) % 2) === 0;
+        const noise = ((x * 17 + y * 11) % 19) / 19;
+        const base = tile ? 88 : 76;
+        const r = base + noise * 18;
+        const g = base - 8 + noise * 14;
+        const b = base - 18 + noise * 8;
+        ctx.fillStyle = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+
+    ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+    ctx.lineWidth = 1;
+    for (let step = 0; step <= 64; step += 16) {
+      ctx.beginPath();
+      ctx.moveTo(step + 0.5, 0);
+      ctx.lineTo(step + 0.5, 64);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, step + 0.5);
+      ctx.lineTo(64, step + 0.5);
+      ctx.stroke();
+    }
+  });
+
+const createCeilingTexture = () =>
+  createSpriteCanvas(64, 64, (ctx) => {
+    ctx.fillStyle = '#5f5543';
+    ctx.fillRect(0, 0, 64, 64);
+
+    for (let y = 0; y < 64; y += 1) {
+      for (let x = 0; x < 64; x += 1) {
+        const grain = ((x * 9 + y * 13) % 23) / 23;
+        const shade = 92 + grain * 28;
+        ctx.fillStyle = `rgb(${Math.round(shade)}, ${Math.round(shade - 10)}, ${Math.round(shade - 22)})`;
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+
+    ctx.strokeStyle = 'rgba(24, 14, 8, 0.35)';
+    ctx.lineWidth = 1;
+    for (let row = 8; row < 64; row += 16) {
+      ctx.beginPath();
+      ctx.moveTo(0, row + 0.5);
+      ctx.lineTo(64, row + 0.5);
+      ctx.stroke();
+    }
+    for (let col = 8; col < 64; col += 16) {
+      ctx.beginPath();
+      ctx.moveTo(col + 0.5, 0);
+      ctx.lineTo(col + 0.5, 64);
+      ctx.stroke();
+    }
+  });
+
 const isWall = (x, y) => {
   const cellX = Math.floor(x);
   const cellY = Math.floor(y);
@@ -528,7 +587,7 @@ const DoomApp = () => {
 
       const enemyCount = Math.min(SPAWN_POINTS.length, 2 + roundNumber);
       const enemyHp = 2 + Math.floor((roundNumber - 1) / 2);
-      const enemySpeed = 0.00024 + roundNumber * 0.00005;
+      const enemySpeed = 0.00042 + roundNumber * 0.00008;
       const spawnOffset = ((roundNumber - 1) * 2) % SPAWN_POINTS.length;
 
       game.enemies = Array.from({ length: enemyCount }, (_, index) => {
@@ -660,7 +719,7 @@ const DoomApp = () => {
         const dy = game.player.y - enemy.y;
         const distance = Math.hypot(dx, dy);
 
-        if (distance > 0.9) {
+        if (distance > 0.8) {
           const next = tryMove(
             enemy,
             enemy.x + (dx / distance) * delta * enemy.speed,
@@ -690,6 +749,48 @@ const DoomApp = () => {
       drawHudText(bctx, `${Math.round(game.player.hp)}%`, 63, 165, 3);
       drawHudText(bctx, `${Math.round(game.player.armor)}%`, 201, 165, 3);
       bctx.restore();
+    };
+
+    const drawPlane = (texture, isFloor) => {
+      const textureCtx = texture.getContext('2d');
+      const dirX = Math.cos(game.player.angle);
+      const dirY = Math.sin(game.player.angle);
+      const planeX = -dirY * Math.tan(FOV / 2);
+      const planeY = dirX * Math.tan(FOV / 2);
+
+      const rowStart = isFloor ? Math.floor(VIEWPORT_HEIGHT / 2) : 0;
+      const rowEnd = isFloor ? VIEWPORT_HEIGHT : Math.floor(VIEWPORT_HEIGHT / 2);
+
+      for (let y = rowStart; y < rowEnd; y += 1) {
+        const p = isFloor ? y - VIEWPORT_HEIGHT / 2 : VIEWPORT_HEIGHT / 2 - y;
+        if (p === 0) continue;
+
+        const rowDistance = (VIEWPORT_HEIGHT * 0.5) / p;
+        const leftRayX = dirX - planeX;
+        const leftRayY = dirY - planeY;
+        const rightRayX = dirX + planeX;
+        const rightRayY = dirY + planeY;
+
+        const stepX = (rowDistance * (rightRayX - leftRayX)) / VIEW_WIDTH;
+        const stepY = (rowDistance * (rightRayY - leftRayY)) / VIEW_WIDTH;
+
+        let worldX = game.player.x + rowDistance * leftRayX;
+        let worldY = game.player.y + rowDistance * leftRayY;
+
+        for (let x = 0; x < VIEW_WIDTH; x += 1) {
+          const tx = ((Math.floor(worldX * 8) % 64) + 64) % 64;
+          const ty = ((Math.floor(worldY * 8) % 64) + 64) % 64;
+          const sample = textureCtx.getImageData(tx, ty, 1, 1).data;
+          const shade = clamp(1 - rowDistance / MAX_VIEW_DISTANCE, isFloor ? 0.18 : 0.22, 1);
+          const pixelY = isFloor ? y : VIEWPORT_HEIGHT - y - 1;
+
+          bctx.fillStyle = `rgb(${Math.round(sample[0] * shade)}, ${Math.round(sample[1] * shade)}, ${Math.round(sample[2] * shade)})`;
+          bctx.fillRect(x, pixelY, 1, 1);
+
+          worldX += stepX;
+          worldY += stepY;
+        }
+      }
     };
 
     const wallColorFor = (cell, distance, side, textureU) => {
@@ -731,20 +832,8 @@ const DoomApp = () => {
 
     const drawViewport = (now) => {
       bctx.clearRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
-
-      for (let y = 0; y < VIEWPORT_HEIGHT / 2; y += 1) {
-        const t = y / (VIEWPORT_HEIGHT / 2);
-        const shade = 16 + (1 - t) * 30;
-        bctx.fillStyle = `rgb(${shade}, ${shade + 4}, ${shade + 10})`;
-        bctx.fillRect(0, y, VIEW_WIDTH, 1);
-      }
-
-      for (let y = VIEWPORT_HEIGHT / 2; y < VIEWPORT_HEIGHT; y += 1) {
-        const t = (y - VIEWPORT_HEIGHT / 2) / (VIEWPORT_HEIGHT / 2);
-        const shade = 34 + t * 54;
-        bctx.fillStyle = `rgb(${shade}, ${shade - 6}, ${shade - 10})`;
-        bctx.fillRect(0, y, VIEW_WIDTH, 1);
-      }
+      drawPlane(assets.ceiling, false);
+      drawPlane(assets.floor, true);
 
       for (let x = 0; x < VIEW_WIDTH; x += 1) {
         const rayAngle = game.player.angle + ((x / VIEW_WIDTH) - 0.5) * FOV;
@@ -864,7 +953,9 @@ const DoomApp = () => {
         enemyHit: createImpSprite(true),
         enemyWalkA: createImpWalkSprite(0),
         enemyWalkB: createImpWalkSprite(1),
-        enemyAttack: createImpAttackSprite()
+        enemyAttack: createImpAttackSprite(),
+        floor: createFloorTexture(),
+        ceiling: createCeilingTexture()
       };
 
       resizeCanvas();
