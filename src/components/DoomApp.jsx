@@ -569,6 +569,10 @@ const DoomApp = () => {
     };
 
     const spawnRound = (roundNumber, resetPlayer = false) => {
+      const enemyCount = Math.min(SPAWN_POINTS.length, 2 + roundNumber);
+      const enemyHp = 2 + Math.floor((roundNumber - 1) / 2);
+      const exactAmmoBudget = enemyCount * enemyHp;
+
       if (resetPlayer) {
         game.player = {
           x: PLAYER_SPAWN.x,
@@ -576,17 +580,14 @@ const DoomApp = () => {
           angle: PLAYER_SPAWN.angle,
           hp: 100,
           armor: 0,
-          ammo: 50,
+          ammo: exactAmmoBudget,
           hurtAt: -999,
           weaponFlashUntil: 0
         };
       } else {
-        game.player.ammo = clamp(game.player.ammo + 10, 0, 99);
+        game.player.ammo = exactAmmoBudget;
         game.player.armor = clamp(game.player.armor + 5, 0, 200);
       }
-
-      const enemyCount = Math.min(SPAWN_POINTS.length, 2 + roundNumber);
-      const enemyHp = 2 + Math.floor((roundNumber - 1) / 2);
       const enemySpeed = 0.00042 + roundNumber * 0.00008;
       const spawnOffset = ((roundNumber - 1) * 2) % SPAWN_POINTS.length;
 
@@ -609,7 +610,7 @@ const DoomApp = () => {
       game.nextRoundAt = 0;
       game.running = true;
       keysRef.current = {};
-      setStatus(`Round ${roundNumber}. ${enemyCount} monsters inbound.`);
+      setStatus(`Round ${roundNumber}. ${enemyCount} monsters inbound. Ammo: ${exactAmmoBudget}.`);
     };
 
     const resizeCanvas = () => {
@@ -979,11 +980,31 @@ const DoomApp = () => {
     };
   }, [restartKey]);
 
+  const bindControl = (key) => ({
+    onPointerDown: (event) => {
+      event.preventDefault();
+      keysRef.current[key] = true;
+    },
+    onPointerUp: (event) => {
+      event.preventDefault();
+      keysRef.current[key] = false;
+    },
+    onPointerCancel: () => {
+      keysRef.current[key] = false;
+    },
+    onPointerLeave: () => {
+      keysRef.current[key] = false;
+    },
+    onContextMenu: (event) => {
+      event.preventDefault();
+    }
+  });
+
   return (
     <div className="mac-content-inner doom-app">
       <div className="doom-header">
         <img src="/doom-logo.png" alt="Doom logo" className="doom-logo-wide" />
-        <p className="doom-note">W/S move, A/D turn, Space shoots. Clear rounds to keep the run going.</p>
+        <p className="doom-note">W/S move, A/D turn, Space shoots. Mobile buttons now use hold-to-move controls, and each round refills to the exact ammo needed for the wave.</p>
       </div>
       <canvas ref={canvasRef} className="doom-iframe" />
       <div className="doom-toolbar">
@@ -991,55 +1012,35 @@ const DoomApp = () => {
           <button
             type="button"
             className="retro-mac-btn"
-            onMouseDown={() => (keysRef.current.w = true)}
-            onMouseUp={() => (keysRef.current.w = false)}
-            onMouseLeave={() => (keysRef.current.w = false)}
-            onTouchStart={() => (keysRef.current.w = true)}
-            onTouchEnd={() => (keysRef.current.w = false)}
+            {...bindControl('w')}
           >
             Forward
           </button>
           <button
             type="button"
             className="retro-mac-btn"
-            onMouseDown={() => (keysRef.current.a = true)}
-            onMouseUp={() => (keysRef.current.a = false)}
-            onMouseLeave={() => (keysRef.current.a = false)}
-            onTouchStart={() => (keysRef.current.a = true)}
-            onTouchEnd={() => (keysRef.current.a = false)}
+            {...bindControl('a')}
           >
             Turn L
           </button>
           <button
             type="button"
             className="retro-mac-btn"
-            onMouseDown={() => (keysRef.current[' '] = true)}
-            onMouseUp={() => (keysRef.current[' '] = false)}
-            onMouseLeave={() => (keysRef.current[' '] = false)}
-            onTouchStart={() => (keysRef.current[' '] = true)}
-            onTouchEnd={() => (keysRef.current[' '] = false)}
+            {...bindControl(' ')}
           >
             Shoot
           </button>
           <button
             type="button"
             className="retro-mac-btn"
-            onMouseDown={() => (keysRef.current.d = true)}
-            onMouseUp={() => (keysRef.current.d = false)}
-            onMouseLeave={() => (keysRef.current.d = false)}
-            onTouchStart={() => (keysRef.current.d = true)}
-            onTouchEnd={() => (keysRef.current.d = false)}
+            {...bindControl('d')}
           >
             Turn R
           </button>
           <button
             type="button"
             className="retro-mac-btn"
-            onMouseDown={() => (keysRef.current.s = true)}
-            onMouseUp={() => (keysRef.current.s = false)}
-            onMouseLeave={() => (keysRef.current.s = false)}
-            onTouchStart={() => (keysRef.current.s = true)}
-            onTouchEnd={() => (keysRef.current.s = false)}
+            {...bindControl('s')}
           >
             Back
           </button>
