@@ -3,39 +3,48 @@ import FinderLogo from './FinderLogo';
 
 const AboutWindow = () => {
   return (
-    <div className="about-container">
-      <div className="about-header">
-        <div className="about-logo-container">
-          <FinderLogo className="finder-logo finder-logo--about" />
+    <div className="about9">
+      <div className="about9-top">
+        <div className="about9-top-inner">
+          <div className="about9-logo">
+            <FinderLogo className="finder-logo finder-logo--about" />
+          </div>
+          <div className="about9-info">
+            <div className="about9-title">Mac OS 9.2</div>
+            <table className="about9-stats">
+              <tbody>
+                <tr><td className="about9-stat-label">Version:</td><td>Mac OS 9.2.2</td></tr>
+                <tr><td className="about9-stat-label">Built-in Memory:</td><td>672 MB</td></tr>
+                <tr><td className="about9-stat-label">Virtual Memory:</td><td>Off</td></tr>
+                <tr><td className="about9-stat-label">Largest Unused Block:</td><td>612.6 MB</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div className="about-info">
-          <h1>Mac OS 9.2</h1>
-          <p>Version: Mac OS 9.2.2</p>
-          <p>Built-in Memory: 672 MB</p>
-          <p>Virtual Memory: Off</p>
-          <p>Largest Unused Block: 612.6 MB</p>
+        <div className="about9-copyright">
+          ™ &amp; © Apple Computer, Inc. 1983-2001
         </div>
       </div>
-      <div className="about-details" style={{ padding: '15px' }}>
-        <div className="memory-row">
-          <div className="memory-icon" style={{ backgroundColor: '#fff', border: '1px solid #000', fontSize: '0.8rem', fontWeight: 'bold' }}>IE</div>
-          <div className="memory-label" style={{ fontSize: '1rem' }}>Internet Explorer</div>
-          <div className="memory-bar-container">
-            <div className="memory-bar-fill" style={{ width: '30%', backgroundColor: '#4A90E2' }}></div>
+
+      <div className="about9-bottom">
+        <div className="about9-mem-row">
+          <div className="about9-mem-icon about9-mem-icon-ie">e</div>
+          <div className="about9-mem-name">Internet Explorer</div>
+          <div className="about9-mem-size">13.9 MB</div>
+          <div className="about9-mem-bar-track">
+            <div className="about9-mem-bar-fill" style={{ width: '24%' }} />
           </div>
-          <div className="memory-text">13.9 MB</div>
         </div>
-        <div className="memory-row">
-          <div className="memory-icon" style={{ backgroundColor: '#fff', border: '1px solid #000', fontSize: '0.8rem', fontWeight: 'bold' }}>OS</div>
-          <div className="memory-label" style={{ fontSize: '1rem' }}>Mac OS</div>
-          <div className="memory-bar-container">
-            <div className="memory-bar-fill" style={{ width: '85%', backgroundColor: '#4A90E2' }}></div>
+        <div className="about9-mem-row">
+          <div className="about9-mem-icon about9-mem-icon-os">
+            <span style={{ fontSize: '9px', fontWeight: 800 }}>OS</span>
           </div>
-          <div className="memory-text">43 MB</div>
+          <div className="about9-mem-name">Mac OS</div>
+          <div className="about9-mem-size">43 MB</div>
+          <div className="about9-mem-bar-track">
+            <div className="about9-mem-bar-fill" style={{ width: '72%' }} />
+          </div>
         </div>
-      </div>
-      <div className="about-footer">
-        ™ & © Apple Computer, Inc. 1983-2001
       </div>
     </div>
   );
