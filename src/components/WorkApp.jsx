@@ -44,7 +44,6 @@ const CreativeCanvas = ({ mode }) => {
   const mouseRef = useRef({ x: -1000, y: -1000, active: false });
   const metricsRef = useRef({ width: 0, height: 0, dpr: 1, mobile: false });
   const lastTimeRef = useRef(0);
-  const backgroundRef = useRef({ img: null, ready: false });
   const cachesRef = useRef({
     grassSky: null,
     starsSky: null,
@@ -103,20 +102,6 @@ const CreativeCanvas = ({ mode }) => {
         entitiesRef.current = buildWaterSamples(mobile ? 40 : 64);
       }
     };
-
-    if (mode === 'grass' && !backgroundRef.current.img) {
-      const img = new Image();
-      img.decoding = 'async';
-      img.src = '/grass-bg.png';
-      img.onload = () => {
-        backgroundRef.current = { img, ready: true };
-        cachesRef.current.grassSky = null;
-      };
-      img.onerror = () => {
-        backgroundRef.current = { img: null, ready: false };
-      };
-      backgroundRef.current = { img, ready: false };
-    }
 
     const resize = () => {
       const width = canvas.clientWidth;
@@ -203,44 +188,79 @@ const CreativeCanvas = ({ mode }) => {
 
     const drawGrassBackground = (time) => {
       const bg = getCachedBackground('grassSky', (bctx, width, height) => {
-        const { img, ready } = backgroundRef.current;
-        if (ready && img) {
-          // cover-crop the photo to fill the canvas
-          const iw = img.naturalWidth || img.width;
-          const ih = img.naturalHeight || img.height;
-          const scale = Math.max(width / iw, height / ih);
-          const sw = width / scale;
-          const sh = height / scale;
-          const sx = (iw - sw) * 0.5;
-          const sy = (ih - sh) * 0.5;
+        // cinematic sky
+        const sky = bctx.createLinearGradient(0, 0, 0, height);
+        sky.addColorStop(0, '#cfe0df');
+        sky.addColorStop(0.22, '#b8cfcb');
+        sky.addColorStop(0.55, '#7ea992');
+        sky.addColorStop(1, '#2a4a33');
+        bctx.fillStyle = sky;
+        bctx.fillRect(0, 0, width, height);
 
-          // slight grade pass
-          bctx.filter = 'contrast(1.08) saturate(1.08) brightness(0.98)';
-          bctx.drawImage(img, sx, sy, sw, sh, 0, 0, width, height);
-          bctx.filter = 'none';
-
-          // atmospheric haze to sell depth
-          const haze = bctx.createLinearGradient(0, 0, 0, height);
-          haze.addColorStop(0, 'rgba(255,255,255,0.28)');
-          haze.addColorStop(0.32, 'rgba(255,255,255,0.08)');
-          haze.addColorStop(0.55, 'rgba(255,255,255,0)');
-          bctx.fillStyle = haze;
-          bctx.fillRect(0, 0, width, height);
-
-          // vignette to focus foreground
-          const vg = bctx.createRadialGradient(width * 0.5, height * 0.55, height * 0.1, width * 0.5, height * 0.55, height * 0.9);
-          vg.addColorStop(0, 'rgba(0,0,0,0)');
-          vg.addColorStop(1, 'rgba(0,0,0,0.35)');
-          bctx.fillStyle = vg;
-          bctx.fillRect(0, 0, width, height);
-        } else {
-          const sky = bctx.createLinearGradient(0, 0, 0, height);
-          sky.addColorStop(0, '#cbe4b5');
-          sky.addColorStop(0.4, '#7fb55e');
-          sky.addColorStop(1, '#1c3b20');
-          bctx.fillStyle = sky;
-          bctx.fillRect(0, 0, width, height);
+        // soft cloud banding via fbm (static)
+        const cloudH = Math.floor(height * 0.55);
+        const img = bctx.createImageData(width, cloudH);
+        const data = img.data;
+        for (let y = 0; y < cloudH; y += 1) {
+          const v = y / Math.max(1, cloudH - 1);
+          for (let x = 0; x < width; x += 1) {
+            const u = x / Math.max(1, width - 1);
+            const n = fbm2D(u * 2.4 + 10, v * 3.8 + 2, 5);
+            const streak = Math.pow(clamp(1 - Math.abs(v - 0.24) * 3.2, 0, 1), 2.2);
+            const c = clamp((n - 0.45) * 1.6, 0, 1) * streak;
+            const idx = (y * width + x) * 4;
+            data[idx + 0] = 255;
+            data[idx + 1] = 255;
+            data[idx + 2] = 255;
+            data[idx + 3] = Math.floor(c * 120);
+          }
         }
+        bctx.putImageData(img, 0, 0);
+
+        // distant tree line silhouettes (layered)
+        const horizonY = height * 0.55;
+        bctx.fillStyle = 'rgba(12, 34, 18, 0.55)';
+        bctx.beginPath();
+        bctx.moveTo(0, horizonY);
+        for (let x = 0; x <= width; x += 8) {
+          const u = x / width;
+          const n = fbm2D(u * 3.5 + 50, 12.3, 4);
+          const bump = (n - 0.5) * 46;
+          bctx.lineTo(x, horizonY - 26 + bump);
+        }
+        bctx.lineTo(width, height);
+        bctx.lineTo(0, height);
+        bctx.closePath();
+        bctx.fill();
+
+        bctx.fillStyle = 'rgba(8, 26, 14, 0.35)';
+        bctx.beginPath();
+        bctx.moveTo(0, horizonY + 10);
+        for (let x = 0; x <= width; x += 10) {
+          const u = x / width;
+          const n = fbm2D(u * 2.2 + 9, 24.1, 3);
+          const bump = (n - 0.5) * 26;
+          bctx.lineTo(x, horizonY + 10 - 18 + bump);
+        }
+        bctx.lineTo(width, height);
+        bctx.lineTo(0, height);
+        bctx.closePath();
+        bctx.fill();
+
+        // atmospheric perspective (fog)
+        const fog = bctx.createLinearGradient(0, 0, 0, height);
+        fog.addColorStop(0, 'rgba(255,255,255,0.28)');
+        fog.addColorStop(0.45, 'rgba(255,255,255,0.08)');
+        fog.addColorStop(0.7, 'rgba(255,255,255,0)');
+        bctx.fillStyle = fog;
+        bctx.fillRect(0, 0, width, height);
+
+        // vignette to focus foreground
+        const vg = bctx.createRadialGradient(width * 0.5, height * 0.6, height * 0.12, width * 0.5, height * 0.6, height * 0.95);
+        vg.addColorStop(0, 'rgba(0,0,0,0)');
+        vg.addColorStop(1, 'rgba(0,0,0,0.34)');
+        bctx.fillStyle = vg;
+        bctx.fillRect(0, 0, width, height);
       });
       if (bg) ctx.drawImage(bg, 0, 0);
 
