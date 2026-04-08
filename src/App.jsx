@@ -101,7 +101,7 @@ function App() {
   const screenW = typeof window !== 'undefined' ? window.innerWidth : 1000;
   const isMobile = screenW <= 768;
   const leftColumnX = isMobile ? 12 : 24;
-  const rightColumnX = isMobile ? Math.max(108, screenW - 96) : 132;
+  const rightColumnX = isMobile ? Math.max(108, screenW - 96) : Math.max(120, screenW - 108);
   const iconY = (row) => (isMobile ? 14 + row * 78 : 20 + row * 82);
 
   return (
@@ -110,12 +110,21 @@ function App() {
       <div className="desktop-area" onClick={() => setSelectedIcon(null)}>
 
         <DesktopIcon
-          label="Macintosh HD"
-          icon="💾"
-          selected={selectedIcon === 'hd'}
-          onClick={() => setSelectedIcon('hd')}
-          onDoubleClick={() => openWindow('hd', 'Macintosh HD', <div className="mac-content-inner"><p>Hard Drive is healthy.</p></div>)}
+          label="readme.txt"
+          icon="📝"
+          selected={selectedIcon === 'readme'}
+          onClick={() => setSelectedIcon('readme')}
+          onDoubleClick={downloadResume}
           defaultPosition={{ x: leftColumnX, y: iconY(0) }}
+        />
+
+        <DesktopIcon
+          label="spotify.exe"
+          icon="🎵"
+          selected={selectedIcon === 'spotify'}
+          onClick={() => setSelectedIcon('spotify')}
+          onDoubleClick={() => openWindow('spotify', 'Spotify Player', <SpotifyApp />)}
+          defaultPosition={{ x: leftColumnX, y: iconY(1) }}
         />
 
         <DesktopIcon
@@ -138,32 +147,9 @@ function App() {
               </ul>
             </div>
           )}
-          defaultPosition={{ x: leftColumnX, y: iconY(1) }}
+          defaultPosition={{ x: leftColumnX, y: iconY(2) }}
         />
-        <DesktopIcon
-          label="Work"
-          icon="📂"
-          selected={selectedIcon === 'work'}
-          onClick={() => setSelectedIcon('work')}
-          onDoubleClick={() => openWindow(
-            'work',
-            'Work',
-            <WorkApp />
-          )}
-          defaultPosition={{ x: rightColumnX, y: iconY(0) }}
-        />
-        <DesktopIcon
-          label="CV"
-          icon="📄"
-          selected={selectedIcon === 'cv'}
-          onClick={() => setSelectedIcon('cv')}
-          onDoubleClick={() => openWindow(
-            'cv',
-            'CV',
-            <CVApp />
-          )}
-          defaultPosition={{ x: rightColumnX, y: iconY(1) }}
-        />
+
         <DesktopIcon
           label="Doom"
           icon="/doom-icon.png"
@@ -174,16 +160,27 @@ function App() {
             'Doom',
             <DoomApp />
           )}
-          defaultPosition={{ x: leftColumnX, y: iconY(4) }}
+          defaultPosition={{ x: leftColumnX, y: iconY(3) }}
         />
+
+        <DesktopIcon
+          label="Macintosh HD"
+          icon="💾"
+          selected={selectedIcon === 'hd'}
+          onClick={() => setSelectedIcon('hd')}
+          onDoubleClick={() => openWindow('hd', 'Macintosh HD', <div className="mac-content-inner"><p>Hard Drive is healthy.</p></div>)}
+          defaultPosition={{ x: rightColumnX, y: iconY(0) }}
+        />
+
         <DesktopIcon
           label="LinkedIn"
           icon="🔗"
           selected={selectedIcon === 'linkedin'}
           onClick={() => setSelectedIcon('linkedin')}
           onDoubleClick={openLinkedIn}
-          defaultPosition={{ x: rightColumnX, y: iconY(2) }}
+          defaultPosition={{ x: rightColumnX, y: iconY(1) }}
         />
+
         <DesktopIcon
           label="Contact"
           icon="✉️"
@@ -194,25 +191,33 @@ function App() {
               <p>Email: tyriccardi@gmail.com</p>
             </div>
           )}
+          defaultPosition={{ x: rightColumnX, y: iconY(2) }}
+        />
+
+        <DesktopIcon
+          label="Work"
+          icon="📂"
+          selected={selectedIcon === 'work'}
+          onClick={() => setSelectedIcon('work')}
+          onDoubleClick={() => openWindow(
+            'work',
+            'Work',
+            <WorkApp />
+          )}
           defaultPosition={{ x: rightColumnX, y: iconY(3) }}
         />
 
         <DesktopIcon
-          label="readme.txt"
-          icon="📝"
-          selected={selectedIcon === 'readme'}
-          onClick={() => setSelectedIcon('readme')}
-          onDoubleClick={downloadResume}
-          defaultPosition={{ x: leftColumnX, y: iconY(2) }}
-        />
-
-        <DesktopIcon
-          label="spotify.exe"
-          icon="🎵"
-          selected={selectedIcon === 'spotify'}
-          onClick={() => setSelectedIcon('spotify')}
-          onDoubleClick={() => openWindow('spotify', 'Spotify Player', <SpotifyApp />)}
-          defaultPosition={{ x: leftColumnX, y: iconY(3) }}
+          label="CV"
+          icon="📄"
+          selected={selectedIcon === 'cv'}
+          onClick={() => setSelectedIcon('cv')}
+          onDoubleClick={() => openWindow(
+            'cv',
+            'CV',
+            <CVApp />
+          )}
+          defaultPosition={{ x: rightColumnX, y: iconY(4) }}
         />
 
         <div className="window-container">

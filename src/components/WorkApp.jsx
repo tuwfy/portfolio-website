@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-const RIDGE_COLORS = ['#c3b190', '#9f8467', '#6e7f5f', '#3c4b3a'];
+const WAVE_COLORS = ['#74b6d8', '#4e92bb', '#2f6f97', '#1e4f71'];
 const STAR_COLORS = ['#f2f4ff', '#c6d4ff', '#95a7ff', '#6277d8'];
 
 const CreativeCanvas = ({ mode }) => {
@@ -19,14 +19,16 @@ const CreativeCanvas = ({ mode }) => {
     const resize = () => {
       width = canvas.width = canvas.clientWidth;
       height = canvas.height = canvas.clientHeight;
-      pointsRef.current = Array.from({ length: mode === 'topography' ? 40 : 140 }, () => ({
+      const isMobile = window.innerWidth <= 768;
+      const pointCount = mode === 'waves' ? (isMobile ? 18 : 26) : (isMobile ? 70 : 110);
+      pointsRef.current = Array.from({ length: pointCount }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * (mode === 'topography' ? 0.08 : 0.16),
-        vy: (Math.random() - 0.5) * (mode === 'topography' ? 0.06 : 0.14),
-        size: Math.random() * (mode === 'topography' ? 2.2 : 2.4) + 0.8,
+        vx: (Math.random() - 0.5) * (mode === 'waves' ? 0.07 : 0.13),
+        vy: (Math.random() - 0.5) * (mode === 'waves' ? 0.05 : 0.11),
+        size: Math.random() * (mode === 'waves' ? 2.0 : 2.1) + 0.8,
         phase: Math.random() * Math.PI * 2,
-        color: (mode === 'topography' ? RIDGE_COLORS : STAR_COLORS)[Math.floor(Math.random() * 4)]
+        color: (mode === 'waves' ? WAVE_COLORS : STAR_COLORS)[Math.floor(Math.random() * 4)]
       }));
     };
 
@@ -38,11 +40,11 @@ const CreativeCanvas = ({ mode }) => {
     };
 
     const drawBackground = (time) => {
-      if (mode === 'topography') {
+      if (mode === 'waves') {
         const g = ctx.createLinearGradient(0, 0, 0, height);
-        g.addColorStop(0, '#dad1bf');
-        g.addColorStop(0.5, '#b49a7b');
-        g.addColorStop(1, '#435445');
+        g.addColorStop(0, '#95d2ee');
+        g.addColorStop(0.45, '#4d9ccc');
+        g.addColorStop(1, '#19486c');
         ctx.fillStyle = g;
       } else {
         const g = ctx.createLinearGradient(0, 0, 0, height);
@@ -51,16 +53,19 @@ const CreativeCanvas = ({ mode }) => {
         ctx.fillStyle = g;
       }
       ctx.fillRect(0, 0, width, height);
-      if (mode === 'topography') {
-        for (let layer = 0; layer < 9; layer++) {
-          const baseline = height * (0.18 + layer * 0.095);
-          ctx.strokeStyle = RIDGE_COLORS[layer % RIDGE_COLORS.length];
-          ctx.lineWidth = 1.5 + layer * 0.25;
+      if (mode === 'waves') {
+        const isMobile = window.innerWidth <= 768;
+        const layers = isMobile ? 6 : 9;
+        for (let layer = 0; layer < layers; layer++) {
+          const baseline = height * (0.25 + layer * 0.095);
+          ctx.strokeStyle = WAVE_COLORS[layer % WAVE_COLORS.length];
+          ctx.lineWidth = 1.2 + layer * 0.22;
           ctx.beginPath();
-          for (let x = 0; x <= width; x += 10) {
-            const curve = Math.sin((x * 0.01) + time * 0.0007 + layer) * (8 + layer * 2.4);
-            const breeze = Math.cos((x * 0.02) - time * 0.0004 + layer * 0.5) * (3 + layer);
-            const y = baseline + curve + breeze;
+          const step = isMobile ? 16 : 10;
+          for (let x = 0; x <= width; x += step) {
+            const swell = Math.sin((x * 0.011) + time * 0.0011 + layer * 0.65) * (6 + layer * 2.1);
+            const chop = Math.cos((x * 0.026) - time * 0.0009 + layer * 0.41) * (2 + layer * 0.7);
+            const y = baseline + swell + chop;
             if (x === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
           }
@@ -69,14 +74,21 @@ const CreativeCanvas = ({ mode }) => {
       }
     };
 
+    let frameGate = 0;
     const render = (time) => {
+      const isMobile = window.innerWidth <= 768;
+      frameGate += 1;
+      if (isMobile && frameGate % 2 !== 0) {
+        requestRef.current = requestAnimationFrame(render);
+        return;
+      }
       drawBackground(time);
       const points = pointsRef.current;
 
       points.forEach((p) => {
-        p.phase += mode === 'topography' ? 0.015 : 0.012;
-        p.x += p.vx + Math.cos(p.phase) * (mode === 'topography' ? 0.025 : 0.03);
-        p.y += p.vy + Math.sin(p.phase) * (mode === 'topography' ? 0.015 : 0.02);
+        p.phase += mode === 'waves' ? 0.013 : 0.011;
+        p.x += p.vx + Math.cos(p.phase) * (mode === 'waves' ? 0.02 : 0.03);
+        p.y += p.vy + Math.sin(p.phase) * (mode === 'waves' ? 0.014 : 0.02);
         if (p.x < -8) p.x = width + 8;
         if (p.x > width + 8) p.x = -8;
         if (p.y < -8) p.y = height + 8;
@@ -86,20 +98,20 @@ const CreativeCanvas = ({ mode }) => {
           const dx = mouseRef.current.x - p.x;
           const dy = mouseRef.current.y - p.y;
           const d = Math.sqrt(dx * dx + dy * dy) || 1;
-          const radius = mode === 'topography' ? 150 : 160;
+          const radius = mode === 'waves' ? 140 : 140;
           if (d < radius) {
-            const pull = (1 - d / radius) * (mode === 'topography' ? 0.035 : 0.08);
+            const pull = (1 - d / radius) * (mode === 'waves' ? 0.03 : 0.07);
             p.x += dx * pull;
             p.y += dy * pull;
           }
         }
 
-        if (mode === 'topography') {
+        if (mode === 'waves') {
           ctx.strokeStyle = p.color;
-          ctx.globalAlpha = 0.4;
+          ctx.globalAlpha = 0.35;
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
-          ctx.lineTo(p.x + Math.sin(p.phase) * 10, p.y + Math.cos(p.phase) * 10);
+          ctx.lineTo(p.x + Math.sin(p.phase) * 8, p.y + Math.cos(p.phase) * 8);
           ctx.stroke();
         } else {
           ctx.fillStyle = p.color;
@@ -112,6 +124,8 @@ const CreativeCanvas = ({ mode }) => {
       ctx.globalAlpha = 1;
 
       if (mode === 'stars') {
+        const isMobile = window.innerWidth <= 768;
+        if (!isMobile) {
         for (let i = 0; i < points.length; i++) {
           for (let j = i + 1; j < points.length; j++) {
             const a = points[i];
@@ -128,6 +142,7 @@ const CreativeCanvas = ({ mode }) => {
               ctx.stroke();
             }
           }
+        }
         }
       }
 
@@ -165,12 +180,12 @@ const WorkApp = () => (
   <div className="mac-content-inner work-app-scroll">
     <div className="work-section-copy">
       <h3>Creative Code Studies</h3>
-      <p>Two interactive sketches: an analog topographic flow on top, and a polished reactive starfield below.</p>
+      <p>Two interactive sketches: an ocean wave study on top, and a polished reactive starfield below.</p>
       <p>Move your cursor or finger across each sketch to gently influence the motion.</p>
     </div>
     <div className="work-sketch-card">
-      <h4>Analog Topographic Drift</h4>
-      <CreativeCanvas mode="topography" />
+      <h4>Ocean Wave Drift</h4>
+      <CreativeCanvas mode="waves" />
     </div>
     <div className="work-sketch-card">
       <h4>Night Stars</h4>
