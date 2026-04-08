@@ -31,19 +31,13 @@ const CreativeCanvas = ({ mode }) => {
           phase: Math.random() * Math.PI * 2
         }));
       } else {
-        const count =
-          mode === 'grass' ? (isMobile() ? 240 : 520) : isMobile() ? 24 : 36;
+        const count = mode === 'grass' ? (isMobile() ? 120 : 180) : (isMobile() ? 24 : 36);
         entitiesRef.current = Array.from({ length: count }, (_, i) => ({
-          x: (i / count) * width * 1.02 + (Math.random() - 0.5) * (width / count) * 2.4,
-          baseY:
-            mode === 'grass'
-              ? height * (0.56 + Math.random() * 0.44)
-              : height * (0.26 + (i % 12) * 0.052),
-          length: mode === 'grass' ? 38 + Math.random() * 118 : 0,
-          amp: mode === 'grass' ? 7 + Math.random() * 18 : 5 + Math.random() * 15,
-          phase: Math.random() * Math.PI * 2,
-          lw: mode === 'grass' ? 0.65 + Math.random() * 1.55 : 0,
-          depth: mode === 'grass' ? Math.random() : 0
+          x: (i / count) * width,
+          baseY: mode === 'grass' ? height * (0.64 + Math.random() * 0.34) : height * (0.26 + (i % 12) * 0.052),
+          length: mode === 'grass' ? 55 + Math.random() * 92 : 0,
+          amp: mode === 'grass' ? 6 + Math.random() * 14 : 5 + Math.random() * 15,
+          phase: Math.random() * Math.PI * 2
         }));
       }
     };
@@ -58,11 +52,9 @@ const CreativeCanvas = ({ mode }) => {
     const drawBackground = (time) => {
       if (mode === 'grass') {
         const g = ctx.createLinearGradient(0, 0, 0, height);
-        g.addColorStop(0, '#d4e4c8');
-        g.addColorStop(0.22, '#9bc278');
-        g.addColorStop(0.48, '#4a9838');
-        g.addColorStop(0.78, '#2d6a28');
-        g.addColorStop(1, '#143a1a');
+        g.addColorStop(0, '#b3cf9b');
+        g.addColorStop(0.55, '#5e9d3f');
+        g.addColorStop(1, '#245228');
         ctx.fillStyle = g;
       } else if (mode === 'water') {
         const g = ctx.createLinearGradient(0, 0, 0, height);
@@ -77,15 +69,6 @@ const CreativeCanvas = ({ mode }) => {
         ctx.fillStyle = g;
       }
       ctx.fillRect(0, 0, width, height);
-
-      if (mode === 'grass') {
-        const haze = ctx.createLinearGradient(0, 0, 0, height * 0.62);
-        haze.addColorStop(0, 'rgba(230, 236, 228, 0.35)');
-        haze.addColorStop(0.35, 'rgba(180, 210, 170, 0.12)');
-        haze.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = haze;
-        ctx.fillRect(0, 0, width, height * 0.62);
-      }
 
       if (mode === 'water') {
         const layers = isMobile() ? 5 : 8;
@@ -144,58 +127,24 @@ const CreativeCanvas = ({ mode }) => {
         });
         ctx.globalAlpha = 1;
       } else if (mode === 'grass') {
-        const blades = [...entities].sort((a, b) => a.baseY - b.baseY);
-        blades.forEach((b, i) => {
+        entities.forEach((b, i) => {
           const baseX = b.x;
           const baseY = b.baseY;
-          const len = b.length;
-          const wind =
-            Math.sin(baseX * 0.014 + time * 0.0014 + b.phase) * b.amp +
-            Math.sin(baseX * 0.031 - time * 0.0009 + b.depth * 4) * (b.amp * 0.35);
-          const localWave = Math.sin(baseY * 0.028 + time * 0.0011) * 5.5;
+          const wind = Math.sin((i * 0.14) + time * 0.0017 + b.phase) * b.amp;
+          const localWave = Math.sin((baseY * 0.03) + time * 0.0012) * 6;
           let hoverBend = 0;
           if (mouseRef.current.active) {
-            const hx = mouseRef.current.x;
-            const hy = mouseRef.current.y;
-            const dx = hx - baseX;
-            const dy = hy - (baseY - len * 0.55);
+            const dx = mouseRef.current.x - baseX;
+            const dy = mouseRef.current.y - (baseY - b.length * 0.6);
             const d = Math.sqrt(dx * dx + dy * dy) || 1;
-            if (d < 155) {
-              const fall = (1 - d / 155) ** 1.35;
-              hoverBend = fall * 42 * Math.sign(dx || 1) * (0.65 + b.depth * 0.35);
-            }
+            if (d < 120) hoverBend = (1 - d / 120) * 30 * Math.sign(dx);
           }
           const bend = wind + localWave + hoverBend;
-          const depth = (baseY / height - 0.52) / 0.48;
-          const g = 72 + depth * 95;
-          const r = 22 + depth * 48;
-          const bl = 28 + depth * 38;
-          ctx.strokeStyle = `rgba(${r},${g},${bl},${0.55 + depth * 0.4})`;
-          ctx.lineWidth = b.lw;
-          ctx.lineCap = 'round';
+          ctx.strokeStyle = i % 3 === 0 ? '#b4d47f' : '#4d7f38';
+          ctx.lineWidth = 1 + (i % 2);
           ctx.beginPath();
           ctx.moveTo(baseX, baseY);
-          ctx.bezierCurveTo(
-            baseX + bend * 0.28,
-            baseY - len * 0.34,
-            baseX + bend * 0.62,
-            baseY - len * 0.68,
-            baseX + bend * 1.02,
-            baseY - len
-          );
-          ctx.stroke();
-          ctx.strokeStyle = `rgba(${Math.min(255, r + 40)},${Math.min(255, g + 50)},${bl + 20},${0.25 + depth * 0.25})`;
-          ctx.lineWidth = Math.max(0.4, b.lw * 0.45);
-          ctx.beginPath();
-          ctx.moveTo(baseX + 1.2, baseY);
-          ctx.bezierCurveTo(
-            baseX + bend * 0.28 + 1.2,
-            baseY - len * 0.34,
-            baseX + bend * 0.62 + 0.8,
-            baseY - len * 0.68,
-            baseX + bend * 1.02,
-            baseY - len * 0.98
-          );
+          ctx.quadraticCurveTo(baseX + bend * 0.45, baseY - b.length * 0.52, baseX + bend, baseY - b.length);
           ctx.stroke();
         });
       } else {
