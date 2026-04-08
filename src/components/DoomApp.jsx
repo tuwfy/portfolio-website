@@ -5,9 +5,34 @@ const VIEW_HEIGHT = 200;
 const VIEWPORT_HEIGHT = 154;
 const HUD_Y = VIEWPORT_HEIGHT;
 const SCREEN_CENTER_X = VIEW_WIDTH / 2;
-
+const FOV = Math.PI / 3;
+const MAX_VIEW_DISTANCE = 18;
+const COLLISION_RADIUS = 0.18;
+const MAP = [
+  '111111111111',
+  '100000000001',
+  '102001110001',
+  '100000000201',
+  '101110100001',
+  '100010100301',
+  '103000000001',
+  '100011111001',
+  '100000000001',
+  '101101001001',
+  '100000000001',
+  '111111111111'
+];
+const SPAWN_POINTS = [
+  { x: 9.5, y: 2.5 },
+  { x: 8.5, y: 5.5 },
+  { x: 2.5, y: 6.5 },
+  { x: 9.5, y: 8.5 },
+  { x: 3.5, y: 9.5 },
+  { x: 6.5, y: 3.5 },
+  { x: 5.5, y: 8.5 },
+  { x: 2.5, y: 2.5 }
+];
 const ASSET_RECTS = {
-  room: { src: '/doom-ref-room-2.png', x: 0, y: 0, w: 640, h: 320 },
   hud: { src: '/doom-ref-room-3.png', x: 0, y: 430, w: 1024, h: 147 }
 };
 
@@ -26,7 +51,6 @@ const HUD_GLYPHS = {
 };
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-const normalizeAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
 
 const loadImage = (src) =>
   new Promise((resolve, reject) => {
@@ -80,31 +104,31 @@ const createSpriteCanvas = (width, height, draw) => {
 
 const createImpSprite = (isHit = false) =>
   createSpriteCanvas(60, 78, (ctx) => {
-    const skin = isHit ? '#cba690' : '#b38b67';
-    const skinDark = isHit ? '#8f6257' : '#77563d';
-    const skinLight = isHit ? '#f0d8cc' : '#d2b08c';
-    const blood = isHit ? '#d31717' : '#8a0b0b';
+    const skin = isHit ? '#d5a594' : '#b68b66';
+    const skinDark = isHit ? '#92655d' : '#76533d';
+    const skinLight = isHit ? '#f0d3c8' : '#d7b28a';
+    const blood = isHit ? '#e81e1e' : '#8f0c0c';
 
     ctx.fillStyle = skinDark;
-    ctx.fillRect(20, 54, 8, 18);
-    ctx.fillRect(32, 54, 8, 18);
-    ctx.fillRect(14, 34, 8, 22);
-    ctx.fillRect(38, 34, 8, 22);
+    ctx.fillRect(19, 55, 9, 18);
+    ctx.fillRect(32, 55, 9, 18);
+    ctx.fillRect(13, 35, 9, 22);
+    ctx.fillRect(38, 35, 9, 22);
 
     ctx.fillStyle = skin;
-    ctx.fillRect(18, 18, 24, 36);
-    ctx.fillRect(16, 44, 12, 10);
-    ctx.fillRect(32, 44, 12, 10);
+    ctx.fillRect(18, 18, 24, 37);
+    ctx.fillRect(15, 44, 12, 10);
+    ctx.fillRect(33, 44, 12, 10);
 
     ctx.fillStyle = skinLight;
     ctx.fillRect(22, 22, 16, 10);
-    ctx.fillRect(24, 34, 12, 14);
+    ctx.fillRect(24, 33, 12, 15);
 
     ctx.fillStyle = skinDark;
     ctx.beginPath();
     ctx.moveTo(18, 18);
     ctx.lineTo(10, 8);
-    ctx.lineTo(16, 6);
+    ctx.lineTo(16, 5);
     ctx.lineTo(23, 16);
     ctx.closePath();
     ctx.fill();
@@ -112,7 +136,7 @@ const createImpSprite = (isHit = false) =>
     ctx.beginPath();
     ctx.moveTo(42, 18);
     ctx.lineTo(50, 8);
-    ctx.lineTo(44, 6);
+    ctx.lineTo(44, 5);
     ctx.lineTo(37, 16);
     ctx.closePath();
     ctx.fill();
@@ -126,38 +150,38 @@ const createImpSprite = (isHit = false) =>
     ctx.fillRect(22, 12, 5, 4);
     ctx.fillRect(33, 12, 5, 4);
 
-    ctx.fillStyle = '#fff4d6';
+    ctx.fillStyle = '#fff5da';
     ctx.fillRect(23, 13, 2, 2);
     ctx.fillRect(34, 13, 2, 2);
 
     ctx.fillStyle = blood;
-    ctx.fillRect(27, 19, 6, 6);
-    ctx.fillRect(25, 23, 10, 2);
+    ctx.fillRect(27, 20, 6, 6);
+    ctx.fillRect(25, 24, 10, 2);
 
     ctx.fillStyle = '#f2f2f2';
-    ctx.fillRect(10, 46, 4, 7);
-    ctx.fillRect(46, 46, 4, 7);
+    ctx.fillRect(10, 47, 4, 7);
+    ctx.fillRect(46, 47, 4, 7);
 
     if (isHit) {
-      ctx.fillStyle = '#ff3a2f';
-      ctx.fillRect(40, 8, 5, 5);
-      ctx.fillRect(43, 4, 3, 3);
-      ctx.fillRect(18, 28, 4, 5);
+      ctx.fillStyle = '#ff4033';
+      ctx.fillRect(39, 8, 6, 6);
+      ctx.fillRect(42, 4, 3, 3);
+      ctx.fillRect(17, 28, 4, 5);
       ctx.fillRect(14, 30, 3, 3);
     }
 
     ctx.strokeStyle = '#22170e';
     ctx.lineWidth = 2;
-    ctx.strokeRect(18, 18, 24, 36);
+    ctx.strokeRect(18, 18, 24, 37);
   });
 
 const createWeaponSprite = (isFlash = false) =>
   createSpriteCanvas(108, 78, (ctx) => {
-    const metal = '#5d6670';
-    const metalLight = '#9aa3ad';
-    const metalDark = '#151515';
-    const hand = '#b28463';
-    const handDark = '#704d37';
+    const metal = '#5c6672';
+    const metalLight = '#a3acb4';
+    const metalDark = '#121212';
+    const hand = '#b18361';
+    const handDark = '#714e38';
 
     ctx.fillStyle = handDark;
     ctx.fillRect(21, 46, 22, 26);
@@ -170,12 +194,12 @@ const createWeaponSprite = (isFlash = false) =>
     ctx.fillStyle = metalDark;
     ctx.fillRect(40, 30, 28, 40);
     ctx.fillRect(46, 20, 16, 14);
-    ctx.fillRect(50, 9, 8, 12);
+    ctx.fillRect(50, 8, 8, 13);
 
     ctx.fillStyle = metal;
     ctx.fillRect(42, 31, 10, 36);
     ctx.fillRect(56, 31, 10, 36);
-    ctx.fillRect(48, 19, 12, 11);
+    ctx.fillRect(48, 19, 12, 12);
 
     ctx.fillStyle = metalLight;
     ctx.fillRect(48, 25, 3, 34);
@@ -183,10 +207,10 @@ const createWeaponSprite = (isFlash = false) =>
     ctx.fillRect(52, 11, 4, 9);
 
     ctx.fillStyle = '#2d211a';
-    ctx.fillRect(45, 53, 18, 14);
+    ctx.fillRect(45, 54, 18, 14);
 
     if (isFlash) {
-      ctx.fillStyle = '#fff1a6';
+      ctx.fillStyle = '#fff2a9';
       ctx.beginPath();
       ctx.moveTo(54, 0);
       ctx.lineTo(66, 13);
@@ -201,7 +225,7 @@ const createWeaponSprite = (isFlash = false) =>
       ctx.closePath();
       ctx.fill();
 
-      ctx.fillStyle = '#ff8d1f';
+      ctx.fillStyle = '#ff8d20';
       ctx.beginPath();
       ctx.moveTo(54, 6);
       ctx.lineTo(61, 15);
@@ -218,12 +242,102 @@ const createWeaponSprite = (isFlash = false) =>
     }
   });
 
+const isWall = (x, y) => {
+  const cellX = Math.floor(x);
+  const cellY = Math.floor(y);
+  if (cellX < 0 || cellY < 0 || cellY >= MAP.length || cellX >= MAP[0].length) return true;
+  return MAP[cellY][cellX] !== '0';
+};
+
+const tryMove = (entity, nextX, nextY, radius = COLLISION_RADIUS) => {
+  let resolvedX = entity.x;
+  let resolvedY = entity.y;
+  const xClear =
+    !isWall(nextX - radius, entity.y - radius) &&
+    !isWall(nextX + radius, entity.y - radius) &&
+    !isWall(nextX - radius, entity.y + radius) &&
+    !isWall(nextX + radius, entity.y + radius);
+  if (xClear) resolvedX = nextX;
+
+  const yClear =
+    !isWall(resolvedX - radius, nextY - radius) &&
+    !isWall(resolvedX + radius, nextY - radius) &&
+    !isWall(resolvedX - radius, nextY + radius) &&
+    !isWall(resolvedX + radius, nextY + radius);
+  if (yClear) resolvedY = nextY;
+
+  return { x: resolvedX, y: resolvedY };
+};
+
+const castRay = (originX, originY, angle) => {
+  const dirX = Math.cos(angle);
+  const dirY = Math.sin(angle);
+  let mapX = Math.floor(originX);
+  let mapY = Math.floor(originY);
+
+  const deltaDistX = dirX === 0 ? 1e30 : Math.abs(1 / dirX);
+  const deltaDistY = dirY === 0 ? 1e30 : Math.abs(1 / dirY);
+
+  let stepX = 0;
+  let stepY = 0;
+  let sideDistX = 0;
+  let sideDistY = 0;
+
+  if (dirX < 0) {
+    stepX = -1;
+    sideDistX = (originX - mapX) * deltaDistX;
+  } else {
+    stepX = 1;
+    sideDistX = (mapX + 1 - originX) * deltaDistX;
+  }
+
+  if (dirY < 0) {
+    stepY = -1;
+    sideDistY = (originY - mapY) * deltaDistY;
+  } else {
+    stepY = 1;
+    sideDistY = (mapY + 1 - originY) * deltaDistY;
+  }
+
+  let side = 0;
+  let cell = '1';
+
+  while (true) {
+    if (sideDistX < sideDistY) {
+      sideDistX += deltaDistX;
+      mapX += stepX;
+      side = 0;
+    } else {
+      sideDistY += deltaDistY;
+      mapY += stepY;
+      side = 1;
+    }
+
+    if (mapX < 0 || mapY < 0 || mapY >= MAP.length || mapX >= MAP[0].length) break;
+    cell = MAP[mapY][mapX];
+    if (cell !== '0') break;
+  }
+
+  let distance;
+  if (side === 0) {
+    distance = (mapX - originX + (1 - stepX) / 2) / (dirX || 1e-6);
+  } else {
+    distance = (mapY - originY + (1 - stepY) / 2) / (dirY || 1e-6);
+  }
+
+  distance = Math.max(0.01, Math.min(MAX_VIEW_DISTANCE, Math.abs(distance)));
+  const impact = side === 0 ? originY + distance * dirY : originX + distance * dirX;
+  const textureU = impact - Math.floor(impact);
+
+  return { distance, side, cell, textureU };
+};
+
 const DoomApp = () => {
   const canvasRef = useRef(null);
   const keysRef = useRef({});
   const rafRef = useRef(null);
   const [restartKey, setRestartKey] = useState(0);
-  const [status, setStatus] = useState('Clear the room.');
+  const [status, setStatus] = useState('Loading round 1.');
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -241,12 +355,13 @@ const DoomApp = () => {
     let frameWidth = 0;
     let frameHeight = 0;
     let assets = null;
+    const zBuffer = new Array(VIEW_WIDTH).fill(MAX_VIEW_DISTANCE);
 
     const game = {
       player: {
-        x: 0,
-        y: 2.45,
-        angle: -Math.PI / 2,
+        x: 2.5,
+        y: 2.5,
+        angle: 0,
         hp: 100,
         armor: 0,
         ammo: 50,
@@ -254,12 +369,58 @@ const DoomApp = () => {
         weaponFlashUntil: 0
       },
       enemies: [],
+      round: 1,
       lastShotAt: 0,
-      running: true,
-      lastFrameAt: 0
+      lastFrameAt: 0,
+      nextRoundAt: 0,
+      running: true
     };
 
-    const spawnRoom = () => {
+    const spawnRound = (roundNumber, resetPlayer = false) => {
+      if (resetPlayer) {
+        game.player = {
+          x: 2.5,
+          y: 2.5,
+          angle: 0,
+          hp: 100,
+          armor: 0,
+          ammo: 50,
+          hurtAt: -999,
+          weaponFlashUntil: 0
+        };
+      } else {
+        game.player.ammo = clamp(game.player.ammo + 10, 0, 99);
+        game.player.armor = clamp(game.player.armor + 5, 0, 200);
+      }
+
+      const enemyCount = Math.min(SPAWN_POINTS.length, 2 + roundNumber);
+      const enemyHp = 2 + Math.floor((roundNumber - 1) / 2);
+      const enemySpeed = 0.00024 + roundNumber * 0.00005;
+      const spawnOffset = ((roundNumber - 1) * 2) % SPAWN_POINTS.length;
+
+      game.enemies = Array.from({ length: enemyCount }, (_, index) => {
+        const spawn = SPAWN_POINTS[(spawnOffset + index) % SPAWN_POINTS.length];
+        return {
+          x: spawn.x,
+          y: spawn.y,
+          hp: enemyHp,
+          speed: enemySpeed,
+          alive: true,
+          hitAt: -999,
+          bobSeed: 0.4 + index * 0.72
+        };
+      });
+
+      game.round = roundNumber;
+      game.lastShotAt = 0;
+      game.lastFrameAt = 0;
+      game.nextRoundAt = 0;
+      game.running = true;
+      keysRef.current = {};
+      setStatus(`Round ${roundNumber}. ${enemyCount} monsters inbound.`);
+    };
+
+    const resizeCanvas = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       frameWidth = canvas.clientWidth;
       frameHeight = canvas.clientHeight;
@@ -267,53 +428,50 @@ const DoomApp = () => {
       canvas.height = Math.round(frameHeight * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingEnabled = false;
-
-      game.player = {
-        x: 0,
-        y: 2.45,
-        angle: -Math.PI / 2,
-        hp: 100,
-        armor: 0,
-        ammo: 50,
-        hurtAt: -999,
-        weaponFlashUntil: 0
-      };
-      game.enemies = [
-        { x: -1.65, y: -2.1, hp: 3, alive: true, hitAt: -999, bobSeed: 0.1 },
-        { x: 0.18, y: -2.55, hp: 3, alive: true, hitAt: -999, bobSeed: 0.9 },
-        { x: 1.55, y: -1.95, hp: 3, alive: true, hitAt: -999, bobSeed: 1.6 }
-      ];
-      game.lastShotAt = 0;
-      game.running = true;
-      game.lastFrameAt = 0;
-      keysRef.current = {};
-      setStatus('Clear the room.');
     };
 
-    const worldToScreen = (wx, wy) => {
+    const worldToCamera = (wx, wy) => {
       const dx = wx - game.player.x;
       const dy = wy - game.player.y;
-      const sin = Math.sin(-game.player.angle);
-      const cos = Math.cos(-game.player.angle);
-      const rx = dx * cos - dy * sin;
-      const rz = dx * sin + dy * cos;
-      if (rz <= 0.08) return null;
-      const sx = SCREEN_CENTER_X + (rx / rz) * 172;
-      const size = clamp(120 / rz, 30, 152);
-      return { sx, size, depth: rz };
+      const dirX = Math.cos(game.player.angle);
+      const dirY = Math.sin(game.player.angle);
+      const side = dx * -dirY + dy * dirX;
+      const depth = dx * dirX + dy * dirY;
+      if (depth <= 0.08) return null;
+
+      const projectionScale = SCREEN_CENTER_X / Math.tan(FOV / 2);
+      const screenX = SCREEN_CENTER_X + (side / depth) * projectionScale;
+      const size = clamp(112 / depth, 18, 160);
+      return { screenX, depth, size };
+    };
+
+    const hasLineOfSight = (targetX, targetY) => {
+      const dx = targetX - game.player.x;
+      const dy = targetY - game.player.y;
+      const distance = Math.hypot(dx, dy);
+      const angle = Math.atan2(dy, dx);
+      const hit = castRay(game.player.x, game.player.y, angle);
+      return hit.distance >= distance - 0.18;
+    };
+
+    const applyDamage = (amount, now) => {
+      const armorAbsorb = Math.min(game.player.armor, amount * 0.45);
+      game.player.armor = Math.max(0, game.player.armor - armorAbsorb);
+      game.player.hp = Math.max(0, game.player.hp - (amount - armorAbsorb));
+      game.player.hurtAt = now;
     };
 
     const tryShoot = (now) => {
-      if (!game.running || now - game.lastShotAt < 145 || game.player.ammo <= 0) return;
+      if (!game.running || now - game.lastShotAt < 180 || game.player.ammo <= 0) return;
 
       game.lastShotAt = now;
-      game.player.weaponFlashUntil = now + 80;
+      game.player.weaponFlashUntil = now + 90;
       game.player.ammo = Math.max(0, game.player.ammo - 1);
 
       const target = game.enemies
-        .filter((enemy) => enemy.alive)
-        .map((enemy) => ({ enemy, projection: worldToScreen(enemy.x, enemy.y) }))
-        .filter(({ projection }) => projection && Math.abs(projection.sx - SCREEN_CENTER_X) < 68)
+        .filter((enemy) => enemy.alive && hasLineOfSight(enemy.x, enemy.y))
+        .map((enemy) => ({ enemy, projection: worldToCamera(enemy.x, enemy.y) }))
+        .filter(({ projection }) => projection && Math.abs(projection.screenX - SCREEN_CENTER_X) < 56)
         .sort((a, b) => a.projection.depth - b.projection.depth)[0];
 
       if (!target) return;
@@ -326,31 +484,38 @@ const DoomApp = () => {
     };
 
     const update = (now) => {
-      if (!game.running) return;
-
       const delta = game.lastFrameAt ? Math.min(40, now - game.lastFrameAt) : 16;
       game.lastFrameAt = now;
 
-      const moveSpeed = delta * 0.0022;
-      const turnSpeed = delta * 0.0115;
-      const forwardX = Math.cos(game.player.angle);
-      const forwardY = Math.sin(game.player.angle);
-
-      if (keysRef.current.arrowleft || keysRef.current.a) game.player.angle -= turnSpeed;
-      if (keysRef.current.arrowright || keysRef.current.d) game.player.angle += turnSpeed;
-
-      if (keysRef.current.arrowup || keysRef.current.w) {
-        game.player.x += forwardX * moveSpeed;
-        game.player.y += forwardY * moveSpeed;
+      if (game.player.hp <= 0) {
+        game.running = false;
       }
 
-      if (keysRef.current.arrowdown || keysRef.current.s) {
-        game.player.x -= forwardX * moveSpeed;
-        game.player.y -= forwardY * moveSpeed;
+      if (!game.running) return;
+
+      if (game.nextRoundAt && now >= game.nextRoundAt) {
+        spawnRound(game.round + 1, false);
       }
 
-      game.player.x = clamp(game.player.x, -2.8, 2.8);
-      game.player.y = clamp(game.player.y, -2.8, 2.9);
+      const moveSpeed = delta * 0.002;
+      const turnSpeed = delta * 0.0046;
+      const dirX = Math.cos(game.player.angle);
+      const dirY = Math.sin(game.player.angle);
+
+      if (keysRef.current.a || keysRef.current.arrowleft) game.player.angle -= turnSpeed;
+      if (keysRef.current.d || keysRef.current.arrowright) game.player.angle += turnSpeed;
+
+      if (keysRef.current.w || keysRef.current.arrowup) {
+        const moved = tryMove(game.player, game.player.x + dirX * moveSpeed, game.player.y + dirY * moveSpeed);
+        game.player.x = moved.x;
+        game.player.y = moved.y;
+      }
+
+      if (keysRef.current.s || keysRef.current.arrowdown) {
+        const moved = tryMove(game.player, game.player.x - dirX * moveSpeed, game.player.y - dirY * moveSpeed);
+        game.player.x = moved.x;
+        game.player.y = moved.y;
+      }
 
       if (keysRef.current[' ']) {
         tryShoot(now);
@@ -362,87 +527,116 @@ const DoomApp = () => {
         const dy = game.player.y - enemy.y;
         const distance = Math.hypot(dx, dy);
 
-        if (distance > 0.78) {
-          enemy.x += (dx / distance) * delta * 0.00048;
-          enemy.y += (dy / distance) * delta * 0.00048;
-        } else {
-          game.player.hp = Math.max(0, game.player.hp - delta * 0.014);
-          game.player.hurtAt = now;
+        if (distance > 0.9) {
+          const next = tryMove(
+            enemy,
+            enemy.x + (dx / distance) * delta * enemy.speed,
+            enemy.y + (dy / distance) * delta * enemy.speed,
+            0.16
+          );
+          enemy.x = next.x;
+          enemy.y = next.y;
+        } else if (now - enemy.hitAt > 180) {
+          applyDamage(delta * (0.009 + game.round * 0.0006), now);
         }
       });
 
       const aliveCount = game.enemies.filter((enemy) => enemy.alive).length;
       if (game.player.hp <= 0) {
         game.running = false;
-        setStatus('Game over. Hit restart to try again.');
-      } else if (aliveCount === 0) {
-        game.running = false;
-        setStatus('Room cleared. Hit restart to run it back.');
+        setStatus(`Game over on round ${game.round}. Hit restart to try again.`);
+      } else if (aliveCount === 0 && !game.nextRoundAt) {
+        game.nextRoundAt = now + 1200;
+        setStatus(`Round ${game.round} cleared. Round ${game.round + 1} incoming...`);
       }
     };
 
     const drawHudNumbers = () => {
       bctx.save();
-      const ammoText = String(Math.round(game.player.ammo)).padStart(2, '0');
-      const hpText = `${Math.round(game.player.hp)}%`;
-      const armorText = `${Math.round(game.player.armor)}%`;
-
-      drawHudText(bctx, ammoText, 14, 165, 3);
-      drawHudText(bctx, hpText, 63, 165, 3);
-      drawHudText(bctx, armorText, 201, 165, 3);
+      drawHudText(bctx, String(Math.round(game.player.ammo)).padStart(2, '0'), 14, 165, 3);
+      drawHudText(bctx, `${Math.round(game.player.hp)}%`, 63, 165, 3);
+      drawHudText(bctx, `${Math.round(game.player.armor)}%`, 201, 165, 3);
       bctx.restore();
     };
 
+    const wallColorFor = (cell, distance, side, textureU) => {
+      const palette = {
+        '1': [102, 104, 111],
+        '2': [118, 96, 86],
+        '3': [86, 100, 126]
+      };
+
+      const [r, g, b] = palette[cell] || palette['1'];
+      const depthShade = clamp(1 - distance / MAX_VIEW_DISTANCE, 0.18, 1);
+      const sideShade = side === 1 ? 0.72 : 1;
+      const textureShade = 0.82 + textureU * 0.18;
+      const shade = depthShade * sideShade * textureShade;
+
+      return `rgb(${Math.round(r * shade)}, ${Math.round(g * shade)}, ${Math.round(b * shade)})`;
+    };
+
     const drawViewport = (now) => {
-      const relativeViewAngle = normalizeAngle(game.player.angle + Math.PI / 2);
-      const roomPan = clamp(relativeViewAngle * 18 + game.player.x * 6, -28, 28);
-
       bctx.clearRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
-      bctx.fillStyle = '#101010';
-      bctx.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
 
-      drawSprite(
-        bctx,
-        assets.room,
-        ASSET_RECTS.room,
-        Math.round(roomPan),
-        0,
-        VIEW_WIDTH,
-        VIEWPORT_HEIGHT
-      );
+      for (let y = 0; y < VIEWPORT_HEIGHT / 2; y += 1) {
+        const t = y / (VIEWPORT_HEIGHT / 2);
+        const shade = 16 + (1 - t) * 30;
+        bctx.fillStyle = `rgb(${shade}, ${shade + 4}, ${shade + 10})`;
+        bctx.fillRect(0, y, VIEW_WIDTH, 1);
+      }
 
-      const vignette = bctx.createLinearGradient(0, 0, 0, VIEWPORT_HEIGHT);
-      vignette.addColorStop(0, 'rgba(0, 0, 0, 0.18)');
-      vignette.addColorStop(0.75, 'rgba(0, 0, 0, 0)');
-      vignette.addColorStop(1, 'rgba(0, 0, 0, 0.24)');
-      bctx.fillStyle = vignette;
-      bctx.fillRect(0, 0, VIEW_WIDTH, VIEWPORT_HEIGHT);
+      for (let y = VIEWPORT_HEIGHT / 2; y < VIEWPORT_HEIGHT; y += 1) {
+        const t = (y - VIEWPORT_HEIGHT / 2) / (VIEWPORT_HEIGHT / 2);
+        const shade = 34 + t * 54;
+        bctx.fillStyle = `rgb(${shade}, ${shade - 6}, ${shade - 10})`;
+        bctx.fillRect(0, y, VIEW_WIDTH, 1);
+      }
+
+      for (let x = 0; x < VIEW_WIDTH; x += 1) {
+        const rayAngle = game.player.angle + ((x / VIEW_WIDTH) - 0.5) * FOV;
+        const hit = castRay(game.player.x, game.player.y, rayAngle);
+        const perpendicularDistance = hit.distance * Math.cos(rayAngle - game.player.angle);
+        zBuffer[x] = perpendicularDistance;
+
+        const wallHeight = clamp(Math.floor(VIEWPORT_HEIGHT / perpendicularDistance), 8, VIEWPORT_HEIGHT * 1.6);
+        const wallTop = Math.floor((VIEWPORT_HEIGHT - wallHeight) / 2);
+
+        bctx.fillStyle = wallColorFor(hit.cell, perpendicularDistance, hit.side, hit.textureU);
+        bctx.fillRect(x, wallTop, 1, wallHeight);
+
+        if (((x + Math.floor(hit.textureU * 16)) % 9) === 0) {
+          bctx.fillStyle = 'rgba(255,255,255,0.08)';
+          bctx.fillRect(x, wallTop, 1, wallHeight);
+        }
+      }
 
       const enemies = game.enemies
         .filter((enemy) => enemy.alive)
-        .map((enemy) => ({ enemy, projection: worldToScreen(enemy.x, enemy.y) }))
+        .map((enemy) => ({ enemy, projection: worldToCamera(enemy.x, enemy.y) }))
         .filter(({ projection }) => projection)
         .sort((a, b) => b.projection.depth - a.projection.depth);
 
       enemies.forEach(({ enemy, projection }) => {
         const bob = Math.sin(now * 0.007 + enemy.bobSeed) * 2.2;
-        const size = projection.size;
-        const spriteImage = now - enemy.hitAt < 90 ? assets.enemyHit : assets.enemyAlive;
-        const drawWidth = size * 0.9;
-        const drawHeight = size * 1.14;
-        const drawX = Math.round(projection.sx - drawWidth / 2);
-        const drawY = Math.round(92 - drawHeight / 2 + bob + projection.depth * 3);
+        const spriteImage = now - enemy.hitAt < 100 ? assets.enemyHit : assets.enemyAlive;
+        const drawWidth = projection.size * 0.9;
+        const drawHeight = projection.size * 1.14;
+        const drawX = Math.round(projection.screenX - drawWidth / 2);
+        const drawY = Math.round(92 - drawHeight / 2 + bob);
+        const centerColumn = clamp(Math.round(projection.screenX), 0, VIEW_WIDTH - 1);
+
+        if (projection.depth > zBuffer[centerColumn] + 0.1) return;
 
         bctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
         bctx.beginPath();
-        bctx.ellipse(projection.sx, drawY + drawHeight - 5, drawWidth * 0.34, drawHeight * 0.1, 0, 0, Math.PI * 2);
+        bctx.ellipse(projection.screenX, drawY + drawHeight - 5, drawWidth * 0.34, drawHeight * 0.1, 0, 0, Math.PI * 2);
         bctx.fill();
 
         bctx.drawImage(spriteImage, drawX, drawY, drawWidth, drawHeight);
       });
 
-      const gunBobX = Math.sin(now * 0.01) * 2.3;
-      const gunBobY = Math.abs(Math.cos(now * 0.013)) * 2.3;
+      const gunBobX = (keysRef.current.w || keysRef.current.s || keysRef.current.arrowup || keysRef.current.arrowdown) ? Math.sin(now * 0.012) * 3 : 0;
+      const gunBobY = (keysRef.current.w || keysRef.current.s || keysRef.current.arrowup || keysRef.current.arrowdown) ? Math.abs(Math.cos(now * 0.015)) * 3 : 0;
       const gunActive = now < game.player.weaponFlashUntil;
       const gunImage = gunActive ? assets.gunFlash : assets.gunIdle;
       const gunWidth = gunActive ? 124 : 112;
@@ -470,7 +664,7 @@ const DoomApp = () => {
         bctx.fillStyle = '#fff4da';
         bctx.font = 'bold 18px Arial';
         bctx.textAlign = 'center';
-        bctx.fillText(game.player.hp <= 0 ? 'GAME OVER' : 'ROOM CLEARED', SCREEN_CENTER_X, 58);
+        bctx.fillText('GAME OVER', SCREEN_CENTER_X, 58);
         bctx.textAlign = 'left';
       }
     };
@@ -496,28 +690,22 @@ const DoomApp = () => {
     const handleKeyUp = (event) => setKey(event, false);
 
     const boot = async () => {
-      const uniqueSources = [...new Set(Object.values(ASSET_RECTS).map((entry) => entry.src))];
-      const loaded = await Promise.all(uniqueSources.map((src) => loadImage(src)));
+      const hud = await loadImage(ASSET_RECTS.hud.src);
       if (disposed) return;
 
-      assets = uniqueSources.reduce((accumulator, src, index) => {
-        accumulator[src] = loaded[index];
-        return accumulator;
-      }, {});
-
       assets = {
-        room: assets[ASSET_RECTS.room.src],
-        hud: assets[ASSET_RECTS.hud.src],
+        hud,
         gunIdle: createWeaponSprite(false),
         gunFlash: createWeaponSprite(true),
         enemyAlive: createImpSprite(false),
         enemyHit: createImpSprite(true)
       };
 
-      spawnRoom();
+      resizeCanvas();
+      spawnRound(1, true);
       window.addEventListener('keydown', handleKeyDown, { passive: false });
       window.addEventListener('keyup', handleKeyUp);
-      window.addEventListener('resize', spawnRoom);
+      window.addEventListener('resize', resizeCanvas);
       rafRef.current = requestAnimationFrame(frame);
     };
 
@@ -530,7 +718,7 @@ const DoomApp = () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
-      window.removeEventListener('resize', spawnRoom);
+      window.removeEventListener('resize', resizeCanvas);
     };
   }, [restartKey]);
 
@@ -538,56 +726,67 @@ const DoomApp = () => {
     <div className="mac-content-inner doom-app">
       <div className="doom-header">
         <img src="/doom-logo.png" alt="Doom logo" className="doom-logo-wide" />
-        <p className="doom-note">Move with WASD or arrows. Shoot with Space. Restart anytime below.</p>
+        <p className="doom-note">W/S move, A/D turn, Space shoots. Clear rounds to keep the run going.</p>
       </div>
       <canvas ref={canvasRef} className="doom-iframe" />
       <div className="doom-toolbar">
         <div className="doom-mobile-controls">
-        <button
-          type="button"
-          className="retro-mac-btn"
-          onMouseDown={() => (keysRef.current.arrowup = true)}
-          onMouseUp={() => (keysRef.current.arrowup = false)}
-          onMouseLeave={() => (keysRef.current.arrowup = false)}
-          onTouchStart={() => (keysRef.current.arrowup = true)}
-          onTouchEnd={() => (keysRef.current.arrowup = false)}
-        >
-          Forward
-        </button>
-        <button
-          type="button"
-          className="retro-mac-btn"
-          onMouseDown={() => (keysRef.current.arrowleft = true)}
-          onMouseUp={() => (keysRef.current.arrowleft = false)}
-          onMouseLeave={() => (keysRef.current.arrowleft = false)}
-          onTouchStart={() => (keysRef.current.arrowleft = true)}
-          onTouchEnd={() => (keysRef.current.arrowleft = false)}
-        >
-          Turn L
-        </button>
-        <button
-          type="button"
-          className="retro-mac-btn"
-          onMouseDown={() => (keysRef.current[' '] = true)}
-          onMouseUp={() => (keysRef.current[' '] = false)}
-          onMouseLeave={() => (keysRef.current[' '] = false)}
-          onTouchStart={() => (keysRef.current[' '] = true)}
-          onTouchEnd={() => (keysRef.current[' '] = false)}
-        >
-          Shoot
-        </button>
-        <button
-          type="button"
-          className="retro-mac-btn"
-          onMouseDown={() => (keysRef.current.arrowright = true)}
-          onMouseUp={() => (keysRef.current.arrowright = false)}
-          onMouseLeave={() => (keysRef.current.arrowright = false)}
-          onTouchStart={() => (keysRef.current.arrowright = true)}
-          onTouchEnd={() => (keysRef.current.arrowright = false)}
-        >
-          Turn R
-        </button>
-      </div>
+          <button
+            type="button"
+            className="retro-mac-btn"
+            onMouseDown={() => (keysRef.current.w = true)}
+            onMouseUp={() => (keysRef.current.w = false)}
+            onMouseLeave={() => (keysRef.current.w = false)}
+            onTouchStart={() => (keysRef.current.w = true)}
+            onTouchEnd={() => (keysRef.current.w = false)}
+          >
+            Forward
+          </button>
+          <button
+            type="button"
+            className="retro-mac-btn"
+            onMouseDown={() => (keysRef.current.a = true)}
+            onMouseUp={() => (keysRef.current.a = false)}
+            onMouseLeave={() => (keysRef.current.a = false)}
+            onTouchStart={() => (keysRef.current.a = true)}
+            onTouchEnd={() => (keysRef.current.a = false)}
+          >
+            Turn L
+          </button>
+          <button
+            type="button"
+            className="retro-mac-btn"
+            onMouseDown={() => (keysRef.current[' '] = true)}
+            onMouseUp={() => (keysRef.current[' '] = false)}
+            onMouseLeave={() => (keysRef.current[' '] = false)}
+            onTouchStart={() => (keysRef.current[' '] = true)}
+            onTouchEnd={() => (keysRef.current[' '] = false)}
+          >
+            Shoot
+          </button>
+          <button
+            type="button"
+            className="retro-mac-btn"
+            onMouseDown={() => (keysRef.current.d = true)}
+            onMouseUp={() => (keysRef.current.d = false)}
+            onMouseLeave={() => (keysRef.current.d = false)}
+            onTouchStart={() => (keysRef.current.d = true)}
+            onTouchEnd={() => (keysRef.current.d = false)}
+          >
+            Turn R
+          </button>
+          <button
+            type="button"
+            className="retro-mac-btn"
+            onMouseDown={() => (keysRef.current.s = true)}
+            onMouseUp={() => (keysRef.current.s = false)}
+            onMouseLeave={() => (keysRef.current.s = false)}
+            onTouchStart={() => (keysRef.current.s = true)}
+            onTouchEnd={() => (keysRef.current.s = false)}
+          >
+            Back
+          </button>
+        </div>
         <button type="button" className="retro-mac-btn doom-restart-btn" onClick={() => setRestartKey((value) => value + 1)}>
           Restart
         </button>
