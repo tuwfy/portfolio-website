@@ -43,7 +43,7 @@ const MenuBar = ({ onOpenHelp }) => {
   return (
     <div className="mac-menubar">
       <div className="mac-menu-item" style={{ padding: '0 8px' }}>
-        <img src="/apple-logo.svg" alt="Apple" style={{ height: '18px', marginRight: '8px' }} />
+        <img src="/pineapple-icon.png" alt="" style={{ height: '18px', width: '18px', marginRight: '8px', objectFit: 'contain' }} />
       </div>
       <MenuDropdown label="File" items={['New Folder', 'Open', 'Print', 'Close Window']} />
       <MenuDropdown label="Edit" items={['Undo', 'Cut', 'Copy', 'Paste', 'Clear']} />
