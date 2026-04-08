@@ -6,7 +6,7 @@ const CHROME_HEIGHT = 32;
 const VIEWPORT_PADDING = 20;
 const MIN_WIDTH = 240;
 const MIN_HEIGHT = 150;
-const MAX_WIDTH_RATIO = 0.88;
+const MAX_WIDTH_RATIO = 0.97;
 
 const Window = ({ title, children, onClose, zIndex, onClick }) => {
   const nodeRef = useRef(null);
@@ -98,14 +98,17 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
     e.stopPropagation();
     e.preventDefault();
     isResizing.current = true;
+    userManuallySizedRef.current = true;
 
     const startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
     const startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-    const startWidth = size.width;
-    const startHeight = size.height;
+    const startWidth = sizeRef.current.width;
+    const startHeight = sizeRef.current.height;
+    const touchOptions = { passive: false };
 
     const onMove = (moveEvent) => {
       if (!isResizing.current) return;
+      moveEvent.preventDefault();
 
       const currentX = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientX : moveEvent.clientX;
       const currentY = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientY : moveEvent.clientY;
@@ -119,16 +122,15 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
 
     const onEnd = () => {
       isResizing.current = false;
-      userManuallySizedRef.current = true;
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onEnd);
-      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchmove', onMove, touchOptions);
       window.removeEventListener('touchend', onEnd);
     };
 
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
-    window.addEventListener('touchmove', onMove);
+    window.addEventListener('touchmove', onMove, touchOptions);
     window.addEventListener('touchend', onEnd);
   };
 
