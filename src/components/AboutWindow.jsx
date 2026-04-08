@@ -8,12 +8,12 @@ const AboutWindow = () => {
         <div className="about-logo-container">
           <FinderLogo className="finder-logo finder-logo--about" />
         </div>
-        <div className="about-info" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <h1 style={{ margin: '0', fontSize: '3rem', fontWeight: 'bold' }}>Mac OS 9.2</h1>
-          <p style={{ margin: '4px 0', fontSize: '1.2rem' }}>Version: Mac OS 9.2.2</p>
-          <p style={{ margin: '2px 0', fontSize: '0.9rem' }}>Built-in Memory: 672 MB</p>
-          <p style={{ margin: '2px 0', fontSize: '0.9rem' }}>Virtual Memory: Off</p>
-          <p style={{ margin: '2px 0', fontSize: '0.9rem' }}>Largest Unused Block: 612.6 MB</p>
+        <div className="about-info">
+          <h1>Mac OS 9.2</h1>
+          <p>Version: Mac OS 9.2.2</p>
+          <p>Built-in Memory: 672 MB</p>
+          <p>Virtual Memory: Off</p>
+          <p>Largest Unused Block: 612.6 MB</p>
         </div>
       </div>
       <div className="about-details" style={{ padding: '15px' }}>

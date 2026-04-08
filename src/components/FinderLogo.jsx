@@ -1,12 +1,12 @@
 import React from 'react';
 
-const FinderLogo = ({ className = '', size = 64 }) => (
+const FinderLogo = ({ className = '', size }) => (
   <img
     src="/finder-logo-classic.png"
     alt=""
     aria-hidden="true"
     className={className}
-    style={{ width: size, height: size }}
+    style={size ? { width: size, height: size } : undefined}
   />
 );
 

@@ -55,7 +55,7 @@ const MenuBar = ({ onOpenHelp }) => {
       <div className="mac-menu-item" style={{ fontSize: '1rem', fontWeight: 'bold' }}>{time}</div>
       <div className="mac-menu-item">
         <FinderLogo className="finder-logo finder-logo--menubar" />
-        <span style={{ marginRight: '6px' }}>Finder</span>
+        <span className="finder-label">Finder</span>
       </div>
     </div>
   );
