@@ -7,14 +7,18 @@
   --mac-platinum: #cccccc;
   --mac-border-light: #eeeeee;
   --mac-border-dark: #666666;
-  --mac-ui-font: Charcoal, "Charcoal CY", Chicago, Geneva, "Lucida Grande", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --mac-title-font: "Apple Garamond", Garamond, "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  /* Mac OS 9.x UI: Charcoal on real hardware; fallbacks for legibility on all platforms */
+  --mac-ui-font: "Charcoal", "Charcoal CY", "Chicago", Geneva, "Lucida Grande", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 * {
   box-sizing: border-box;
   font-family: var(--mac-ui-font);
   -webkit-font-smoothing: antialiased;
+}
+
+html {
+  font-size: 16px;
 }
 
 html, body, #root {
@@ -24,7 +28,6 @@ html, body, #root {
   height: 100vh;
   overflow: hidden;
   background-color: var(--mac-bg);
-  font-size: 13px;
 }
 
 /* Mac OS UI Elements */
@@ -49,9 +52,10 @@ html, body, #root {
   display: flex;
   align-items: center;
   padding: 0 10px;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: #000;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
   z-index: 10000;
   position: absolute;
   top: 0;
@@ -73,6 +77,7 @@ html, body, #root {
   color: var(--mac-white);
 }
 
+/* Updated Window Style for OS 9.2 */
 .mac-window {
   background: linear-gradient(#dcdcdc, #c5c5c5);
   border: 2px solid #000;
@@ -83,7 +88,7 @@ html, body, #root {
   min-width: 250px;
   min-height: 150px;
   resize: both;
-  overflow: hidden;
+  overflow: hidden; /* Enables resizing handle at bottom right */
 }
 
 .mac-titlebar {
@@ -122,7 +127,7 @@ html, body, #root {
   background: var(--mac-platinum);
   padding: 0 10px;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 0.95rem;
   z-index: 2;
   position: absolute;
   left: 50%;
@@ -133,7 +138,7 @@ html, body, #root {
 .mac-close-btn {
   width: 14px;
   height: 14px;
-  background: #FF605C;
+  background: #FF605C; /* Red close button as requested */
   border: 1px solid var(--mac-black);
   cursor: pointer;
   z-index: 2;
@@ -148,7 +153,7 @@ html, body, #root {
   box-shadow: inset 1px 1px 0px rgba(0,0,0,0.5);
 }
 
-/* Winamp Retro Player */
+/* Winamp Retro Player Specifics */
 .winamp-player {
   width: 280px;
   background: var(--mac-platinum);
@@ -191,7 +196,7 @@ html, body, #root {
   width: 80px;
   height: 80px;
   border: 1px solid #000;
-  background: #9fae48;
+  background: #9fae48; /* Fallback color */
   transition: background-color 0.3s ease;
   box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5);
 }
@@ -334,7 +339,7 @@ html, body, #root {
   box-shadow: 1px 1px 0 #fff inset;
 }
 
-/* Resize Handle */
+/* Resize Handle Style */
 .mac-resize-handle {
   position: absolute;
   bottom: 0;
@@ -384,7 +389,7 @@ html, body, #root {
   padding: 2px;
   flex-grow: 1;
   overflow: auto;
-  font-size: 13px;
+  font-size: 1.2rem;
   background: #cfcfcf;
 }
 
@@ -397,6 +402,7 @@ html, body, #root {
   min-height: calc(100% - 4px);
 }
 
+/* WorkApp canvas - remove border and padding */
 .mac-content-inner[data-component='work'] {
   background: #000;
   border: none;
@@ -451,149 +457,157 @@ html, body, #root {
   touch-action: none;
 }
 
-/* ===== About This Computer — Mac OS 9.2 exact layout ===== */
-.about9 {
+/* About Window — Mac OS 9.2 “About This Computer” style */
+.about-container.about-macos9 {
   display: flex;
   flex-direction: column;
-  width: 540px;
-  max-width: 92vw;
+  min-width: 460px;
+  max-width: 520px;
+  background: #d8d8d8;
+  border: 2px solid #000;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #888;
 }
 
-.about9-top {
-  background: #fff;
-  border-bottom: 2px solid #000;
-}
-
-.about9-top-inner {
+.about-hero {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
-  padding: 18px 22px 10px;
-  gap: 18px;
+  align-items: stretch;
+  padding: 16px 18px 14px;
+  gap: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #ececec 55%, #e4e4e4 100%);
+  border-bottom: 1px solid #000;
 }
 
-.about9-logo {
+.about-hero-logo {
   flex-shrink: 0;
+  width: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.about9-info {
+.about-macos-logo-svg {
+  width: 88px;
+  height: 88px;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.about-hero-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.about-product-title {
+  margin: 0 0 6px;
+  font-family: "Times New Roman", Times, "New York", Georgia, serif;
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #000;
+  line-height: 1.1;
+}
+
+.about-version-line,
+.about-stat-line {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #000;
+}
+
+.about-memory-panel {
+  padding: 14px 16px 12px;
+  background: #d8d8d8;
+}
+
+.about-memory-row {
+  margin-bottom: 12px;
+}
+
+.about-memory-row:last-child {
+  margin-bottom: 0;
+}
+
+.about-memory-icon {
+  width: 36px;
+  height: 28px;
+  margin-right: 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: linear-gradient(180deg, #fff 0%, #e6e6e6 100%);
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 #fff;
+}
+
+.about-memory-label {
+  width: 132px;
+  text-align: right;
+  margin-right: 10px;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.memory-bar-wrap {
   flex: 1;
   min-width: 0;
 }
 
-.about9-title {
-  font-family: var(--mac-title-font);
-  font-size: 36px;
-  font-weight: 400;
-  font-style: italic;
-  letter-spacing: 0.5px;
-  color: #000;
-  margin: 0 0 10px;
-  line-height: 1;
-}
-
-.about9-stats {
-  border-collapse: collapse;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.about9-stats td {
-  padding: 0 6px 0 0;
-  vertical-align: top;
-}
-
-.about9-stat-label {
-  font-weight: 700;
-  white-space: nowrap;
-  padding-right: 8px !important;
-}
-
-.about9-copyright {
-  text-align: right;
-  font-size: 11px;
-  color: #333;
-  padding: 4px 22px 12px;
-}
-
-.about9-bottom {
-  background: #d8d8d8;
-  padding: 14px 18px 18px;
-}
-
-.about9-mem-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  gap: 8px;
-}
-
-.about9-mem-row:last-child {
-  margin-bottom: 0;
-}
-
-.about9-mem-icon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
+.memory-bar-track {
+  height: 16px;
   border: 1px solid #000;
-  background: #e8e8e8;
-  box-shadow: inset 1px 1px 0 #fff;
+  background: linear-gradient(180deg, #b8b8b8 0%, #d0d0d0 40%, #c8c8c8 100%);
+  box-shadow:
+    inset 2px 2px 3px rgba(0, 0, 0, 0.35),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.4);
+  position: relative;
+  border-radius: 0;
 }
 
-.about9-mem-icon-ie {
-  color: #0066cc;
-  font-style: italic;
-  font-family: "Times New Roman", Times, serif;
-}
-
-.about9-mem-name {
-  width: 120px;
-  flex-shrink: 0;
-  text-align: right;
-  font-size: 13px;
-}
-
-.about9-mem-size {
-  width: 56px;
-  flex-shrink: 0;
-  text-align: right;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.about9-mem-bar-track {
-  flex: 1;
-  min-width: 60px;
-  height: 14px;
-  background: #d0d0d0;
-  border: 1px solid #000;
-  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.25);
-}
-
-.about9-mem-bar-fill {
+.about-memory-fill {
   height: 100%;
-  background: linear-gradient(
-    180deg,
-    #6ccfff 0%,
-    #38a0e8 35%,
-    #2080d0 65%,
-    #1870c0 100%
-  );
-  border-right: 1px solid rgba(0, 0, 0, 0.3);
+  background: linear-gradient(180deg, #6ec0ff 0%, #2a7fd4 45%, #1a6abf 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  border-right: 1px solid rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
 }
 
-/* CV */
+.about-memory-mb {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-left: 8px;
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.about-footer-macos9 {
+  text-align: right;
+  font-size: 0.72rem;
+  padding: 8px 12px 10px;
+  border-top: 1px solid #888;
+  background: #d0d0d0;
+  color: #222;
+}
+
+/* legacy class names used elsewhere */
+.memory-row {
+  display: flex;
+  align-items: center;
+}
+
 .cv-content {
   min-width: 620px;
   padding: 16px 18px;
   line-height: 1.45;
-  font-size: 14px;
+  font-size: 1.35rem;
 }
 
 .cv-section {
@@ -615,7 +629,6 @@ html, body, #root {
   padding: 10px;
 }
 
-/* Doom */
 .doom-app {
   width: min(740px, 88vw);
   min-width: 320px;
@@ -649,13 +662,13 @@ html, body, #root {
 }
 
 .doom-restart-btn {
-  font-size: 13px;
+  font-size: 1.05rem;
   padding: 4px 14px;
 }
 
 .doom-status-inline {
   margin: 0;
-  font-size: 13px;
+  font-size: 1rem;
 }
 
 .doom-badge {
@@ -691,7 +704,6 @@ html, body, #root {
   margin-top: 8px;
 }
 
-/* Desktop Icons */
 .icon-container {
   display: flex;
   flex-direction: column;
@@ -700,7 +712,7 @@ html, body, #root {
   cursor: pointer;
   padding: 4px;
   user-select: none;
-  position: absolute;
+  position: absolute; /* Added absolute for Draggable */
 }
 
 .icon-container .icon-box {
@@ -726,7 +738,7 @@ html, body, #root {
   border: 1px solid var(--mac-black);
   padding: 0 6px;
   text-align: center;
-  font-size: 12px;
+  font-size: 1rem;
   white-space: nowrap;
 }
 
@@ -749,7 +761,7 @@ html, body, #root {
 .rainbow-purple { fill: #973999; }
 .rainbow-blue { fill: #009CDF; }
 
-/* Scrollbar */
+/* Custom Scrollbar for Retro Feel */
 ::-webkit-scrollbar {
   width: 16px;
   height: 16px;
@@ -772,12 +784,13 @@ html, body, #root {
   display: block;
 }
 
+/* WorkApp Canvas Styling */
 canvas {
   background: #000;
   display: block;
 }
 
-/* Control Strip */
+/* --- Control Strip --- */
 .control-strip {
   position: absolute;
   bottom: 0px;
@@ -842,7 +855,7 @@ canvas {
   color: #000;
 }
 
-/* Dropdown Menus */
+/* --- Dropdown Menus --- */
 .menu-dropdown-container {
   position: relative;
 }
@@ -870,7 +883,7 @@ canvas {
   cursor: default;
   color: #000;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 0.9rem;
 }
 
 .menu-dropdown-item:hover {
@@ -878,41 +891,13 @@ canvas {
   color: #fff;
 }
 
-/* Boot Screen */
-.boot-screen {
-  width: 100%;
-  height: 100%;
-  background-color: #000;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: opacity 1.5s ease-in-out;
-}
-
-.boot-screen h2 {
-  font-family: Chicago, Charcoal, Geneva, var(--mac-ui-font);
-  font-size: 18px;
-  font-weight: 400;
-  margin: 0 0 16px;
-}
-
-.boot-screen p {
-  font-family: Geneva, var(--mac-ui-font);
-  font-size: 12px;
-  color: #aaa;
-  margin: 0;
-}
-
-/* Mobile */
+/* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
   .mac-menubar {
     overflow-x: auto;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
-    font-size: 13px;
+    font-size: 0.92rem;
     padding-bottom: 2px;
   }
 
@@ -921,40 +906,50 @@ canvas {
   }
 
   .mac-titlebar-text {
-    font-size: 13px;
+    font-size: 0.96rem;
     padding: 0 6px;
   }
-
+  
   .mac-menubar::-webkit-scrollbar {
-    height: 4px;
+    height: 4px; /* Tiny scrollbar for the menu bar on mobile */
   }
 
   .mac-window {
     min-width: unset;
-    width: 95vw !important;
+    width: 95vw !important; /* Force width constraint on mobile */
     max-width: 95vw;
   }
-
+  
   .spotify-player {
     width: 95vw;
     max-width: 320px;
   }
-
-  .about9-top-inner {
+  
+  .about-hero {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
 
-  .about9-title {
-    font-size: 28px;
+  .about-hero-logo {
+    margin-bottom: 8px;
   }
 
-  .about9-mem-row {
-    flex-wrap: wrap;
+  .about-product-title {
+    font-size: 1.65rem;
+  }
+  
+  .memory-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .memory-label {
+    text-align: left;
+    margin-bottom: 5px;
   }
 
-  .about9,
+  .about-container,
   .cv-content,
   .work-sketch-frame,
   .work-app-scroll,
@@ -978,7 +973,7 @@ canvas {
   }
 
   .icon-label {
-    font-size: 11px;
+    font-size: 0.9rem;
   }
 
   .doom-mobile-controls .retro-mac-btn {

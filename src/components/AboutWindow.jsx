@@ -1,86 +1,78 @@
 import React from 'react';
 
-const FinderFaceSVG = () => (
-  <svg viewBox="0 0 100 100" width="88" height="88" style={{ display: 'block' }}>
-    <rect x="2" y="2" width="96" height="96" rx="4" fill="#e8e8e8" stroke="#888" strokeWidth="2" />
-    <rect x="6" y="6" width="88" height="88" rx="2" fill="#d0d0d0" />
-    <rect x="10" y="10" width="80" height="80" rx="1" fill="#f0f0f0" stroke="#aaa" strokeWidth="1" />
-    {/* Face background - pixelated blue gradient */}
-    <rect x="22" y="18" width="56" height="64" rx="6" fill="url(#faceGrad)" />
-    <defs>
-      <linearGradient id="faceGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor="#8ab8e8" />
-        <stop offset="50%" stopColor="#4a82c8" />
-        <stop offset="100%" stopColor="#2a5aa0" />
-      </linearGradient>
-    </defs>
-    {/* Face shape - lighter inner */}
-    <rect x="28" y="24" width="44" height="52" rx="4" fill="url(#innerFace)" />
-    <defs>
-      <linearGradient id="innerFace" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#a8d0f0" />
-        <stop offset="100%" stopColor="#5888c0" />
-      </linearGradient>
-    </defs>
-    {/* Pixel grid lines for retro look */}
-    <line x1="50" y1="18" x2="50" y2="82" stroke="rgba(0,0,0,0.08)" strokeWidth="1" />
-    <line x1="22" y1="50" x2="78" y2="50" stroke="rgba(0,0,0,0.08)" strokeWidth="1" />
-    {/* Eyes */}
-    <rect x="34" y="38" width="8" height="10" rx="1" fill="#1a2a40" />
-    <rect x="56" y="38" width="8" height="10" rx="1" fill="#1a2a40" />
-    {/* Nose */}
-    <rect x="47" y="50" width="6" height="8" rx="1" fill="rgba(20,50,90,0.5)" />
-    {/* Smile */}
-    <path d="M38 62 Q50 72 62 62" stroke="#1a2a40" strokeWidth="3" fill="none" strokeLinecap="round" />
-  </svg>
-);
-
+/** Mac OS 9.2–style “About This Computer” content (reference: classic Platinum dialog). */
 const AboutWindow = () => {
   return (
-    <div className="about9">
-      {/* Top section - white bg with logo + info */}
-      <div className="about9-top">
-        <div className="about9-top-inner">
-          <div className="about9-logo">
-            <FinderFaceSVG />
-          </div>
-          <div className="about9-info">
-            <div className="about9-title">Mac OS 9.2</div>
-            <table className="about9-stats">
-              <tbody>
-                <tr><td className="about9-stat-label">Version:</td><td>Mac OS 9.2.2</td></tr>
-                <tr><td className="about9-stat-label">Built-in Memory:</td><td>672 MB</td></tr>
-                <tr><td className="about9-stat-label">Virtual Memory:</td><td>Off</td></tr>
-                <tr><td className="about9-stat-label">Largest Unused Block:</td><td>612.6 MB</td></tr>
-              </tbody>
-            </table>
-          </div>
+    <div className="about-container about-macos9">
+      <div className="about-hero">
+        <div className="about-hero-logo" aria-hidden="true">
+          <svg viewBox="0 0 88 88" className="about-macos-logo-svg">
+            <defs>
+              <linearGradient id="faceL" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#7eb8ff" />
+                <stop offset="100%" stopColor="#3d7dcc" />
+              </linearGradient>
+              <linearGradient id="faceR" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#9ec8ff" />
+                <stop offset="100%" stopColor="#4a85d4" />
+              </linearGradient>
+            </defs>
+            <rect x="4" y="4" width="80" height="80" fill="#f5f5f5" stroke="#000" strokeWidth="2" />
+            <path
+              d="M12 44c0-14 10-26 22-26 8 0 14 4 18 10-4 10-12 16-22 16-10 0-18-6-18-16z"
+              fill="url(#faceL)"
+              stroke="#1a4a8a"
+              strokeWidth="1.2"
+            />
+            <path
+              d="M48 44c0-14 10-26 22-26 8 0 14 4 18 10-4 10-12 16-22 16-10 0-18-6-18-16z"
+              fill="url(#faceR)"
+              stroke="#1a4a8a"
+              strokeWidth="1.2"
+            />
+            <circle cx="30" cy="38" r="3.5" fill="#0a1a30" />
+            <circle cx="58" cy="38" r="3.5" fill="#0a1a30" />
+            <path d="M36 52 Q44 58 52 52" stroke="#0a1a30" strokeWidth="2" fill="none" strokeLinecap="round" />
+          </svg>
         </div>
-        <div className="about9-copyright">
-          ™ &amp; © Apple Computer, Inc. 1983–2001
+        <div className="about-hero-copy">
+          <h1 className="about-product-title">Mac&nbsp;OS&nbsp;9.2</h1>
+          <p className="about-version-line">Version: Mac OS 9.2.2</p>
+          <p className="about-stat-line">Built-in Memory: 672 MB</p>
+          <p className="about-stat-line">Virtual Memory: Off</p>
+          <p className="about-stat-line">Largest Unused Block: 612.6 MB</p>
         </div>
       </div>
 
-      {/* Bottom section - gray bg with memory bars */}
-      <div className="about9-bottom">
-        <div className="about9-mem-row">
-          <div className="about9-mem-icon about9-mem-icon-ie">e</div>
-          <div className="about9-mem-name">Internet Explorer</div>
-          <div className="about9-mem-size">13.9 MB</div>
-          <div className="about9-mem-bar-track">
-            <div className="about9-mem-bar-fill" style={{ width: '24%' }} />
+      <div className="about-memory-panel">
+        <div className="memory-row about-memory-row">
+          <div className="memory-icon about-memory-icon" aria-hidden="true">
+            IE
           </div>
+          <div className="memory-label about-memory-label">Internet Explorer</div>
+          <div className="memory-bar-wrap">
+            <div className="memory-bar-track">
+              <div className="memory-bar-fill about-memory-fill" style={{ width: '30%' }} />
+            </div>
+          </div>
+          <div className="memory-text about-memory-mb">13.9 MB</div>
         </div>
-        <div className="about9-mem-row">
-          <div className="about9-mem-icon about9-mem-icon-os">
-            <span style={{ fontSize: '9px', fontWeight: 800 }}>OS</span>
+        <div className="memory-row about-memory-row">
+          <div className="memory-icon about-memory-icon" aria-hidden="true">
+            OS
           </div>
-          <div className="about9-mem-name">Mac OS</div>
-          <div className="about9-mem-size">43 MB</div>
-          <div className="about9-mem-bar-track">
-            <div className="about9-mem-bar-fill" style={{ width: '72%' }} />
+          <div className="memory-label about-memory-label">Mac OS</div>
+          <div className="memory-bar-wrap">
+            <div className="memory-bar-track">
+              <div className="memory-bar-fill about-memory-fill" style={{ width: '85%' }} />
+            </div>
           </div>
+          <div className="memory-text about-memory-mb">43 MB</div>
         </div>
+      </div>
+
+      <div className="about-footer about-footer-macos9">
+        ™ &amp; © Apple Computer, Inc. 1983–2001
       </div>
     </div>
   );
