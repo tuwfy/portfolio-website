@@ -8,6 +8,7 @@ const SCREEN_CENTER_X = VIEW_WIDTH / 2;
 const FOV = Math.PI / 3;
 const MAX_VIEW_DISTANCE = 18;
 const COLLISION_RADIUS = 0.18;
+const PLAYER_SPAWN = { x: 1.5, y: 1.5, angle: 0 };
 const MAP = [
   '111111111111',
   '100000000001',
@@ -169,6 +170,138 @@ const createImpSprite = (isHit = false) =>
       ctx.fillRect(17, 28, 4, 5);
       ctx.fillRect(14, 30, 3, 3);
     }
+
+    ctx.strokeStyle = '#22170e';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(18, 18, 24, 37);
+  });
+
+const createImpWalkSprite = (phase = 0) =>
+  createSpriteCanvas(60, 78, (ctx) => {
+    const legShift = phase === 0 ? -2 : 2;
+    const armShift = phase === 0 ? 2 : -2;
+    const skin = '#b68b66';
+    const skinDark = '#76533d';
+    const skinLight = '#d7b28a';
+
+    ctx.fillStyle = skinDark;
+    ctx.fillRect(18 + legShift, 55, 9, 18);
+    ctx.fillRect(33 - legShift, 55, 9, 18);
+    ctx.fillRect(12 + armShift, 35, 9, 22);
+    ctx.fillRect(39 - armShift, 35, 9, 22);
+
+    ctx.fillStyle = skin;
+    ctx.fillRect(18, 18, 24, 37);
+    ctx.fillRect(15 + armShift, 44, 12, 10);
+    ctx.fillRect(33 - armShift, 44, 12, 10);
+
+    ctx.fillStyle = skinLight;
+    ctx.fillRect(22, 22, 16, 10);
+    ctx.fillRect(24, 33, 12, 15);
+
+    ctx.fillStyle = skinDark;
+    ctx.beginPath();
+    ctx.moveTo(18, 18);
+    ctx.lineTo(10, 8);
+    ctx.lineTo(16, 5);
+    ctx.lineTo(23, 16);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(42, 18);
+    ctx.lineTo(50, 8);
+    ctx.lineTo(44, 5);
+    ctx.lineTo(37, 16);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = skin;
+    ctx.beginPath();
+    ctx.ellipse(30, 15, 12, 11, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ff2d1e';
+    ctx.fillRect(22, 12, 5, 4);
+    ctx.fillRect(33, 12, 5, 4);
+
+    ctx.fillStyle = '#fff5da';
+    ctx.fillRect(23, 13, 2, 2);
+    ctx.fillRect(34, 13, 2, 2);
+
+    ctx.fillStyle = '#8f0c0c';
+    ctx.fillRect(27, 20, 6, 6);
+    ctx.fillRect(25, 24, 10, 2);
+
+    ctx.fillStyle = '#f2f2f2';
+    ctx.fillRect(10 + armShift, 47, 4, 7);
+    ctx.fillRect(46 - armShift, 47, 4, 7);
+
+    ctx.strokeStyle = '#22170e';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(18, 18, 24, 37);
+  });
+
+const createImpAttackSprite = () =>
+  createSpriteCanvas(60, 78, (ctx) => {
+    const skin = '#c59a72';
+    const skinDark = '#795740';
+    const skinLight = '#e2bf96';
+
+    ctx.fillStyle = skinDark;
+    ctx.fillRect(18, 55, 9, 18);
+    ctx.fillRect(33, 55, 9, 18);
+    ctx.fillRect(9, 30, 12, 28);
+    ctx.fillRect(39, 30, 12, 28);
+
+    ctx.fillStyle = skin;
+    ctx.fillRect(18, 18, 24, 37);
+    ctx.fillRect(12, 42, 14, 10);
+    ctx.fillRect(34, 42, 14, 10);
+
+    ctx.fillStyle = skinLight;
+    ctx.fillRect(22, 22, 16, 10);
+    ctx.fillRect(24, 33, 12, 15);
+    ctx.fillRect(9, 37, 8, 7);
+    ctx.fillRect(43, 37, 8, 7);
+
+    ctx.fillStyle = skinDark;
+    ctx.beginPath();
+    ctx.moveTo(18, 18);
+    ctx.lineTo(10, 8);
+    ctx.lineTo(16, 5);
+    ctx.lineTo(23, 16);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(42, 18);
+    ctx.lineTo(50, 8);
+    ctx.lineTo(44, 5);
+    ctx.lineTo(37, 16);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = skin;
+    ctx.beginPath();
+    ctx.ellipse(30, 15, 12, 11, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ff2d1e';
+    ctx.fillRect(22, 12, 5, 4);
+    ctx.fillRect(33, 12, 5, 4);
+
+    ctx.fillStyle = '#fff5da';
+    ctx.fillRect(23, 13, 2, 2);
+    ctx.fillRect(34, 13, 2, 2);
+
+    ctx.fillStyle = '#8f0c0c';
+    ctx.fillRect(27, 20, 6, 7);
+    ctx.fillRect(25, 25, 10, 2);
+
+    ctx.fillStyle = '#f2f2f2';
+    ctx.fillRect(8, 35, 5, 8);
+    ctx.fillRect(47, 35, 5, 8);
 
     ctx.strokeStyle = '#22170e';
     ctx.lineWidth = 2;
@@ -359,9 +492,9 @@ const DoomApp = () => {
 
     const game = {
       player: {
-        x: 2.5,
-        y: 2.5,
-        angle: 0,
+        x: PLAYER_SPAWN.x,
+        y: PLAYER_SPAWN.y,
+        angle: PLAYER_SPAWN.angle,
         hp: 100,
         armor: 0,
         ammo: 50,
@@ -379,9 +512,9 @@ const DoomApp = () => {
     const spawnRound = (roundNumber, resetPlayer = false) => {
       if (resetPlayer) {
         game.player = {
-          x: 2.5,
-          y: 2.5,
-          angle: 0,
+          x: PLAYER_SPAWN.x,
+          y: PLAYER_SPAWN.y,
+          angle: PLAYER_SPAWN.angle,
           hp: 100,
           armor: 0,
           ammo: 50,
@@ -575,6 +708,27 @@ const DoomApp = () => {
       return `rgb(${Math.round(r * shade)}, ${Math.round(g * shade)}, ${Math.round(b * shade)})`;
     };
 
+    const wallDetailColorFor = (cell, distance, side, textureU, yRatio) => {
+      const depthShade = clamp(1 - distance / MAX_VIEW_DISTANCE, 0.18, 1);
+      const sideShade = side === 1 ? 0.72 : 1;
+      const pattern =
+        cell === '1'
+          ? (Math.floor(textureU * 8) % 2 === 0 ? 1.1 : 0.85) * (Math.floor(yRatio * 7) % 2 === 0 ? 1.04 : 0.92)
+          : cell === '2'
+            ? (Math.floor(textureU * 6) % 3 === 0 ? 1.16 : 0.88)
+            : (Math.floor(textureU * 10) % 4 === 0 ? 1.18 : 0.9);
+
+      const palette = {
+        '1': [140, 144, 150],
+        '2': [144, 120, 102],
+        '3': [105, 124, 154]
+      };
+
+      const [r, g, b] = palette[cell] || palette['1'];
+      const shade = depthShade * sideShade * pattern;
+      return `rgb(${Math.round(r * shade)}, ${Math.round(g * shade)}, ${Math.round(b * shade)})`;
+    };
+
     const drawViewport = (now) => {
       bctx.clearRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
 
@@ -604,9 +758,10 @@ const DoomApp = () => {
         bctx.fillStyle = wallColorFor(hit.cell, perpendicularDistance, hit.side, hit.textureU);
         bctx.fillRect(x, wallTop, 1, wallHeight);
 
-        if (((x + Math.floor(hit.textureU * 16)) % 9) === 0) {
-          bctx.fillStyle = 'rgba(255,255,255,0.08)';
-          bctx.fillRect(x, wallTop, 1, wallHeight);
+        for (let y = 0; y < wallHeight; y += 2) {
+          const yRatio = y / Math.max(1, wallHeight);
+          bctx.fillStyle = wallDetailColorFor(hit.cell, perpendicularDistance, hit.side, hit.textureU, yRatio);
+          bctx.fillRect(x, wallTop + y, 1, Math.min(2, wallHeight - y));
         }
       }
 
@@ -618,7 +773,15 @@ const DoomApp = () => {
 
       enemies.forEach(({ enemy, projection }) => {
         const bob = Math.sin(now * 0.007 + enemy.bobSeed) * 2.2;
-        const spriteImage = now - enemy.hitAt < 100 ? assets.enemyHit : assets.enemyAlive;
+        const attackFrame = Math.sin(now * 0.018 + enemy.bobSeed) > 0.45;
+        const spriteImage =
+          now - enemy.hitAt < 100
+            ? assets.enemyHit
+            : projection.depth < 1.55 || attackFrame
+              ? assets.enemyAttack
+              : Math.sin(now * 0.012 + enemy.bobSeed) > 0
+                ? assets.enemyWalkA
+                : assets.enemyWalkB;
         const drawWidth = projection.size * 0.9;
         const drawHeight = projection.size * 1.14;
         const drawX = Math.round(projection.screenX - drawWidth / 2);
@@ -698,7 +861,10 @@ const DoomApp = () => {
         gunIdle: createWeaponSprite(false),
         gunFlash: createWeaponSprite(true),
         enemyAlive: createImpSprite(false),
-        enemyHit: createImpSprite(true)
+        enemyHit: createImpSprite(true),
+        enemyWalkA: createImpWalkSprite(0),
+        enemyWalkB: createImpWalkSprite(1),
+        enemyAttack: createImpAttackSprite()
       };
 
       resizeCanvas();
