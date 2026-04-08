@@ -11,6 +11,20 @@ const ASSET_RECTS = {
   hud: { src: '/doom-ref-room-3.png', x: 0, y: 430, w: 1024, h: 147 }
 };
 
+const HUD_GLYPHS = {
+  '0': ['01110', '10001', '10011', '10101', '11001', '10001', '01110'],
+  '1': ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
+  '2': ['01110', '10001', '00001', '00010', '00100', '01000', '11111'],
+  '3': ['11110', '00001', '00001', '01110', '00001', '00001', '11110'],
+  '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+  '5': ['11111', '10000', '10000', '11110', '00001', '00001', '11110'],
+  '6': ['01110', '10000', '10000', '11110', '10001', '10001', '01110'],
+  '7': ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
+  '8': ['01110', '10001', '10001', '01110', '10001', '10001', '01110'],
+  '9': ['01110', '10001', '10001', '01111', '00001', '00001', '01110'],
+  '%': ['11001', '11010', '00100', '01000', '10110', '00110', '00000']
+};
+
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
 const loadImage = (src) =>
@@ -26,6 +40,31 @@ const drawSprite = (ctx, image, rect, dx, dy, dw, dh, alpha = 1) => {
   ctx.globalAlpha = alpha;
   ctx.drawImage(image, rect.x, rect.y, rect.w, rect.h, dx, dy, dw, dh);
   ctx.restore();
+};
+
+const drawHudText = (ctx, text, x, y, scale = 3) => {
+  let cursorX = x;
+
+  text.split('').forEach((character) => {
+    const glyph = HUD_GLYPHS[character] || HUD_GLYPHS['0'];
+
+    glyph.forEach((row, rowIndex) => {
+      for (let columnIndex = 0; columnIndex < row.length; columnIndex += 1) {
+        if (row[columnIndex] !== '1') continue;
+
+        ctx.fillStyle = '#2a0200';
+        ctx.fillRect(cursorX + columnIndex * scale + 1, y + rowIndex * scale + 1, scale, scale);
+
+        ctx.fillStyle = '#d11c0f';
+        ctx.fillRect(cursorX + columnIndex * scale, y + rowIndex * scale, scale, scale);
+
+        ctx.fillStyle = '#ff8768';
+        ctx.fillRect(cursorX + columnIndex * scale, y + rowIndex * scale, scale, 1);
+      }
+    });
+
+    cursorX += glyph[0].length * scale + scale;
+  });
 };
 
 const createSpriteCanvas = (width, height, draw) => {
@@ -273,7 +312,7 @@ const DoomApp = () => {
       const target = game.enemies
         .filter((enemy) => enemy.alive)
         .map((enemy) => ({ enemy, projection: worldToScreen(enemy.x, enemy.y) }))
-        .filter(({ projection }) => projection && Math.abs(projection.sx - SCREEN_CENTER_X) < 44)
+        .filter(({ projection }) => projection && Math.abs(projection.sx - SCREEN_CENTER_X) < 68)
         .sort((a, b) => a.projection.depth - b.projection.depth)[0];
 
       if (!target) return;
@@ -292,7 +331,7 @@ const DoomApp = () => {
       game.lastFrameAt = now;
 
       const moveSpeed = delta * 0.0022;
-      const turnSpeed = delta * 0.0048;
+      const turnSpeed = delta * 0.0115;
       const forwardX = Math.cos(game.player.angle);
       const forwardY = Math.sin(game.player.angle);
 
@@ -343,17 +382,13 @@ const DoomApp = () => {
 
     const drawHudNumbers = () => {
       bctx.save();
-      bctx.textBaseline = 'top';
-      bctx.fillStyle = '#bf1408';
-      bctx.font = 'bold 21px Arial';
-      bctx.strokeStyle = '#2a0200';
-      bctx.lineWidth = 2;
-      bctx.strokeText(String(Math.round(game.player.ammo)).padStart(2, '0'), 20, 166);
-      bctx.strokeText(`${Math.round(game.player.hp)}%`, 69, 166);
-      bctx.strokeText(`${Math.round(game.player.armor)}%`, 211, 166);
-      bctx.fillText(String(Math.round(game.player.ammo)).padStart(2, '0'), 20, 166);
-      bctx.fillText(`${Math.round(game.player.hp)}%`, 69, 166);
-      bctx.fillText(`${Math.round(game.player.armor)}%`, 211, 166);
+      const ammoText = String(Math.round(game.player.ammo)).padStart(2, '0');
+      const hpText = `${Math.round(game.player.hp)}%`;
+      const armorText = `${Math.round(game.player.armor)}%`;
+
+      drawHudText(bctx, ammoText, 14, 165, 3);
+      drawHudText(bctx, hpText, 63, 165, 3);
+      drawHudText(bctx, armorText, 201, 165, 3);
       bctx.restore();
     };
 
@@ -391,8 +426,8 @@ const DoomApp = () => {
         const bob = Math.sin(now * 0.007 + enemy.bobSeed) * 2.2;
         const size = projection.size;
         const spriteImage = now - enemy.hitAt < 90 ? assets.enemyHit : assets.enemyAlive;
-        const drawWidth = size * 0.82;
-        const drawHeight = size * 1.08;
+        const drawWidth = size * 0.9;
+        const drawHeight = size * 1.14;
         const drawX = Math.round(projection.sx - drawWidth / 2);
         const drawY = Math.round(92 - drawHeight / 2 + bob + projection.depth * 3);
 
