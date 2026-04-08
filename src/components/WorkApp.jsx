@@ -44,6 +44,7 @@ const CreativeCanvas = ({ mode }) => {
   const mouseRef = useRef({ x: -1000, y: -1000, active: false });
   const metricsRef = useRef({ width: 0, height: 0, dpr: 1, mobile: false });
   const lastTimeRef = useRef(0);
+  const backgroundRef = useRef({ img: null, ready: false });
   const cachesRef = useRef({
     grassSky: null,
     starsSky: null,
@@ -102,6 +103,20 @@ const CreativeCanvas = ({ mode }) => {
         entitiesRef.current = buildWaterSamples(mobile ? 40 : 64);
       }
     };
+
+    if (mode === 'grass' && !backgroundRef.current.img) {
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = '/grass-bg.png';
+      img.onload = () => {
+        backgroundRef.current = { img, ready: true };
+        cachesRef.current.grassSky = null;
+      };
+      img.onerror = () => {
+        backgroundRef.current = { img: null, ready: false };
+      };
+      backgroundRef.current = { img, ready: false };
+    }
 
     const resize = () => {
       const width = canvas.clientWidth;
@@ -186,28 +201,55 @@ const CreativeCanvas = ({ mode }) => {
       if (bg) ctx.drawImage(bg, 0, 0);
     };
 
-    const drawGrassBackground = () => {
+    const drawGrassBackground = (time) => {
       const bg = getCachedBackground('grassSky', (bctx, width, height) => {
-        const sky = bctx.createLinearGradient(0, 0, 0, height);
-        sky.addColorStop(0, '#cbe4b5');
-        sky.addColorStop(0.4, '#7fb55e');
-        sky.addColorStop(1, '#1c3b20');
-        bctx.fillStyle = sky;
-        bctx.fillRect(0, 0, width, height);
+        const { img, ready } = backgroundRef.current;
+        if (ready && img) {
+          // cover-crop the photo to fill the canvas
+          const iw = img.naturalWidth || img.width;
+          const ih = img.naturalHeight || img.height;
+          const scale = Math.max(width / iw, height / ih);
+          const sw = width / scale;
+          const sh = height / scale;
+          const sx = (iw - sw) * 0.5;
+          const sy = (ih - sh) * 0.5;
 
-        const haze = bctx.createRadialGradient(width * 0.6, height * 0.22, 40, width * 0.6, height * 0.22, height * 0.55);
-        haze.addColorStop(0, 'rgba(255,255,255,0.22)');
-        haze.addColorStop(1, 'rgba(255,255,255,0)');
-        bctx.fillStyle = haze;
-        bctx.fillRect(0, 0, width, height);
+          // slight grade pass
+          bctx.filter = 'contrast(1.08) saturate(1.08) brightness(0.98)';
+          bctx.drawImage(img, sx, sy, sw, sh, 0, 0, width, height);
+          bctx.filter = 'none';
 
-        const hill = bctx.createRadialGradient(width * 0.35, height * 0.9, height * 0.14, width * 0.35, height * 0.9, height * 0.95);
-        hill.addColorStop(0, 'rgba(190, 222, 140, 0.45)');
-        hill.addColorStop(1, 'rgba(26, 63, 24, 0)');
-        bctx.fillStyle = hill;
-        bctx.fillRect(0, 0, width, height);
+          // atmospheric haze to sell depth
+          const haze = bctx.createLinearGradient(0, 0, 0, height);
+          haze.addColorStop(0, 'rgba(255,255,255,0.28)');
+          haze.addColorStop(0.32, 'rgba(255,255,255,0.08)');
+          haze.addColorStop(0.55, 'rgba(255,255,255,0)');
+          bctx.fillStyle = haze;
+          bctx.fillRect(0, 0, width, height);
+
+          // vignette to focus foreground
+          const vg = bctx.createRadialGradient(width * 0.5, height * 0.55, height * 0.1, width * 0.5, height * 0.55, height * 0.9);
+          vg.addColorStop(0, 'rgba(0,0,0,0)');
+          vg.addColorStop(1, 'rgba(0,0,0,0.35)');
+          bctx.fillStyle = vg;
+          bctx.fillRect(0, 0, width, height);
+        } else {
+          const sky = bctx.createLinearGradient(0, 0, 0, height);
+          sky.addColorStop(0, '#cbe4b5');
+          sky.addColorStop(0.4, '#7fb55e');
+          sky.addColorStop(1, '#1c3b20');
+          bctx.fillStyle = sky;
+          bctx.fillRect(0, 0, width, height);
+        }
       });
       if (bg) ctx.drawImage(bg, 0, 0);
+
+      // subtle parallax shimmer in foreground (very light)
+      const { width, height } = metricsRef.current;
+      const drift = Math.sin(time * 0.0007) * 2;
+      ctx.fillStyle = 'rgba(255,255,255,0.03)';
+      ctx.fillRect(0, height * 0.68, width, 1);
+      ctx.fillRect(0, height * 0.72 + drift, width, 1);
     };
 
     const drawWaterBackground = () => {
@@ -231,7 +273,7 @@ const CreativeCanvas = ({ mode }) => {
 
     const drawBackground = (time, dt) => {
       const { width, height, mobile } = metricsRef.current;
-      if (mode === 'grass') drawGrassBackground();
+      if (mode === 'grass') drawGrassBackground(time);
       else if (mode === 'water') drawWaterBackground();
       else drawStarsBackground(time);
     };
