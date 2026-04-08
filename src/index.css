@@ -11,8 +11,9 @@
 
 * {
   box-sizing: border-box;
-  font-family: Geneva, "Lucida Grande", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  font-family: 'VT323', monospace;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
 }
 
 html, body, #root {
@@ -263,7 +264,7 @@ html, body, #root {
   background: var(--mac-platinum);
   border: 1px solid #000;
   box-shadow: 1px 1px 0 #fff inset, 1px 1px 0 rgba(0,0,0,0.2);
-  font-family: inherit;
+  font-family: 'VT323', monospace;
   font-size: 11px;
   padding: 2px 4px;
   cursor: pointer;
@@ -612,6 +613,8 @@ html, body, #root {
   max-height: 58px;
   object-fit: contain;
   margin: 0;
+  mix-blend-mode: multiply;
+  filter: contrast(1.05);
 }
 
 .doom-note {

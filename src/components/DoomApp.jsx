@@ -261,24 +261,24 @@ const DoomApp = () => {
     const drawHud = (y0) => {
       drawStoneHud(y0);
       ctx.textBaseline = 'middle';
-      ctx.font = 'bold 28px monospace';
+      ctx.font = 'bold 28px VT323, monospace';
       ctx.fillStyle = '#c02020';
       ctx.textAlign = 'center';
       ctx.fillText(String(game.ammo), w * 0.1, y0 + 38);
-      ctx.font = '14px monospace';
+      ctx.font = '14px VT323, monospace';
       ctx.fillStyle = '#8a8a8a';
       ctx.fillText('AMMO', w * 0.1, y0 + 62);
 
-      ctx.font = 'bold 28px monospace';
+      ctx.font = 'bold 28px VT323, monospace';
       ctx.fillStyle = '#c02020';
       ctx.fillText(`${Math.max(0, Math.round(game.player.hp))}%`, w * 0.24, y0 + 38);
-      ctx.font = '14px monospace';
+      ctx.font = '14px VT323, monospace';
       ctx.fillStyle = '#8a8a8a';
       ctx.fillText('HEALTH', w * 0.24, y0 + 62);
 
       // Arms 1–7
       const armsX = w * 0.38;
-      ctx.font = '12px monospace';
+      ctx.font = '12px VT323, monospace';
       ctx.fillStyle = '#8a8a8a';
       ctx.fillText('ARMS', armsX, y0 + 22);
       for (let n = 1; n <= 7; n++) {
@@ -287,7 +287,7 @@ const DoomApp = () => {
         ctx.fillStyle = on ? '#c8a820' : '#555';
         ctx.fillRect(ax - 5, y0 + 32, 14, 16);
         ctx.fillStyle = on ? '#1a1a1a' : '#aaa';
-        ctx.font = '12px monospace';
+        ctx.font = '12px VT323, monospace';
         ctx.textAlign = 'center';
         ctx.fillText(String(n), ax + 2, y0 + 41);
       }
@@ -296,10 +296,10 @@ const DoomApp = () => {
       drawDoomFace(w / 2, y0 + hudH / 2 + 2, faceBox);
 
       ctx.textAlign = 'center';
-      ctx.font = 'bold 28px monospace';
+      ctx.font = 'bold 28px VT323, monospace';
       ctx.fillStyle = '#c02020';
       ctx.fillText(`${game.armor}%`, w * 0.76, y0 + 38);
-      ctx.font = '14px monospace';
+      ctx.font = '14px VT323, monospace';
       ctx.fillStyle = '#8a8a8a';
       ctx.fillText('ARMOR', w * 0.76, y0 + 62);
 
@@ -310,7 +310,7 @@ const DoomApp = () => {
         ['RCKT', '0 / 50'],
         ['CELL', '0 / 300']
       ];
-      ctx.font = '13px monospace';
+      ctx.font = '13px VT323, monospace';
       ctx.textAlign = 'left';
       rows.forEach(([label, val], i) => {
         ctx.fillStyle = '#c8a820';
