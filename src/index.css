@@ -643,7 +643,10 @@ html, body, #root {
 }
 
 .doom-header {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .doom-badge {
@@ -658,12 +661,17 @@ html, body, #root {
   width: min(100%, 620px);
   max-height: 84px;
   object-fit: contain;
-  margin-bottom: 6px;
+  margin: 0 auto 8px;
 }
 
 .doom-note,
 .doom-status {
   margin: 4px 0 8px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 .doom-iframe {
@@ -676,11 +684,28 @@ html, body, #root {
   box-shadow: inset 0 0 0 1px #4d4d4d;
 }
 
+.doom-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
 .doom-mobile-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 8px;
+}
+
+.doom-restart-btn {
+  min-width: 72px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+}
+
+.doom-status {
+  margin-top: 10px;
 }
 
 .icon-container {
@@ -944,6 +969,11 @@ canvas {
   .doom-iframe {
     aspect-ratio: 16 / 10;
     height: auto;
+  }
+
+  .doom-toolbar {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .work-sketch-frame {
