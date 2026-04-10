@@ -896,6 +896,64 @@ canvas {
   color: #fff;
 }
 
+/* Boot screen */
+.boot-screen {
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.boot-apple-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  margin-bottom: 14px;
+}
+
+.boot-screen h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 400;
+}
+
+/* Windows-only compatibility + performance visuals
+   Keep macOS appearance untouched. */
+body.os-windows * {
+  font-family: "Segoe UI", Tahoma, "Lucida Sans Unicode", "Trebuchet MS", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.os-windows .about9-title {
+  font-family: "Times New Roman", Times, Georgia, serif;
+  font-size: 72px;
+}
+
+body.os-windows .mac-menubar {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+body.os-windows .mac-titlebar-text {
+  font-size: 15px;
+}
+
+body.os-windows .menu-dropdown-item,
+body.os-windows .mac-content,
+body.os-windows .icon-label {
+  font-size: 13px;
+}
+
+body.os-windows .about9 {
+  width: 620px;
+}
+
 /* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
   .mac-menubar {

@@ -17,12 +17,8 @@ const BootScreen = ({ onBoot }) => {
   };
 
   return (
-    <div style={{
-      width: '100%', height: '100%', backgroundColor: '#000', color: '#fff',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      cursor: 'pointer', opacity: booting ? 0 : 1, transition: 'opacity 1.5s ease-in-out'
-    }} onClick={handleClick}>
-      <div style={{ fontSize: '4rem', marginBottom: '20px' }}></div>
+    <div className="boot-screen" style={{ opacity: booting ? 0 : 1 }} onClick={handleClick}>
+      <img src="/apple-logo.svg" alt="" className="boot-apple-logo" />
       <h2>Welcome to Mac OS.</h2>
       <p style={{ marginTop: '20px', color: '#aaaaaa' }}>{booting ? 'Booting...' : '(Click anywhere to Startup)'}</p>
     </div>

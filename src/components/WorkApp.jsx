@@ -74,14 +74,19 @@ const CreativeCanvas = ({ mode }) => {
         mag: Math.pow(1 - z, 2.2) * randRange(0.4, 1.0)
       };
     });
-    const buildGrassBlades = (count) => Array.from({ length: count }, () => ({
-      x: Math.random(),
-      // normalized depth: 0 far, 1 near
-      d: Math.pow(Math.random(), 1.8),
-      seed: Math.random() * 1000,
-      twist: randRange(0, Math.PI * 2),
-      tint: randRange(92, 135),
-    }));
+    const buildGrassBlades = (count) => {
+      const blades = Array.from({ length: count }, () => ({
+        x: Math.random(),
+        // normalized depth: 0 far, 1 near
+        d: Math.pow(Math.random(), 1.8),
+        seed: Math.random() * 1000,
+        twist: randRange(0, Math.PI * 2),
+        tint: randRange(92, 135),
+      }));
+      // pre-sort once; avoids O(n log n) every frame
+      blades.sort((a, b) => a.d - b.d);
+      return blades;
+    };
     const buildWaterSamples = (count) => Array.from({ length: count }, (_, i) => ({
       y: i / Math.max(1, count - 1),
       seed: Math.random() * 1000
@@ -94,12 +99,13 @@ const CreativeCanvas = ({ mode }) => {
       cachesRef.current.starsSky = null;
       cachesRef.current.waterSky = null;
 
+      const isWindows = typeof window !== 'undefined' && /Windows/i.test(window.navigator.userAgent || '');
       if (mode === 'stars') {
-        entitiesRef.current = buildStars(mobile ? 650 : 1400);
+        entitiesRef.current = buildStars(mobile ? 480 : isWindows ? 900 : 1400);
       } else if (mode === 'grass') {
-        entitiesRef.current = buildGrassBlades(mobile ? 520 : 1100);
+        entitiesRef.current = buildGrassBlades(mobile ? 360 : isWindows ? 700 : 1100);
       } else {
-        entitiesRef.current = buildWaterSamples(mobile ? 40 : 64);
+        entitiesRef.current = buildWaterSamples(mobile ? 32 : isWindows ? 48 : 64);
       }
     };
 
@@ -107,7 +113,9 @@ const CreativeCanvas = ({ mode }) => {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
       const mobile = window.innerWidth <= 768;
-      const dpr = clamp(window.devicePixelRatio || 1, 1, mobile ? 1.4 : 2);
+      const isWindows = /Windows/i.test(window.navigator.userAgent || '');
+      const dprCap = mobile ? 1.35 : isWindows ? 1.35 : 2;
+      const dpr = clamp(window.devicePixelRatio || 1, 1, dprCap);
       metricsRef.current = { width, height, dpr, mobile };
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
@@ -372,8 +380,8 @@ const CreativeCanvas = ({ mode }) => {
         ctx.fillStyle = oc;
         ctx.fillRect(0, height * 0.65, width, height * 0.35);
 
-        // draw blades back-to-front for depth
-        const blades = entities.slice().sort((a, b) => a.d - b.d);
+        // blades are already pre-sorted by depth at scene creation
+        const blades = entities;
         for (let i = 0; i < blades.length; i += 1) {
           const b = blades[i];
           const depth = b.d; // 0 far, 1 near
