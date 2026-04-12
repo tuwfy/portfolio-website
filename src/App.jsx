@@ -82,7 +82,12 @@ function App() {
   };
 
   const openLinkedIn = () => {
-    window.open('https://www.linkedin.com/in/tylerriccardi/', '_blank');
+    const url = 'https://www.linkedin.com/in/tylerriccardi/';
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.click();
   };
 
   const downloadResume = () => {
