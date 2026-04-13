@@ -37,6 +37,18 @@ const ASSET_RECTS = {
   hud: { src: '/doom-ref-room-3.png', x: 0, y: 430, w: 1024, h: 147 }
 };
 
+/** SFX in `public/` — volume kept low. */
+const DOOM_SFX_VOLUME = 0.14;
+const DOOM_AUDIO = {
+  pistol: '/dspistol.wav',
+  punch: '/dspunch.wav',
+  playerDeath: '/ddeath.wav',
+  monsterDeath: '/ddeathmonster.wav'
+};
+
+const MELEE_RANGE = 1.38;
+const MELEE_SCREEN_HALF_WIDTH = 64;
+
 const HUD_GLYPHS = {
   '0': ['01110', '10001', '10011', '10101', '11001', '10001', '01110'],
   '1': ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
@@ -308,6 +320,38 @@ const createImpAttackSprite = () =>
     ctx.strokeRect(18, 18, 24, 37);
   });
 
+const createFistSprite = (punching = false) =>
+  createSpriteCanvas(108, 88, (ctx) => {
+    const hand = '#b18361';
+    const handDark = '#5c3d2e';
+    const knuckle = '#8f6048';
+
+    if (!punching) {
+      ctx.fillStyle = handDark;
+      ctx.fillRect(14, 58, 26, 24);
+      ctx.fillRect(68, 58, 26, 24);
+      ctx.fillStyle = hand;
+      ctx.fillRect(16, 56, 22, 20);
+      ctx.fillRect(70, 56, 22, 20);
+      ctx.fillStyle = knuckle;
+      ctx.fillRect(20, 62, 8, 6);
+      ctx.fillRect(80, 62, 8, 6);
+      return;
+    }
+
+    ctx.fillStyle = handDark;
+    ctx.fillRect(36, 38, 40, 42);
+    ctx.fillStyle = hand;
+    ctx.fillRect(38, 34, 36, 38);
+    ctx.fillStyle = knuckle;
+    ctx.fillRect(42, 40, 28, 14);
+    ctx.fillStyle = '#f0d0b8';
+    ctx.fillRect(44, 52, 24, 8);
+    ctx.strokeStyle = '#3a2418';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(38, 34, 36, 38);
+  });
+
 const createWeaponSprite = (isFlash = false) =>
   createSpriteCanvas(108, 78, (ctx) => {
     const metal = '#5c6672';
@@ -527,6 +571,7 @@ const castRay = (originX, originY, angle) => {
 const DoomApp = () => {
   const canvasRef = useRef(null);
   const keysRef = useRef({});
+  const gameRef = useRef(null);
   const rafRef = useRef(null);
   const [restartKey, setRestartKey] = useState(0);
   const [status, setStatus] = useState('Loading round 1.');
@@ -549,6 +594,14 @@ const DoomApp = () => {
     let assets = null;
     const zBuffer = new Array(VIEW_WIDTH).fill(MAX_VIEW_DISTANCE);
 
+    const playSfx = (key) => {
+      const url = DOOM_AUDIO[key];
+      if (!url) return;
+      const audio = new Audio(url);
+      audio.volume = DOOM_SFX_VOLUME;
+      audio.play().catch(() => {});
+    };
+
     const game = {
       player: {
         x: PLAYER_SPAWN.x,
@@ -558,20 +611,28 @@ const DoomApp = () => {
         armor: 0,
         ammo: 50,
         hurtAt: -999,
-        weaponFlashUntil: 0
+        weaponFlashUntil: 0,
+        weapon: 'pistol'
       },
       enemies: [],
       round: 1,
       lastShotAt: 0,
+      lastPunchAt: 0,
       lastFrameAt: 0,
       nextRoundAt: 0,
-      running: true
+      running: true,
+      deathSoundPlayed: false
     };
+
+    gameRef.current = game;
 
     const spawnRound = (roundNumber, resetPlayer = false) => {
       const enemyCount = Math.min(SPAWN_POINTS.length, 2 + roundNumber);
       const enemyHp = 2 + Math.floor((roundNumber - 1) / 2);
-      const exactAmmoBudget = enemyCount * enemyHp;
+      const shotsNeeded = enemyCount * enemyHp;
+      const spareMag = 18 + roundNumber * 4;
+      const ammoGrant = Math.ceil(shotsNeeded * 1.5) + spareMag;
+      let ammoStatus = '';
 
       if (resetPlayer) {
         game.player = {
@@ -580,14 +641,19 @@ const DoomApp = () => {
           angle: PLAYER_SPAWN.angle,
           hp: 100,
           armor: 0,
-          ammo: exactAmmoBudget,
+          ammo: ammoGrant,
           hurtAt: -999,
-          weaponFlashUntil: 0
+          weaponFlashUntil: 0,
+          weapon: 'pistol'
         };
+        ammoStatus = `Ammo ~${ammoGrant}.`;
       } else {
-        game.player.ammo = exactAmmoBudget;
+        const refill = Math.ceil(shotsNeeded * 0.55) + 16 + roundNumber * 3;
+        game.player.ammo += refill;
         game.player.armor = clamp(game.player.armor + 5, 0, 200);
+        ammoStatus = `+${refill} ammo.`;
       }
+      game.deathSoundPlayed = false;
       const enemySpeed = 0.00042 + roundNumber * 0.00008;
       const spawnOffset = ((roundNumber - 1) * 2) % SPAWN_POINTS.length;
 
@@ -610,7 +676,9 @@ const DoomApp = () => {
       game.nextRoundAt = 0;
       game.running = true;
       keysRef.current = {};
-      setStatus(`Round ${roundNumber}. ${enemyCount} monsters inbound. Ammo: ${exactAmmoBudget}.`);
+      setStatus(
+        `Round ${roundNumber}. ${enemyCount} monsters. ${ammoStatus} Keys 1/2 pistol or fist (Space). Fist = unlimited.`
+      );
     };
 
     const resizeCanvas = () => {
@@ -654,35 +722,64 @@ const DoomApp = () => {
       game.player.hurtAt = now;
     };
 
+    const pickCenterTarget = (maxWorldDistance = Infinity) =>
+      game.enemies
+        .filter((enemy) => enemy.alive && hasLineOfSight(enemy.x, enemy.y))
+        .map((enemy) => ({
+          enemy,
+          dist: Math.hypot(enemy.x - game.player.x, enemy.y - game.player.y),
+          projection: worldToCamera(enemy.x, enemy.y)
+        }))
+        .filter(
+          ({ dist, projection }) =>
+            projection &&
+            dist <= maxWorldDistance &&
+            Math.abs(projection.screenX - SCREEN_CENTER_X) < MELEE_SCREEN_HALF_WIDTH
+        )
+        .sort((a, b) => a.projection.depth - b.projection.depth)[0];
+
     const tryShoot = (now) => {
-      if (!game.running || now - game.lastShotAt < 180 || game.player.ammo <= 0) return;
+      if (!game.running || game.player.weapon !== 'pistol') return;
+      if (now - game.lastShotAt < 180 || game.player.ammo <= 0) return;
 
       game.lastShotAt = now;
       game.player.weaponFlashUntil = now + 90;
       game.player.ammo = Math.max(0, game.player.ammo - 1);
+      playSfx('pistol');
 
-      const target = game.enemies
-        .filter((enemy) => enemy.alive && hasLineOfSight(enemy.x, enemy.y))
-        .map((enemy) => ({ enemy, projection: worldToCamera(enemy.x, enemy.y) }))
-        .filter(({ projection }) => projection && Math.abs(projection.screenX - SCREEN_CENTER_X) < 56)
-        .sort((a, b) => a.projection.depth - b.projection.depth)[0];
-
+      const target = pickCenterTarget(Infinity);
       if (!target) return;
 
       target.enemy.hp -= 1;
       target.enemy.hitAt = now;
       if (target.enemy.hp <= 0) {
         target.enemy.alive = false;
+        playSfx('monsterDeath');
+      }
+    };
+
+    const tryPunch = (now) => {
+      if (!game.running || game.player.weapon !== 'fist') return;
+      if (now - game.lastPunchAt < 210) return;
+
+      game.lastPunchAt = now;
+      game.player.weaponFlashUntil = now + 110;
+
+      const target = pickCenterTarget(MELEE_RANGE);
+      if (!target) return;
+
+      target.enemy.hp -= 2;
+      target.enemy.hitAt = now;
+      playSfx('punch');
+      if (target.enemy.hp <= 0) {
+        target.enemy.alive = false;
+        playSfx('monsterDeath');
       }
     };
 
     const update = (now) => {
       const delta = game.lastFrameAt ? Math.min(40, now - game.lastFrameAt) : 16;
       game.lastFrameAt = now;
-
-      if (game.player.hp <= 0) {
-        game.running = false;
-      }
 
       if (!game.running) return;
 
@@ -711,7 +808,8 @@ const DoomApp = () => {
       }
 
       if (keysRef.current[' ']) {
-        tryShoot(now);
+        if (game.player.weapon === 'pistol') tryShoot(now);
+        else tryPunch(now);
       }
 
       game.enemies.forEach((enemy) => {
@@ -736,6 +834,10 @@ const DoomApp = () => {
 
       const aliveCount = game.enemies.filter((enemy) => enemy.alive).length;
       if (game.player.hp <= 0) {
+        if (!game.deathSoundPlayed) {
+          game.deathSoundPlayed = true;
+          playSfx('playerDeath');
+        }
         game.running = false;
         setStatus(`Game over on round ${game.round}. Hit restart to try again.`);
       } else if (aliveCount === 0 && !game.nextRoundAt) {
@@ -890,21 +992,42 @@ const DoomApp = () => {
 
       const gunBobX = (keysRef.current.w || keysRef.current.s || keysRef.current.arrowup || keysRef.current.arrowdown) ? Math.sin(now * 0.012) * 3 : 0;
       const gunBobY = (keysRef.current.w || keysRef.current.s || keysRef.current.arrowup || keysRef.current.arrowdown) ? Math.abs(Math.cos(now * 0.015)) * 3 : 0;
-      const gunActive = now < game.player.weaponFlashUntil;
-      const gunImage = gunActive ? assets.gunFlash : assets.gunIdle;
-      const gunWidth = gunActive ? 124 : 112;
-      const gunHeight = gunActive ? 90 : 78;
+      const actionActive = now < game.player.weaponFlashUntil;
 
-      bctx.drawImage(
-        gunImage,
-        Math.round(SCREEN_CENTER_X - gunWidth / 2 + gunBobX),
-        Math.round(gunActive ? 88 + gunBobY : 94 + gunBobY),
-        gunWidth,
-        gunHeight
-      );
+      if (game.player.weapon === 'pistol') {
+        const gunImage = actionActive ? assets.gunFlash : assets.gunIdle;
+        const gunWidth = actionActive ? 124 : 112;
+        const gunHeight = actionActive ? 90 : 78;
+        bctx.drawImage(
+          gunImage,
+          Math.round(SCREEN_CENTER_X - gunWidth / 2 + gunBobX),
+          Math.round(actionActive ? 88 + gunBobY : 94 + gunBobY),
+          gunWidth,
+          gunHeight
+        );
+      } else {
+        const fistImage = actionActive ? assets.fistPunch : assets.fistIdle;
+        const fw = actionActive ? 118 : 108;
+        const fh = actionActive ? 96 : 88;
+        bctx.drawImage(
+          fistImage,
+          Math.round(SCREEN_CENTER_X - fw / 2 + gunBobX * 1.2),
+          Math.round(actionActive ? 84 + gunBobY : 90 + gunBobY),
+          fw,
+          fh
+        );
+      }
 
       drawSprite(bctx, assets.hud, ASSET_RECTS.hud, 0, HUD_Y, VIEW_WIDTH, VIEW_HEIGHT - HUD_Y);
       drawHudNumbers();
+
+      bctx.save();
+      bctx.font = 'bold 10px Monaco, Menlo, monospace';
+      bctx.fillStyle = 'rgba(0,0,0,0.55)';
+      bctx.fillText(game.player.weapon === 'fist' ? 'WEAPON 2 — FIST' : 'WEAPON 1 — PISTOL', 7, 12);
+      bctx.fillStyle = '#e8dcc8';
+      bctx.fillText(game.player.weapon === 'fist' ? 'WEAPON 2 — FIST' : 'WEAPON 1 — PISTOL', 6, 11);
+      bctx.restore();
 
       if (now - game.player.hurtAt < 110) {
         bctx.fillStyle = 'rgba(186, 0, 0, 0.18)';
@@ -933,6 +1056,16 @@ const DoomApp = () => {
 
     const setKey = (event, isPressed) => {
       const key = event.key.length === 1 ? event.key.toLowerCase() : event.key.toLowerCase();
+      if (key === '1' && isPressed && gameRef.current) {
+        gameRef.current.player.weapon = 'pistol';
+        event.preventDefault();
+        return;
+      }
+      if (key === '2' && isPressed && gameRef.current) {
+        gameRef.current.player.weapon = 'fist';
+        event.preventDefault();
+        return;
+      }
       if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' ', 'w', 'a', 's', 'd'].includes(key)) {
         event.preventDefault();
       }
@@ -950,6 +1083,8 @@ const DoomApp = () => {
         hud,
         gunIdle: createWeaponSprite(false),
         gunFlash: createWeaponSprite(true),
+        fistIdle: createFistSprite(false),
+        fistPunch: createFistSprite(true),
         enemyAlive: createImpSprite(false),
         enemyHit: createImpSprite(true),
         enemyWalkA: createImpWalkSprite(0),
@@ -1004,7 +1139,10 @@ const DoomApp = () => {
     <div className="mac-content-inner doom-app">
       <div className="doom-header">
         <img src="/doom-logo.png" alt="Doom logo" className="doom-logo-wide" />
-        <p className="doom-note">W/S move, A/D turn, Space shoots. Mobile buttons now use hold-to-move controls, and each round refills to the exact ammo needed for the wave.</p>
+        <p className="doom-note">
+          W/S move, A/D turn. <strong>1</strong> pistol, <strong>2</strong> fist (Space shoots or punches in range). Extra ammo each round; fist never runs out.
+          SFX: <code>dspistol.wav</code>, <code>dspunch.wav</code>, <code>ddeath.wav</code>, <code>ddeathmonster.wav</code> in <code>public/</code>.
+        </p>
       </div>
       <canvas ref={canvasRef} className="doom-iframe" />
       <div className="doom-toolbar">
@@ -1028,7 +1166,25 @@ const DoomApp = () => {
             className="retro-mac-btn"
             {...bindControl(' ')}
           >
-            Shoot
+            Fire
+          </button>
+          <button
+            type="button"
+            className="retro-mac-btn"
+            onClick={() => {
+              if (gameRef.current) gameRef.current.player.weapon = 'pistol';
+            }}
+          >
+            1 Gun
+          </button>
+          <button
+            type="button"
+            className="retro-mac-btn"
+            onClick={() => {
+              if (gameRef.current) gameRef.current.player.weapon = 'fist';
+            }}
+          >
+            2 Fist
           </button>
           <button
             type="button"
