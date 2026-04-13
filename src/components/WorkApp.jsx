@@ -1,104 +1,171 @@
 import React, { useEffect, useState } from 'react';
 
 /** Set your live links here */
-const FOURSEAT_URL = 'https://github.com/tuwfy/fourseat';
-const QUANT_URL = 'https://github.com/tuwfy';
+const FOURSEAT_URL = 'https://fourseat.vercel.app/';
+const QUANT_GITHUB_PROFILE_URL = 'https://github.com/tuwfy';
 
 const CODE_LINES = [
   { key: 'l1', parts: [{ c: 'kw', t: 'import' }, { c: 'pl', t: ' numpy ' }, { c: 'kw', t: 'as' }, { c: 'var', t: ' np' }] },
-  { key: 'l2', parts: [{ c: 'kw', t: 'from' }, { c: 'pl', t: ' scipy.optimize ' }, { c: 'kw', t: 'import' }, { c: 'fn', t: ' minimize' }] },
-  { key: 'l3', parts: [] },
-  {
-    key: 'l4',
-    parts: [
-      { c: 'kw', t: 'def' },
-      { c: 'fn', t: ' portfolio_sharpe' },
-      { c: 'pl', t: '(' },
-      { c: 'var', t: 'w' },
-      { c: 'pl', t: ', ' },
-      { c: 'var', t: 'mu' },
-      { c: 'pl', t: ', ' },
-      { c: 'var', t: 'Sigma' },
-      { c: 'pl', t: ', ' },
-      { c: 'var', t: 'rf' },
-      { c: 'pl', t: '=' },
-      { c: 'num', t: '0.02' },
-      { c: 'pl', t: '):' },
-    ],
-  },
-  {
-    key: 'l5',
-    parts: [
-      { c: 'pl', t: '    ' },
-      { c: 'var', t: 'ret' },
-      { c: 'pl', t: ' = float(' },
-      { c: 'var', t: 'w' },
-      { c: 'pl', t: ' @ ' },
-      { c: 'var', t: 'mu' },
-      { c: 'pl', t: ')' },
-    ],
-  },
+  { key: 'l2', parts: [{ c: 'kw', t: 'from' }, { c: 'pl', t: ' dataclasses ' }, { c: 'kw', t: ' import' }, { c: 'fn', t: ' dataclass' }] },
+  { key: 'l3', parts: [{ c: 'kw', t: 'from' }, { c: 'pl', t: ' scipy.optimize ' }, { c: 'kw', t: 'import' }, { c: 'fn', t: ' minimize' }] },
+  { key: 'l4', parts: [] },
+  { key: 'l5', parts: [{ c: 'mod', t: '@dataclass' }] },
   {
     key: 'l6',
     parts: [
-      { c: 'pl', t: '    ' },
-      { c: 'var', t: 'vol' },
-      { c: 'pl', t: ' = float(np.sqrt(' },
-      { c: 'var', t: 'w' },
-      { c: 'pl', t: ' @ ' },
-      { c: 'var', t: 'Sigma' },
-      { c: 'pl', t: ' @ ' },
-      { c: 'var', t: 'w' },
-      { c: 'pl', t: '))' },
+      { c: 'kw', t: 'class' },
+      { c: 'fn', t: ' WalkForwardConfig' },
+      { c: 'pl', t: ':' },
     ],
   },
   {
     key: 'l7',
     parts: [
       { c: 'pl', t: '    ' },
-      { c: 'kw', t: 'return' },
-      { c: 'pl', t: ' -((' },
-      { c: 'var', t: 'ret' },
-      { c: 'pl', t: ' - ' },
-      { c: 'var', t: 'rf' },
-      { c: 'pl', t: ') / max(' },
-      { c: 'var', t: 'vol' },
-      { c: 'pl', t: ', ' },
-      { c: 'num', t: '1e-9' },
-      { c: 'pl', t: '))' },
+      { c: 'var', t: 'train_days' },
+      { c: 'pl', t: ': int = ' },
+      { c: 'num', t: '252' },
+      { c: 'pl', t: '; ' },
+      { c: 'var', t: 'test_days' },
+      { c: 'pl', t: ': int = ' },
+      { c: 'num', t: '21' },
     ],
   },
-  { key: 'l8', parts: [] },
   {
-    key: 'l9',
+    key: 'l8',
     parts: [
-      { c: 'var', t: 'result' },
+      { c: 'pl', t: '    ' },
+      { c: 'var', t: 'embargo' },
+      { c: 'pl', t: ': int = ' },
+      { c: 'num', t: '5' },
+      { c: 'pl', t: '  # purged CV gap' },
+    ],
+  },
+  { key: 'l9', parts: [] },
+  {
+    key: 'l10',
+    parts: [
+      { c: 'kw', t: 'def' },
+      { c: 'fn', t: ' factor_ic' },
+      { c: 'pl', t: '(' },
+      { c: 'var', t: 'f' },
+      { c: 'pl', t: ', ' },
+      { c: 'var', t: 'fwd_ret' },
+      { c: 'pl', t: ', ' },
+      { c: 'var', t: 'w' },
+      { c: 'pl', t: '):' },
+    ],
+  },
+  {
+    key: 'l11',
+    parts: [
+      { c: 'pl', t: '    ' },
+      { c: 'var', t: 'rank_f' },
+      { c: 'pl', t: ' = f.rank(pct=' },
+      { c: 'kw', t: 'True' },
+      { c: 'pl', t: '); ' },
+      { c: 'var', t: 'rank_r' },
+      { c: 'pl', t: ' = fwd_ret.rank(pct=' },
+      { c: 'kw', t: 'True' },
+      { c: 'pl', t: ')' },
+    ],
+  },
+  {
+    key: 'l12',
+    parts: [
+      { c: 'pl', t: '    ' },
+      { c: 'kw', t: 'return' },
+      { c: 'pl', t: ' float((' },
+      { c: 'var', t: 'rank_f' },
+      { c: 'pl', t: ' * ' },
+      { c: 'var', t: 'rank_r' },
+      { c: 'pl', t: ' * ' },
+      { c: 'var', t: 'w' },
+      { c: 'pl', t: ').sum() / ' },
+      { c: 'var', t: 'w' },
+      { c: 'pl', t: '.sum())' },
+    ],
+  },
+  { key: 'l13', parts: [] },
+  {
+    key: 'l14',
+    parts: [
+      { c: 'kw', t: 'def' },
+      { c: 'fn', t: ' cvar_objective' },
+      { c: 'pl', t: '(' },
+      { c: 'var', t: 'w' },
+      { c: 'pl', t: ', ' },
+      { c: 'var', t: 'losses' },
+      { c: 'pl', t: ', ' },
+      { c: 'var', t: 'alpha' },
+      { c: 'pl', t: '=' },
+      { c: 'num', t: '0.95' },
+      { c: 'pl', t: '):' },
+    ],
+  },
+  {
+    key: 'l15',
+    parts: [
+      { c: 'pl', t: '    ' },
+      { c: 'var', t: 'port' },
+      { c: 'pl', t: ' = losses @ ' },
+      { c: 'var', t: 'w' },
+      { c: 'pl', t: '; ' },
+      { c: 'var', t: 'q' },
+      { c: 'pl', t: ' = np.quantile(' },
+      { c: 'var', t: 'port' },
+      { c: 'pl', t: ', ' },
+      { c: 'num', t: '1' },
+      { c: 'pl', t: ' - ' },
+      { c: 'var', t: 'alpha' },
+      { c: 'pl', t: ')' },
+    ],
+  },
+  {
+    key: 'l16',
+    parts: [
+      { c: 'pl', t: '    ' },
+      { c: 'kw', t: 'return' },
+      { c: 'pl', t: ' float(np.mean(np.maximum(' },
+      { c: 'num', t: '0' },
+      { c: 'pl', t: ', ' },
+      { c: 'var', t: 'q' },
+      { c: 'pl', t: ' - ' },
+      { c: 'var', t: 'port' },
+      { c: 'pl', t: ')))' },
+    ],
+  },
+  { key: 'l17', parts: [] },
+  {
+    key: 'l18',
+    parts: [
+      { c: 'var', t: 'w_star' },
       { c: 'pl', t: ' = minimize(' },
-      { c: 'fn', t: 'portfolio_sharpe' },
+      { c: 'fn', t: 'cvar_objective' },
       { c: 'pl', t: ', ' },
       { c: 'var', t: 'x0' },
       { c: 'pl', t: ', args=(' },
-      { c: 'var', t: 'mu' },
-      { c: 'pl', t: ', ' },
-      { c: 'var', t: 'Sigma' },
+      { c: 'var', t: 'L_hist' },
       { c: 'pl', t: '),' },
     ],
   },
   {
-    key: 'l10',
+    key: 'l19',
     parts: [
-      { c: 'pl', t: '                  method=' },
+      { c: 'pl', t: '                 method=' },
       { c: 'str', t: '"SLSQP"' },
-      { c: 'pl', t: ', bounds=bounds, constraints=cons)' },
+      { c: 'pl', t: ', bounds=bnds, constraints=[turn, lev])' },
     ],
   },
 ];
 
 const TERMINAL_LINES = [
-  '$ python research/run_backtest.py --walk-forward',
-  'Walk-forward: 36 windows | train 252d | test 21d',
-  'Sharpe (OOS): 1.94   Max DD: -6.8%   Mean IC: 0.11',
-  'Portfolio constraints satisfied. Optimizer: 312ms.',
+  '$ python engine/run_walk_forward.py --regime-neutral --cost-bps 12',
+  'Loaded 4.18M bars | universe: liquid_large_cap | factors: 38',
+  'Walk-forward: 48 windows | train 252d | test 21d | embargo 5d',
+  'Median OOS Sharpe: 2.31  | Calmar: 1.82  | Max DD: -5.1%',
+  'Mean rank IC: 0.14 (t=3.8)  | turnover ann. 0.41×',
+  'Post-cost net alpha (blend): +418 bps  | ADMM risk overlay: 41ms',
 ];
 
 function renderLinePartial(line, maxChars) {
@@ -128,6 +195,62 @@ function MpwTitlebar({ title }) {
 
 const FOURSEAT_ROLES = ['Strategist', 'CFO', 'CTO', 'Contrarian'];
 
+function FourSeatMiniPreview() {
+  return (
+    <a
+      href={FOURSEAT_URL}
+      className="work-fourseat-mini-block"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <div className="work-fourseat-mini-browser">
+        <div className="work-fourseat-mini-chrome" aria-hidden="true">
+          <span className="work-fourseat-mini-close" />
+          <span className="work-fourseat-mini-url">fourseat.vercel.app</span>
+          <span className="work-fourseat-mini-zoom" />
+        </div>
+        <div className="work-fourseat-mini-viewport">
+          {/*
+            Live site uses X-Frame-Options: DENY — embed a compact animated mock
+            of the marketing page; click still opens the real app.
+          */}
+          <div className="work-fourseat-faux" aria-hidden="true">
+            <div className="work-fourseat-faux-nav">
+              <span className="work-fourseat-faux-logo">Fourseat AI</span>
+              <span className="work-fourseat-faux-nav-links">How it works · Pricing · About</span>
+            </div>
+            <div className="work-fourseat-faux-hero">
+              <span className="work-fourseat-faux-kicker">Early access is now open</span>
+              <p className="work-fourseat-faux-head">
+                Fourseat,
+                <br />
+                your personal <em>board of directors</em>
+              </p>
+              <p className="work-fourseat-faux-sub">Full-time AI that debates every decision.</p>
+              <div className="work-fourseat-faux-row">
+                <span className="work-fourseat-faux-btn">Get early access</span>
+                <span className="work-fourseat-faux-btn work-fourseat-faux-btn--ghost">See pricing</span>
+              </div>
+            </div>
+            <div className="work-fourseat-faux-board">
+              <span>Strategist</span>
+              <span>CFO</span>
+              <span>CTO</span>
+              <span>Contrarian</span>
+              <span className="work-fourseat-faux-board-chair">Chair</span>
+            </div>
+          </div>
+          <div className="work-fourseat-mini-shine" aria-hidden="true" />
+          <div className="work-fourseat-mini-scan" aria-hidden="true" />
+        </div>
+      </div>
+      <span className="work-fourseat-mini-caption">
+        Mini landing (animated) — opens <strong>fourseat.vercel.app</strong> in a new tab
+      </span>
+    </a>
+  );
+}
+
 function QuantCodeDemo() {
   const [lineIdx, setLineIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
@@ -136,7 +259,7 @@ function QuantCodeDemo() {
     if (lineIdx >= CODE_LINES.length) return undefined;
     const line = CODE_LINES[lineIdx];
     const len = line.parts.reduce((n, p) => n + p.t.length, 0);
-    const delay = charIdx < len ? 16 : lineIdx === CODE_LINES.length - 1 ? 600 : 90;
+    const delay = charIdx < len ? 10 : lineIdx === CODE_LINES.length - 1 ? 950 : 78;
     const id = window.setTimeout(() => {
       if (charIdx < len) {
         setCharIdx((c) => c + 1);
@@ -159,7 +282,7 @@ function QuantCodeDemo() {
   return (
     <div className="quant-demo">
       <div className="quant-window">
-        <MpwTitlebar title="Macintosh HD:MPW:Projects:backtest.py" />
+        <MpwTitlebar title="Macintosh HD:MPW:Projects:walk_forward_stack.py" />
         <pre className="quant-code">
           {visible.map(({ line, full, max }) => (
             <div key={line.key} className="quant-code-line">
@@ -225,8 +348,9 @@ const WorkApp = () => (
             <p className="work-card-desc work-card-desc--compact">
               Each seat challenges the others before the Chairman locks the plan—so you get structured disagreement, not groupthink.
             </p>
+            <FourSeatMiniPreview />
             <a className="work-card-link work-card-link--mac" href={FOURSEAT_URL} target="_blank" rel="noopener noreferrer">
-              Open FourSeat →
+              Open FourSeat site →
             </a>
           </div>
         </div>
@@ -239,14 +363,20 @@ const WorkApp = () => (
             <p className="work-card-kicker">Quant research</p>
             <h3>Quant algo project</h3>
             <p className="work-card-desc">
-              Walk-forward backtests, constrained portfolio optimization, and out-of-sample metrics—Sharpe, drawdown, and information
-              coefficient—in a tight Python research loop.
+              Private research codebase I iterate on solo—multi-window walk-forward validation, rank IC and factor hygiene, CVaR-style
+              objectives with turnover and leverage constraints, post-cost simulation, and regime-aware blends. Nothing here is a public
+              product; the link below is just my GitHub profile.
             </p>
             <div className="work-quant-demo-wrap">
               <QuantCodeDemo />
             </div>
-            <a className="work-card-link work-card-link--mac" href={QUANT_URL} target="_blank" rel="noopener noreferrer">
-              View repo / details →
+            <a
+              className="work-card-link work-card-link--mac"
+              href={QUANT_GITHUB_PROFILE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              My GitHub profile →
             </a>
           </div>
         </div>

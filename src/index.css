@@ -456,7 +456,7 @@ html, body, #root {
 .work-card {
   display: flex;
   flex-direction: column;
-  min-height: 520px;
+  min-height: 620px;
   margin: 0;
   border: none;
   background: transparent;
@@ -494,7 +494,7 @@ html, body, #root {
 }
 
 .work-mpw-shell--tall {
-  min-height: 520px;
+  min-height: 620px;
 }
 
 .work-mpw-titlebar {
@@ -681,6 +681,351 @@ html, body, #root {
   }
 }
 
+/* FourSeat: scaled live-site preview (opens fourseat.vercel.app) */
+.work-fourseat-mini-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 12px;
+  text-decoration: none;
+  color: #111;
+}
+
+.work-fourseat-mini-browser {
+  position: relative;
+  border: 2px solid #000;
+  background: #8e8e8e;
+  overflow: hidden;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #555,
+    3px 3px 0 rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s ease;
+  animation: work-mini-browser-float 4.2s ease-in-out infinite;
+}
+
+@keyframes work-mini-browser-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.work-fourseat-mini-block:hover .work-fourseat-mini-browser {
+  animation-play-state: paused;
+  transform: translateY(-5px) scale(1.02);
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #555,
+    4px 6px 0 rgba(0, 0, 0, 0.22),
+    0 0 0 3px rgba(70, 130, 255, 0.2);
+}
+
+.work-fourseat-mini-chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    #c4c4c4 0px,
+    #c4c4c4 1px,
+    #dadada 1px,
+    #dadada 2px
+  );
+  border-bottom: 1px solid #000;
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+.work-fourseat-mini-close,
+.work-fourseat-mini-zoom {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border: 1px solid #000;
+  background: #fff;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #999;
+}
+
+.work-fourseat-mini-url {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-family: Monaco, Menlo, 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: bold;
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.work-fourseat-mini-viewport {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: #0a0a12;
+}
+
+/* In-card mock of fourseat.vercel.app (real site cannot iframe: X-Frame-Options: DENY) */
+.work-fourseat-faux {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 8px 7px;
+  overflow: hidden;
+  font-family: Chicago, Charcoal, 'Geneva', 'Lucida Grande', system-ui, sans-serif;
+  color: #ececf5;
+  background: linear-gradient(155deg, #07070f 0%, #12122a 42%, #1c1034 100%);
+  background-size: 220% 220%;
+  animation: work-faux-bg-drift 12s ease-in-out infinite alternate;
+}
+
+@keyframes work-faux-bg-drift {
+  from {
+    background-position: 10% 30%;
+  }
+  to {
+    background-position: 90% 70%;
+  }
+}
+
+.work-fourseat-faux-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 7px;
+  opacity: 0.9;
+}
+
+.work-fourseat-faux-logo {
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.work-fourseat-faux-nav-links {
+  font-size: 6px;
+  opacity: 0.65;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.work-fourseat-faux-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 0;
+}
+
+.work-fourseat-faux-kicker {
+  font-size: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #7ec8ff;
+  animation: work-faux-kicker-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes work-faux-kicker-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.work-fourseat-faux-head {
+  margin: 0;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+.work-fourseat-faux-head em {
+  font-style: italic;
+  font-weight: bold;
+  color: #c4cfff;
+}
+
+.work-fourseat-faux-sub {
+  margin: 0;
+  font-size: 7px;
+  line-height: 1.3;
+  opacity: 0.88;
+  max-width: 95%;
+}
+
+.work-fourseat-faux-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.work-fourseat-faux-btn {
+  font-size: 6px;
+  font-weight: bold;
+  padding: 3px 7px;
+  border-radius: 3px;
+  color: #0a0a12;
+  background: linear-gradient(180deg, #fff 0%, #d4d4d4 100%);
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+  animation: work-faux-cta-pulse 2.4s ease-in-out infinite alternate;
+}
+
+.work-fourseat-faux-btn--ghost {
+  color: #d0e8ff;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: none;
+  animation: none;
+}
+
+@keyframes work-faux-cta-pulse {
+  from {
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+  }
+  to {
+    box-shadow:
+      1px 1px 0 rgba(0, 0, 0, 0.35),
+      0 0 10px rgba(100, 170, 255, 0.35);
+  }
+}
+
+.work-fourseat-faux-board {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  margin-top: auto;
+  padding-top: 5px;
+  font-family: Monaco, Menlo, 'Courier New', monospace;
+  font-size: 5px;
+}
+
+.work-fourseat-faux-board span {
+  padding: 2px 5px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  animation: work-faux-seat-bob 2.8s ease-in-out infinite;
+}
+
+.work-fourseat-faux-board span:nth-child(1) {
+  animation-delay: 0s;
+}
+.work-fourseat-faux-board span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.work-fourseat-faux-board span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.work-fourseat-faux-board span:nth-child(4) {
+  animation-delay: 0.45s;
+}
+.work-fourseat-faux-board span:nth-child(5) {
+  animation-delay: 0.6s;
+}
+
+.work-fourseat-faux-board-chair {
+  border-color: rgba(255, 200, 120, 0.55) !important;
+  color: #ffe8c8 !important;
+  background: rgba(255, 180, 80, 0.12) !important;
+}
+
+@keyframes work-faux-seat-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translateY(-2px);
+    opacity: 1;
+  }
+}
+
+.work-fourseat-mini-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 62%
+  );
+  background-size: 220% 100%;
+  animation: work-mini-shine-sweep 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes work-mini-shine-sweep {
+  0%,
+  35% {
+    background-position: 130% 0;
+  }
+  55%,
+  100% {
+    background-position: -35% 0;
+  }
+}
+
+.work-fourseat-mini-scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.045) 2px,
+    rgba(0, 0, 0, 0.045) 3px
+  );
+  animation: work-mini-scan-drift 6s linear infinite;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+@keyframes work-mini-scan-drift {
+  from {
+    transform: translateY(-10px);
+  }
+  to {
+    transform: translateY(10px);
+  }
+}
+
+.work-fourseat-mini-caption {
+  font-size: 10px;
+  line-height: 1.35;
+  color: #222;
+  font-family: Chicago, Charcoal, 'Geneva', 'Lucida Grande', system-ui, sans-serif;
+}
+
+.work-fourseat-mini-caption strong {
+  font-family: Monaco, Menlo, 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: bold;
+}
+
 .work-quant-demo-wrap {
   flex: 1;
   min-height: 0;
@@ -721,7 +1066,7 @@ html, body, #root {
   display: grid;
   grid-template-columns: 1.12fr 0.88fr;
   gap: 8px;
-  min-height: 220px;
+  min-height: 260px;
   width: 100%;
 }
 
@@ -748,7 +1093,8 @@ html, body, #root {
 .quant-code {
   margin: 0;
   flex: 1;
-  min-height: 160px;
+  min-height: 210px;
+  max-height: 280px;
   padding: 8px 10px 10px;
   overflow: auto;
   font-family: Monaco, Menlo, 'Courier New', monospace;
@@ -800,7 +1146,8 @@ html, body, #root {
 
 .quant-terminal-body {
   flex: 1;
-  min-height: 160px;
+  min-height: 210px;
+  max-height: 280px;
   padding: 8px 10px;
   font-family: Monaco, Menlo, 'Courier New', monospace;
   font-size: 9px;
