@@ -193,7 +193,12 @@ function App() {
           onClick={() => setSelectedIcon('contact')}
           onDoubleClick={() => openWindow('contact', 'Contact',
             <div className="mac-content-inner">
-              <p>Email: tyriccardi@gmail.com</p>
+              <p>
+                Email:{' '}
+                <a href="mailto:tylrrcc@gmail.com" rel="noopener noreferrer">
+                  tylrrcc@gmail.com
+                </a>
+              </p>
             </div>
           )}
           defaultPosition={{ x: rightColumnX, y: iconY(2) }}
