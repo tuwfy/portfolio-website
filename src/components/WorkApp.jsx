@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 /** Set your live links here */
 const FOURSEAT_URL = 'https://github.com/tuwfy/fourseat';
@@ -116,10 +116,21 @@ function renderLinePartial(line, maxChars) {
   });
 }
 
+function MpwTitlebar({ title }) {
+  return (
+    <div className="work-mpw-titlebar">
+      <span className="work-mpw-close" aria-hidden="true" />
+      <span className="work-mpw-title">{title}</span>
+      <span className="work-mpw-zoom" aria-hidden="true" />
+    </div>
+  );
+}
+
+const FOURSEAT_ROLES = ['Strategist', 'CFO', 'CTO', 'Contrarian'];
+
 function QuantCodeDemo() {
   const [lineIdx, setLineIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
-  const preRef = useRef(null);
 
   useEffect(() => {
     if (lineIdx >= CODE_LINES.length) return undefined;
@@ -137,20 +148,6 @@ function QuantCodeDemo() {
     return () => window.clearTimeout(id);
   }, [lineIdx, charIdx]);
 
-  useEffect(() => {
-    let raf = 0;
-    const el = preRef.current;
-    const tick = (t) => {
-      if (el && el.scrollHeight > el.clientHeight) {
-        const m = (t * 0.00003) % 1;
-        el.scrollTop = m * (el.scrollHeight - el.clientHeight);
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
   const visible = [];
   for (let i = 0; i < lineIdx; i += 1) {
     visible.push({ line: CODE_LINES[i], full: true });
@@ -162,13 +159,8 @@ function QuantCodeDemo() {
   return (
     <div className="quant-demo">
       <div className="quant-window">
-        <div className="quant-window-titlebar">
-          <span className="quant-dot quant-dot--r" />
-          <span className="quant-dot quant-dot--y" />
-          <span className="quant-dot quant-dot--g" />
-          <span className="quant-window-title">quant_research / backtest.py</span>
-        </div>
-        <pre ref={preRef} className="quant-code">
+        <MpwTitlebar title="Macintosh HD:MPW:Projects:backtest.py" />
+        <pre className="quant-code">
           {visible.map(({ line, full, max }) => (
             <div key={line.key} className="quant-code-line">
               {full
@@ -182,7 +174,7 @@ function QuantCodeDemo() {
         </pre>
       </div>
       <div className="quant-terminal">
-        <div className="quant-terminal-head">Output</div>
+        <MpwTitlebar title="MPW Shell — Output" />
         <div className={`quant-terminal-body${lineIdx >= CODE_LINES.length ? ' quant-terminal-body--live' : ''}`}>
           {lineIdx >= CODE_LINES.length
             && TERMINAL_LINES.map((t, i) => (
@@ -207,38 +199,59 @@ const WorkApp = () => (
       <p>Product work and quantitative tooling—links open in a new tab.</p>
     </header>
 
-    <article className="work-card work-card--fourseat">
-      <div className="work-card-fourseat-visual" aria-hidden="true">
-        <span className="work-fs-mark">4</span>
-        <div className="work-fs-rings" />
-      </div>
-      <div className="work-card-body">
-        <p className="work-card-kicker">Product</p>
-        <h3>Fourseat</h3>
-        <p className="work-card-desc">
-          A seating and social experience built around groups of four—designed for clarity, flow, and real-world get-togethers.
-          Explore the build, stack, and how the product handles discovery and coordination.
-        </p>
-        <a className="work-card-link" href={FOURSEAT_URL} target="_blank" rel="noopener noreferrer">
-          Open Fourseat →
-        </a>
-      </div>
-    </article>
+    <div className="work-projects-grid">
+      <article className="work-card work-card--fourseat">
+        <div className="work-mpw-shell work-mpw-shell--tall">
+          <MpwTitlebar title="Macintosh HD:Projects:FourSeat" />
+          <div className="work-mpw-body">
+            <p className="work-card-kicker">Product</p>
+            <h3>FourSeat</h3>
+            <p className="work-card-desc">
+              FourSeat is an AI-powered decision-making platform that gives founders and operators a personal board of directors.
+              Instead of one flat model reply or pure instinct, every decision runs through four independent AI members—then they debate,
+              and a Chairman synthesizes the thread into a single verdict with risks, opportunities, and concrete next steps.
+            </p>
+            <div className="work-fourseat-roles" aria-label="Board members">
+              {FOURSEAT_ROLES.map((role, i) => (
+                <span
+                  key={role}
+                  className="work-role-chip"
+                  style={{ animationDelay: `${0.12 + i * 0.1}s` }}
+                >
+                  {role}
+                </span>
+              ))}
+            </div>
+            <p className="work-card-desc work-card-desc--compact">
+              Each seat challenges the others before the Chairman locks the plan—so you get structured disagreement, not groupthink.
+            </p>
+            <a className="work-card-link work-card-link--mac" href={FOURSEAT_URL} target="_blank" rel="noopener noreferrer">
+              Open FourSeat →
+            </a>
+          </div>
+        </div>
+      </article>
 
-    <article className="work-card work-card--quant">
-      <div className="work-card-body work-card-body--quant">
-        <p className="work-card-kicker">Quant research</p>
-        <h3>Quant algo project</h3>
-        <p className="work-card-desc">
-          Walk-forward backtests, constrained portfolio optimization, and out-of-sample metrics—Sharpe, drawdown, and information
-          coefficient—computed in a tight Python research loop.
-        </p>
-        <QuantCodeDemo />
-        <a className="work-card-link work-card-link--on-dark" href={QUANT_URL} target="_blank" rel="noopener noreferrer">
-          View repo / details →
-        </a>
-      </div>
-    </article>
+      <article className="work-card work-card--quant">
+        <div className="work-mpw-shell work-mpw-shell--tall">
+          <MpwTitlebar title="Macintosh HD:Projects:QuantResearch" />
+          <div className="work-mpw-body work-mpw-body--quant-intro">
+            <p className="work-card-kicker">Quant research</p>
+            <h3>Quant algo project</h3>
+            <p className="work-card-desc">
+              Walk-forward backtests, constrained portfolio optimization, and out-of-sample metrics—Sharpe, drawdown, and information
+              coefficient—in a tight Python research loop.
+            </p>
+            <div className="work-quant-demo-wrap">
+              <QuantCodeDemo />
+            </div>
+            <a className="work-card-link work-card-link--mac" href={QUANT_URL} target="_blank" rel="noopener noreferrer">
+              View repo / details →
+            </a>
+          </div>
+        </div>
+      </article>
+    </div>
   </div>
 );
 
