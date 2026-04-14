@@ -568,6 +568,13 @@ const castRay = (originX, originY, angle) => {
   return { distance, side, cell, textureU };
 };
 
+const createTextureSampler = (canvas) => {
+  const ctx = canvas.getContext('2d');
+  const { width, height } = canvas;
+  const { data } = ctx.getImageData(0, 0, width, height);
+  return { data, width, height };
+};
+
 const DoomApp = () => {
   const canvasRef = useRef(null);
   const keysRef = useRef({});
@@ -592,6 +599,8 @@ const DoomApp = () => {
     let frameWidth = 0;
     let frameHeight = 0;
     let assets = null;
+    let floorTexture = null;
+    let ceilingTexture = null;
     const zBuffer = new Array(VIEW_WIDTH).fill(MAX_VIEW_DISTANCE);
 
     const playSfx = (key) => {
@@ -682,7 +691,8 @@ const DoomApp = () => {
     };
 
     const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dprLimit = window.matchMedia('(max-width: 768px)').matches ? 1.25 : 2;
+      const dpr = Math.min(window.devicePixelRatio || 1, dprLimit);
       frameWidth = canvas.clientWidth;
       frameHeight = canvas.clientHeight;
       canvas.width = Math.round(frameWidth * dpr);
@@ -854,8 +864,9 @@ const DoomApp = () => {
       bctx.restore();
     };
 
-    const drawPlane = (texture, isFloor) => {
-      const textureCtx = texture.getContext('2d');
+    const drawPlane = (isFloor) => {
+      const textureData = isFloor ? floorTexture : ceilingTexture;
+      if (!textureData) return;
       const dirX = Math.cos(game.player.angle);
       const dirY = Math.sin(game.player.angle);
       const planeX = -dirY * Math.tan(FOV / 2);
@@ -881,13 +892,13 @@ const DoomApp = () => {
         let worldY = game.player.y + rowDistance * leftRayY;
 
         for (let x = 0; x < VIEW_WIDTH; x += 1) {
-          const tx = ((Math.floor(worldX * 8) % 64) + 64) % 64;
-          const ty = ((Math.floor(worldY * 8) % 64) + 64) % 64;
-          const sample = textureCtx.getImageData(tx, ty, 1, 1).data;
+          const tx = ((Math.floor(worldX * 8) % textureData.width) + textureData.width) % textureData.width;
+          const ty = ((Math.floor(worldY * 8) % textureData.height) + textureData.height) % textureData.height;
+          const sampleIndex = (ty * textureData.width + tx) * 4;
           const shade = clamp(1 - rowDistance / MAX_VIEW_DISTANCE, isFloor ? 0.18 : 0.22, 1);
           const pixelY = isFloor ? y : VIEWPORT_HEIGHT - y - 1;
 
-          bctx.fillStyle = `rgb(${Math.round(sample[0] * shade)}, ${Math.round(sample[1] * shade)}, ${Math.round(sample[2] * shade)})`;
+          bctx.fillStyle = `rgb(${Math.round(textureData.data[sampleIndex] * shade)}, ${Math.round(textureData.data[sampleIndex + 1] * shade)}, ${Math.round(textureData.data[sampleIndex + 2] * shade)})`;
           bctx.fillRect(x, pixelY, 1, 1);
 
           worldX += stepX;
@@ -935,8 +946,8 @@ const DoomApp = () => {
 
     const drawViewport = (now) => {
       bctx.clearRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
-      drawPlane(assets.ceiling, false);
-      drawPlane(assets.floor, true);
+      drawPlane(false);
+      drawPlane(true);
 
       for (let x = 0; x < VIEW_WIDTH; x += 1) {
         const rayAngle = game.player.angle + ((x / VIEW_WIDTH) - 0.5) * FOV;
@@ -1093,6 +1104,8 @@ const DoomApp = () => {
         floor: createFloorTexture(),
         ceiling: createCeilingTexture()
       };
+      floorTexture = createTextureSampler(assets.floor);
+      ceilingTexture = createTextureSampler(assets.ceiling);
 
       resizeCanvas();
       spawnRound(1, true);
@@ -1140,7 +1153,7 @@ const DoomApp = () => {
       <div className="doom-header">
         <img src="/doom-logo.png" alt="Doom logo" className="doom-logo-wide" />
         <p className="doom-note">
-          W/S move, A/D turn. <strong>1</strong> pistol, <strong>2</strong> fist (Space shoots or punches in range). Extra ammo each round; fist never runs out.
+          W/S move, A/D turn. <strong>1</strong> pistol, <strong>2</strong> fist (Space shoots or punches in range). On mobile, use the arrow pad + shoot button.
           SFX: <code>dspistol.wav</code>, <code>dspunch.wav</code>, <code>ddeath.wav</code>, <code>ddeathmonster.wav</code> in <code>public/</code>.
         </p>
       </div>
@@ -1149,56 +1162,43 @@ const DoomApp = () => {
         <div className="doom-mobile-controls">
           <button
             type="button"
-            className="retro-mac-btn"
-            {...bindControl('w')}
+            className="retro-mac-btn doom-pad-btn doom-pad-left"
+            aria-label="Turn left"
+            {...bindControl('arrowleft')}
           >
-            Forward
+            ◀
           </button>
           <button
             type="button"
-            className="retro-mac-btn"
-            {...bindControl('a')}
+            className="retro-mac-btn doom-pad-btn doom-pad-up"
+            aria-label="Move forward"
+            {...bindControl('arrowup')}
           >
-            Turn L
+            ▲
           </button>
           <button
             type="button"
-            className="retro-mac-btn"
+            className="retro-mac-btn doom-pad-btn doom-pad-right"
+            aria-label="Turn right"
+            {...bindControl('arrowright')}
+          >
+            ▶
+          </button>
+          <button
+            type="button"
+            className="retro-mac-btn doom-pad-btn doom-pad-down"
+            aria-label="Move backward"
+            {...bindControl('arrowdown')}
+          >
+            ▼
+          </button>
+          <button
+            type="button"
+            className="retro-mac-btn doom-shoot-btn"
+            aria-label="Shoot or punch"
             {...bindControl(' ')}
           >
-            Fire
-          </button>
-          <button
-            type="button"
-            className="retro-mac-btn"
-            onClick={() => {
-              if (gameRef.current) gameRef.current.player.weapon = 'pistol';
-            }}
-          >
-            1 Gun
-          </button>
-          <button
-            type="button"
-            className="retro-mac-btn"
-            onClick={() => {
-              if (gameRef.current) gameRef.current.player.weapon = 'fist';
-            }}
-          >
-            2 Fist
-          </button>
-          <button
-            type="button"
-            className="retro-mac-btn"
-            {...bindControl('d')}
-          >
-            Turn R
-          </button>
-          <button
-            type="button"
-            className="retro-mac-btn"
-            {...bindControl('s')}
-          >
-            Back
+            SHOOT
           </button>
         </div>
         <button type="button" className="retro-mac-btn doom-restart-btn" onClick={() => setRestartKey((value) => value + 1)}>

@@ -1418,10 +1418,19 @@ html, body, #root {
 }
 
 .doom-mobile-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  display: none;
   touch-action: none;
+}
+
+.doom-pad-btn,
+.doom-shoot-btn {
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.doom-shoot-btn {
+  letter-spacing: 0.04em;
 }
 
 .doom-restart-btn {
@@ -1774,8 +1783,37 @@ body.os-windows .about9 {
 
   .doom-mobile-controls {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
     width: 100%;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .doom-pad-left {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .doom-pad-up {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .doom-pad-right {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .doom-pad-down {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .doom-shoot-btn {
+    grid-column: 4;
+    grid-row: 1 / span 3;
+    min-height: 0;
   }
 
   .doom-mobile-controls .retro-mac-btn,
@@ -1797,8 +1835,9 @@ body.os-windows .about9 {
   }
 
   .doom-mobile-controls .retro-mac-btn {
-    min-width: 54px;
-    height: 24px;
-    font-size: 10px;
+    min-width: 0;
+    height: 100%;
+    font-size: 17px;
+    line-height: 1;
   }
 }
