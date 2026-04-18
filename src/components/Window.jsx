@@ -8,6 +8,8 @@ const MIN_WIDTH = 240;
 const MIN_HEIGHT = 150;
 const MAX_WIDTH_RATIO = 0.97;
 
+const getViewportContentHeight = () => (window.visualViewport?.height ?? window.innerHeight) - 28;
+
 const Window = ({ title, children, onClose, zIndex, onClick }) => {
   const nodeRef = useRef(null);
   const isResizing = useRef(false);
@@ -17,20 +19,36 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
   const sizeRef = useRef({ width: 420, height: 280 });
   const [size, setSize] = useState({ width: 420, height: 280 });
   const [position, setPosition] = useState({ x: 100, y: 80 });
-  sizeRef.current = size;
+
+  useEffect(() => {
+    sizeRef.current = size;
+  }, [size]);
 
   const getViewportLimits = () => {
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight - 28; // account for menu bar
+    const viewportHeight = getViewportContentHeight();
     return {
       maxWidth: Math.max(MIN_WIDTH, Math.min(viewportWidth - VIEWPORT_PADDING * 2, viewportWidth * MAX_WIDTH_RATIO)),
       maxHeight: Math.max(MIN_HEIGHT, viewportHeight - VIEWPORT_PADDING * 2)
     };
   };
 
+  const clampWindowPosition = (pos, width, height) => {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = getViewportContentHeight();
+    const minX = VIEWPORT_PADDING;
+    const minY = VIEWPORT_PADDING;
+    const maxX = Math.max(minX, viewportWidth - width - VIEWPORT_PADDING);
+    const maxY = Math.max(minY, viewportHeight - height - VIEWPORT_PADDING);
+    return {
+      x: Math.min(Math.max(pos.x, minX), maxX),
+      y: Math.min(Math.max(pos.y, minY), maxY)
+    };
+  };
+
   const getCenteredPosition = (targetSize) => {
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight - 28;
+    const viewportHeight = getViewportContentHeight();
     return {
       x: Math.max(VIEWPORT_PADDING, Math.floor((viewportWidth - targetSize.width) / 2)),
       y: Math.max(VIEWPORT_PADDING, Math.floor((viewportHeight - targetSize.height) / 2))
@@ -49,9 +67,9 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
       height: Math.min(maxHeight, Math.max(MIN_HEIGHT, measuredHeight))
     };
     setSize(fittedSize);
-    if (!hasUserMovedRef.current) {
-      setPosition(getCenteredPosition(fittedSize));
-    }
+    setPosition((prev) =>
+      !hasUserMovedRef.current ? getCenteredPosition(fittedSize) : clampWindowPosition(prev, fittedSize.width, fittedSize.height)
+    );
   };
 
   useEffect(() => {
@@ -74,14 +92,7 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
         const clampedWidth = Math.min(Math.max(MIN_WIDTH, sizeRef.current.width), maxWidth);
         const clampedHeight = Math.min(Math.max(MIN_HEIGHT, sizeRef.current.height), maxHeight);
         setSize({ width: clampedWidth, height: clampedHeight });
-        setPosition((prev) => {
-          const viewportWidth = window.innerWidth;
-          const viewportHeight = window.innerHeight - 28;
-          return {
-            x: Math.max(VIEWPORT_PADDING, Math.min(prev.x, viewportWidth - clampedWidth - VIEWPORT_PADDING)),
-            y: Math.max(VIEWPORT_PADDING, Math.min(prev.y, viewportHeight - clampedHeight - VIEWPORT_PADDING)),
-          };
-        });
+        setPosition((prev) => clampWindowPosition(prev, clampedWidth, clampedHeight));
       } else {
         measureAndFit();
       }
@@ -99,8 +110,19 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
     }
 
     window.addEventListener('resize', handleViewportResize);
+    window.addEventListener('orientationchange', handleViewportResize);
+    const vv = window.visualViewport;
+    if (vv) {
+      vv.addEventListener('resize', handleViewportResize);
+      vv.addEventListener('scroll', handleViewportResize);
+    }
     return () => {
       window.removeEventListener('resize', handleViewportResize);
+      window.removeEventListener('orientationchange', handleViewportResize);
+      if (vv) {
+        vv.removeEventListener('resize', handleViewportResize);
+        vv.removeEventListener('scroll', handleViewportResize);
+      }
       if (observer) observer.disconnect();
     };
   }, [children]);

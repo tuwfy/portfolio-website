@@ -16,11 +16,33 @@
   font-smooth: never;
 }
 
-html, body, #root {
+html {
+  height: 100%;
+  height: -webkit-fill-available;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
   margin: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
+  overflow: hidden;
+  background-color: var(--mac-bg);
+  overscroll-behavior: none;
+}
+
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
   overflow: hidden;
   background-color: var(--mac-bg);
 }
@@ -1630,10 +1652,16 @@ canvas {
   color: #fff;
 }
 
-/* Boot screen */
+/* Boot screen — fixed so it fills the viewport even if #root height is wrong on iPad Safari */
 .boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
   width: 100%;
   height: 100%;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
   background-color: #000;
   color: #fff;
   display: flex;
@@ -1641,6 +1669,8 @@ canvas {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: opacity 1.5s ease-in-out;
 }
 
