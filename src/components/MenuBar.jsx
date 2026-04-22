@@ -1,29 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import FinderLogo from './FinderLogo';
 
 const MenuDropdown = ({ label, items }) => {
   const [active, setActive] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!active) return undefined;
+    const onDocClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setActive(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [active]);
+
   return (
-    <div 
+    <div
+      ref={ref}
       className={`mac-menu-item menu-dropdown-container ${active ? 'active' : ''}`}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={() => setActive(false)}
-      onClick={() => setActive(!active)}
+      onClick={() => setActive((v) => !v)}
       style={{ cursor: 'pointer' }}
     >
       {label}
       <div className="menu-dropdown">
-        {items.map((item, i) => (
-          <div key={i} className="menu-dropdown-item" onClick={(e) => { e.stopPropagation(); setActive(false); }}>
-            {item}
-          </div>
-        ))}
+        {items.map((item, i) => {
+          if (item.divider) return <div key={`d-${i}`} className="menu-dropdown-divider" />;
+          const disabled = !!item.disabled;
+          return (
+            <div
+              key={item.label + i}
+              className={`menu-dropdown-item${disabled ? ' disabled' : ''}${item.checked ? ' checked' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (disabled) return;
+                setActive(false);
+                if (typeof item.onClick === 'function') item.onClick();
+              }}
+            >
+              <span className="menu-dropdown-check">{item.checked ? '✓' : ''}</span>
+              <span className="menu-dropdown-label">{item.label}</span>
+              {item.shortcut && <span className="menu-dropdown-shortcut">{item.shortcut}</span>}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 };
 
-const MenuBar = ({ onOpenHelp }) => {
+const MenuBar = ({ onOpenHelp, onOpenFinder, menuActions = {} }) => {
   const [time, setTime] = useState('11:11 AM');
 
   useEffect(() => {
@@ -41,19 +68,30 @@ const MenuBar = ({ onOpenHelp }) => {
     return () => clearInterval(interval);
   }, []);
 
+  const fileItems = menuActions.File || [];
+  const editItems = menuActions.Edit || [];
+  const viewItems = menuActions.View || [];
+  const windowItems = menuActions.Window || [];
+
   return (
     <div className="mac-menubar">
       <div className="mac-menu-item" style={{ padding: '0 8px' }}>
         <img src="/apple-logo.svg" alt="Apple" style={{ height: '18px', marginRight: '8px' }} />
       </div>
-      <MenuDropdown label="File" items={['New Folder', 'Open', 'Print', 'Close Window']} />
-      <MenuDropdown label="Edit" items={['Undo', 'Cut', 'Copy', 'Paste', 'Clear']} />
-      <MenuDropdown label="View" items={['as Icons', 'as List', 'Clean Up']} />
-      <MenuDropdown label="Window" items={['Minimize Window', 'Bring All to Front']} />
+      <MenuDropdown label="File" items={fileItems} />
+      <MenuDropdown label="Edit" items={editItems} />
+      <MenuDropdown label="View" items={viewItems} />
+      <MenuDropdown label="Window" items={windowItems} />
       <div className="mac-menu-item" onClick={onOpenHelp} style={{ cursor: 'pointer' }}>Help</div>
       <div style={{ flexGrow: 1 }}></div>
       <div className="mac-menu-item" style={{ fontSize: '1rem', fontWeight: 'bold' }}>{time}</div>
-      <div className="mac-menu-item">
+      <div
+        className="mac-menu-item finder-launcher"
+        onClick={onOpenFinder}
+        style={{ cursor: 'pointer' }}
+        role="button"
+        aria-label="Open Finder"
+      >
         <FinderLogo className="finder-logo finder-logo--menubar" />
         <span className="finder-label">Finder</span>
       </div>

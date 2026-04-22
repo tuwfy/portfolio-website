@@ -10,7 +10,7 @@ const MAX_WIDTH_RATIO = 0.97;
 
 const getViewportContentHeight = () => (window.visualViewport?.height ?? window.innerHeight) - 28;
 
-const Window = ({ title, children, onClose, zIndex, onClick }) => {
+const Window = ({ title, children, onClose, zIndex, onClick, minimized = false, onToggleMinimize }) => {
   const nodeRef = useRef(null);
   const isResizing = useRef(false);
   const contentRef = useRef(null);
@@ -184,15 +184,23 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
     >
       <div
         ref={nodeRef}
-        className="mac-window"
+        className={`mac-window${minimized ? ' mac-window--minimized' : ''}`}
         style={{
           zIndex,
           width: size.width,
-          height: size.height,
+          height: minimized ? undefined : size.height,
           resize: 'none'
         }}
       >
-        <div className="mac-titlebar">
+        <div
+          className="mac-titlebar"
+          onDoubleClick={(e) => {
+            if (onToggleMinimize) {
+              e.stopPropagation();
+              onToggleMinimize();
+            }
+          }}
+        >
           <button
             className="mac-close-btn"
             onClick={(e) => {
@@ -204,18 +212,29 @@ const Window = ({ title, children, onClose, zIndex, onClick }) => {
           <div className="mac-titlebar-stripes"></div>
           <div className="mac-titlebar-text">{title}</div>
 
-          <button className="mac-zoom-btn"></button>
+          <button
+            className="mac-zoom-btn"
+            aria-label={minimized ? 'Restore window' : 'Collapse window'}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onToggleMinimize) onToggleMinimize();
+            }}
+          ></button>
         </div>
 
-        <div className="mac-content" ref={contentRef}>
-          {children}
-        </div>
+        {!minimized && (
+          <div className="mac-content" ref={contentRef}>
+            {children}
+          </div>
+        )}
 
-        <div
-          className="mac-resize-handle"
-          onMouseDown={handleResizeStart}
-          onTouchStart={handleResizeStart}
-        ></div>
+        {!minimized && (
+          <div
+            className="mac-resize-handle"
+            onMouseDown={handleResizeStart}
+            onTouchStart={handleResizeStart}
+          ></div>
+        )}
       </div>
     </Draggable>
   );

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 /** Set your live links here */
-const FOURSEAT_URL = 'https://fourseat.vercel.app/';
+const FOURSEAT_URL = 'https://fourseat.dev/';
 const QUANT_GITHUB_PROFILE_URL = 'https://github.com/tuwfy';
 
 const CODE_LINES = [
@@ -206,7 +206,7 @@ function FourSeatMiniPreview() {
       <div className="work-fourseat-mini-browser">
         <div className="work-fourseat-mini-chrome" aria-hidden="true">
           <span className="work-fourseat-mini-close" />
-          <span className="work-fourseat-mini-url">fourseat.vercel.app</span>
+          <span className="work-fourseat-mini-url">fourseat.dev</span>
           <span className="work-fourseat-mini-zoom" />
         </div>
         <div className="work-fourseat-mini-viewport">
@@ -245,7 +245,7 @@ function FourSeatMiniPreview() {
         </div>
       </div>
       <span className="work-fourseat-mini-caption">
-        Mini landing (animated) — opens <strong>fourseat.vercel.app</strong> in a new tab
+        Mini landing (animated) — opens <strong>fourseat.dev</strong> in a new tab
       </span>
     </a>
   );
