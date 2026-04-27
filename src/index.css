@@ -1384,20 +1384,17 @@ body {
 }
 
 .doom-app {
-  width: min(860px, 92vw);
+  width: min(820px, 92vw);
   min-width: 360px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background:
-    radial-gradient(circle at top, rgba(255, 125, 33, 0.18), transparent 38%),
-    linear-gradient(180deg, #2b1710 0%, #140d09 42%, #0b0908 100%);
-  border-color: #6f4a2d;
+  background: linear-gradient(#efefef, #d7d7d7);
+  border-color: #8f8f8f;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 211, 164, 0.08),
-    inset 0 0 24px rgba(0, 0, 0, 0.55),
-    0 10px 26px rgba(0, 0, 0, 0.2);
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #b2b2b2;
 }
 
 .doom-header {
@@ -1414,22 +1411,23 @@ body {
   align-items: center;
   gap: 8px;
   padding: 4px 9px;
-  border: 1px solid rgba(255, 198, 154, 0.28);
-  background: rgba(37, 14, 8, 0.75);
-  color: #ffd3aa;
-  font-family: Arial, Helvetica, sans-serif;
+  border: 1px solid #888;
+  background: linear-gradient(#ffffff, #d8d8d8);
+  color: #111;
+  font-family: Geneva, Arial, Helvetica, sans-serif;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  box-shadow: inset 1px 1px 0 #fff;
 }
 
 .doom-kicker-light {
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: #ff592b;
-  box-shadow: 0 0 10px rgba(255, 89, 43, 0.85);
+  background: #ff605c;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .doom-badge {
@@ -1451,26 +1449,24 @@ body {
 .doom-note,
 .doom-status {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
+  font-family: Geneva, Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
   letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
-  color: #f7dfcc;
+  color: #111;
 }
 
 .doom-shell {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px;
+  gap: 6px;
+  padding: 6px;
   border: 1px solid #000;
-  background:
-    linear-gradient(180deg, rgba(149, 87, 50, 0.18), transparent 16%),
-    linear-gradient(180deg, #1b1310 0%, #0a0908 100%);
+  background: #bdbdbd;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 193, 0.08),
-    inset 0 0 0 2px rgba(0, 0, 0, 0.65);
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #8b8b8b;
 }
 
 .doom-shell-topline {
@@ -1478,41 +1474,52 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  color: #e5c7ae;
-  font-family: Arial, Helvetica, sans-serif;
+  padding: 4px 6px;
+  border: 1px solid #8b8b8b;
+  background: linear-gradient(#efefef, #d8d8d8);
+  color: #111;
+  font-family: Geneva, Arial, Helvetica, sans-serif;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  box-shadow: inset 1px 1px 0 #fff;
 }
 
 .doom-top-pill {
   display: inline-flex;
   align-items: center;
   padding: 3px 8px;
-  background: #3f1308;
-  border: 1px solid #87492f;
-  color: #ffd9b8;
+  background: #fff;
+  border: 1px solid #8b8b8b;
+  color: #111;
 }
 
 .doom-top-copy {
-  opacity: 0.82;
+  opacity: 0.92;
 }
 
 .doom-iframe {
   width: 100%;
   aspect-ratio: 16 / 10;
   height: auto;
-  border: 2px solid #23150f;
-  border-top-color: #6a472f;
-  border-left-color: #6a472f;
+  border: 2px solid #5c5c5c;
+  border-top-color: #8a8a8a;
+  border-left-color: #8a8a8a;
   background: #080808;
   image-rendering: pixelated;
   touch-action: none;
   box-shadow:
     0 0 0 1px #000,
-    inset 0 0 0 1px rgba(255, 216, 176, 0.08),
-    0 0 30px rgba(255, 94, 0, 0.08);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  outline: none;
+}
+
+.doom-iframe:focus-visible {
+  box-shadow:
+    0 0 0 1px #000,
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 0 0 2px #0000ff;
 }
 
 .doom-toolbar {
@@ -1534,10 +1541,10 @@ body {
 .doom-mobile-controls .retro-mac-btn {
   min-height: 32px;
   padding: 6px 10px;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Geneva, Arial, Helvetica, sans-serif;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -1546,11 +1553,11 @@ body {
 }
 
 .doom-weapon-btn.is-active {
-  color: #fff2df;
-  background: linear-gradient(180deg, #8b3012 0%, #62210d 100%);
+  color: #111;
+  background: linear-gradient(#d1d1d1, #b5b5b5);
   box-shadow:
-    inset 1px 1px 0 rgba(255, 214, 184, 0.28),
-    1px 1px 0 rgba(0, 0, 0, 0.45);
+    inset 1px 1px 0 rgba(0, 0, 0, 0.22),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .doom-mobile-controls {
@@ -1568,8 +1575,8 @@ body {
 
 .doom-shoot-btn {
   letter-spacing: 0.12em;
-  color: #fff3e1;
-  background: linear-gradient(180deg, #a53a18 0%, #6f240f 100%);
+  color: #111;
+  background: linear-gradient(#fff4cf, #d8c791);
 }
 
 .doom-restart-btn {
@@ -1578,9 +1585,9 @@ body {
 
 .doom-status {
   padding: 10px 12px;
-  border: 1px solid rgba(255, 196, 152, 0.22);
-  background: linear-gradient(180deg, rgba(69, 27, 15, 0.8) 0%, rgba(31, 13, 9, 0.9) 100%);
-  box-shadow: inset 0 0 0 1px rgba(255, 229, 205, 0.05);
+  border: 1px solid #8b8b8b;
+  background: linear-gradient(#ffffff, #dfdfdf);
+  box-shadow: inset 1px 1px 0 #fff;
 }
 
 .icon-container {

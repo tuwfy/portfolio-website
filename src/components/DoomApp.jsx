@@ -13,7 +13,7 @@ const ENEMY_RADIUS = 0.2;
 const PROJECTILE_RADIUS = 0.14;
 const MELEE_RANGE = 1.28;
 const AIM_HALF_WIDTH = 58;
-const PLAYER_SPAWN = { x: 2.2, y: 2.2, angle: 0.08 };
+const PLAYER_SPAWN = { x: 7.5, y: 5.5, angle: 1.45 };
 const MAP = [
   '1111111111111111',
   '1000000000000001',
@@ -33,14 +33,14 @@ const MAP = [
   '1111111111111111'
 ];
 const SPAWN_POINTS = [
-  { x: 11.5, y: 2.5 },
-  { x: 13.5, y: 4.5 },
-  { x: 13.5, y: 9.5 },
-  { x: 12.5, y: 12.5 },
-  { x: 8.5, y: 13.5 },
-  { x: 4.5, y: 12.5 },
-  { x: 2.5, y: 8.5 },
-  { x: 2.5, y: 5.5 }
+  { x: 11.5, y: 1.5 },
+  { x: 13.5, y: 3.5 },
+  { x: 13.5, y: 8.5 },
+  { x: 11.5, y: 10.5 },
+  { x: 8.5, y: 11.5 },
+  { x: 6.5, y: 12.5 },
+  { x: 3.5, y: 6.5 },
+  { x: 8.5, y: 8.5 }
 ];
 const ASSET_RECTS = {
   hud: { src: '/doom-ref-room-3.png', x: 0, y: 430, w: 1024, h: 147 }
@@ -1529,6 +1529,7 @@ const DoomApp = () => {
 
     const handleCanvasPointerDown = (event) => {
       event.preventDefault();
+      canvas.focus();
       pointerLookRef.current.active = true;
       pointerLookRef.current.pointerId = event.pointerId;
       pointerLookRef.current.lastX = event.clientX;
@@ -1549,6 +1550,12 @@ const DoomApp = () => {
         pointerLookRef.current.pointerId = null;
         canvas.releasePointerCapture?.(event.pointerId);
       }
+    };
+
+    const clearInput = () => {
+      keysRef.current = {};
+      pointerLookRef.current.active = false;
+      pointerLookRef.current.pointerId = null;
     };
 
     const boot = async () => {
@@ -1593,6 +1600,7 @@ const DoomApp = () => {
       spawnRound(1, true);
       window.addEventListener('keydown', handleKeyDown, { passive: false });
       window.addEventListener('keyup', handleKeyUp);
+      window.addEventListener('blur', clearInput);
       window.addEventListener('resize', resizeCanvas);
       canvas.addEventListener('pointerdown', handleCanvasPointerDown);
       canvas.addEventListener('pointermove', handleCanvasPointerMove);
@@ -1611,6 +1619,7 @@ const DoomApp = () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', clearInput);
       window.removeEventListener('resize', resizeCanvas);
       canvas.removeEventListener('pointerdown', handleCanvasPointerDown);
       canvas.removeEventListener('pointermove', handleCanvasPointerMove);
@@ -1629,16 +1638,16 @@ const DoomApp = () => {
         </div>
         <img src="/doom-logo.png" alt="Doom logo" className="doom-logo-wide" />
         <p className="doom-note">
-          Drag inside the screen to turn, then use <strong>W/S</strong> to move, <strong>A/D</strong> to turn, <strong>Q/E</strong> to strafe, and <strong>1</strong> or <strong>2</strong> to swap weapons. Space fires or punches. On mobile, use the pad and fire button.
+          Click the game screen first, then use <strong>W/S</strong> to move, <strong>A/D</strong> to turn, <strong>Q/E</strong> to strafe, and <strong>1</strong> or <strong>2</strong> to swap weapons. Space fires or punches.
         </p>
       </div>
 
       <div className="doom-shell">
         <div className="doom-shell-topline">
-          <span className="doom-top-pill">Mouse-look</span>
-          <span className="doom-top-copy">Textured arena, ranged imps, smoother movement</span>
+          <span className="doom-top-pill">Macintosh Game Window</span>
+          <span className="doom-top-copy">Click to focus. Drag to look. Imps now actually spawn in-bounds.</span>
         </div>
-        <canvas ref={canvasRef} className="doom-iframe" />
+        <canvas ref={canvasRef} className="doom-iframe" tabIndex={0} />
       </div>
 
       <div className="doom-toolbar">
