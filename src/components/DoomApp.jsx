@@ -13,6 +13,15 @@ const ENEMY_RADIUS = 0.2;
 const PROJECTILE_RADIUS = 0.14;
 const MELEE_RANGE = 1.28;
 const AIM_HALF_WIDTH = 58;
+const TWO_PI = Math.PI * 2;
+const PLAYER_WALK_SPEED = 0.00425;
+const PLAYER_RUN_MULTIPLIER = 1.42;
+const PLAYER_BACKPEDAL_MULTIPLIER = 0.78;
+const PLAYER_ACCEL_BLEND = 0.36;
+const PLAYER_DECEL_BLEND = 0.24;
+const PLAYER_STOP_FRICTION = 0.58;
+const KEYBOARD_TURN_SPEED = 0.00445;
+const POINTER_LOOK_SPEED = 0.0085;
 const PLAYER_SPAWN = { x: 7.5, y: 5.5, angle: 1.45 };
 const MAP = [
   '1111111111111111',
@@ -71,6 +80,26 @@ const HUD_GLYPHS = {
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const lerp = (from, to, amount) => from + (to - from) * amount;
 const pointInRect = (x, y, left, top, right, bottom) => x >= left && x < right && y >= top && y < bottom;
+const normalizeAngle = (angle) => ((angle % TWO_PI) + TWO_PI) % TWO_PI;
+
+const getRoundTuning = (roundNumber) => {
+  const ramp = Math.max(0, roundNumber - 1);
+
+  return {
+    enemyCount: Math.min(SPAWN_POINTS.length, 2 + Math.floor(ramp * 0.75)),
+    enemyHp: 1 + Math.floor(Math.max(0, roundNumber - 3) / 2),
+    enemySpeed: 0.00082 + Math.min(0.00105, ramp * 0.00011),
+    projectileSpeed: 0.0037 + Math.min(0.00155, ramp * 0.00014),
+    projectileDamage: 8 + ramp * 1.15,
+    meleeDamage: 6 + ramp * 1.05,
+    attackRange: 6.2 + Math.min(2.4, ramp * 0.28),
+    attackWindup: Math.max(360, 720 - ramp * 42),
+    attackDuration: Math.max(560, 920 - ramp * 34),
+    attackCooldown: Math.max(760, 1900 - ramp * 92),
+    initialCooldown: Math.max(420, 1150 - ramp * 80),
+    ammoPadding: 20 + roundNumber * 4
+  };
+};
 
 const loadImage = (src) =>
   new Promise((resolve, reject) => {
@@ -947,11 +976,12 @@ const DoomApp = () => {
 
     const spawnProjectile = (enemy, now) => {
       const angle = Math.atan2(game.player.y - enemy.y, game.player.x - enemy.x);
+      const tuning = getRoundTuning(game.round);
       game.projectiles.push({
         x: enemy.x,
         y: enemy.y,
         angle,
-        speed: 0.0047 + game.round * 0.00022,
+        speed: tuning.projectileSpeed,
         bornAt: now
       });
     };
@@ -972,12 +1002,12 @@ const DoomApp = () => {
         )
         .sort((a, b) => a.projection.depth - b.projection.depth)[0];
 
-    const spawnRound = (roundNumber, resetPlayer = false) => {
-      const enemyCount = Math.min(SPAWN_POINTS.length, 3 + roundNumber);
-      const enemyHp = 2 + Math.floor((roundNumber - 1) / 2);
+    const spawnRound = (roundNumber, resetPlayer = false, now = game.simTime) => {
+      const tuning = getRoundTuning(roundNumber);
+      const enemyCount = tuning.enemyCount;
+      const enemyHp = tuning.enemyHp;
       const shotsNeeded = enemyCount * enemyHp;
-      const spareMag = 24 + roundNumber * 5;
-      const ammoGrant = Math.ceil(shotsNeeded * 1.6) + spareMag;
+      const ammoGrant = Math.ceil(shotsNeeded * 2.25) + tuning.ammoPadding;
       let ammoStatus = '';
 
       if (resetPlayer) {
@@ -998,14 +1028,17 @@ const DoomApp = () => {
         };
         ammoStatus = `Ammo loaded to ${ammoGrant}.`;
       } else {
-        const refill = Math.ceil(shotsNeeded * 0.65) + 18 + roundNumber * 3;
+        const refill = Math.ceil(shotsNeeded * 1.15) + 14 + roundNumber * 2;
         game.player.ammo += refill;
         game.player.armor = clamp(game.player.armor + 8, 0, 200);
+        game.player.weaponFlashUntil = 0;
+        game.player.hurtAt = now - 999;
+        game.player.weapon = 'pistol';
+        game.player.bobStrength = 0;
         ammoStatus = `+${refill} ammo and armor top-up.`;
       }
 
       game.deathSoundPlayed = false;
-      const enemySpeed = 0.0012 + roundNumber * 0.00012;
       const spawnOffset = ((roundNumber - 1) * 2) % SPAWN_POINTS.length;
 
       game.enemies = Array.from({ length: enemyCount }, (_, index) => {
@@ -1014,12 +1047,12 @@ const DoomApp = () => {
           x: spawn.x,
           y: spawn.y,
           hp: enemyHp,
-          speed: enemySpeed,
+          speed: tuning.enemySpeed,
           alive: true,
           hitAt: -999,
           attackStartAt: 0,
           firedShot: false,
-          cooldownUntil: 200 + index * 150,
+          cooldownUntil: now + tuning.initialCooldown + index * 190,
           meleeAt: -999,
           bobSeed: 0.4 + index * 0.74
         };
@@ -1029,15 +1062,17 @@ const DoomApp = () => {
       game.round = roundNumber;
       game.lastShotAt = 0;
       game.lastPunchAt = 0;
-      game.lastFrameAt = 0;
-      game.accumulator = 0;
-      game.simTime = 0;
       game.nextRoundAt = 0;
       game.running = true;
       keysRef.current = {};
+      if (resetPlayer) {
+        game.lastFrameAt = 0;
+        game.accumulator = 0;
+        game.simTime = 0;
+      }
       setWeaponLabel('PISTOL');
       pushStatus(
-        `Round ${roundNumber}. ${enemyCount} imps inbound. ${ammoStatus} W/S move, A/D turn, Q/E strafe, drag to look, 1 pistol, 2 fist.`
+        `Round ${roundNumber}. ${enemyCount} imps inbound. ${ammoStatus} W/S move, A/D turn, Q/E strafe, Shift runs, drag to look, 1 pistol, 2 fist.`
       );
     };
 
@@ -1122,9 +1157,10 @@ const DoomApp = () => {
       if (!game.running) return;
 
       if (game.nextRoundAt && now >= game.nextRoundAt) {
-        spawnRound(game.round + 1, false);
+        spawnRound(game.round + 1, false, now);
       }
 
+      const tuning = getRoundTuning(game.round);
       const forwardIntent = (keysRef.current.w || keysRef.current.arrowup ? 1 : 0) - (keysRef.current.s || keysRef.current.arrowdown ? 1 : 0);
       const strafeIntent = (keysRef.current.e ? 1 : 0) - (keysRef.current.q ? 1 : 0);
       const dirX = Math.cos(game.player.angle);
@@ -1132,9 +1168,10 @@ const DoomApp = () => {
       const rightX = Math.cos(game.player.angle + Math.PI / 2);
       const rightY = Math.sin(game.player.angle + Math.PI / 2);
 
-      const turnSpeed = delta * 0.0038;
+      const turnSpeed = delta * KEYBOARD_TURN_SPEED;
       if (keysRef.current.a || keysRef.current.arrowleft) game.player.angle -= turnSpeed;
       if (keysRef.current.d || keysRef.current.arrowright) game.player.angle += turnSpeed;
+      game.player.angle = normalizeAngle(game.player.angle);
 
       let wishX = dirX * forwardIntent + rightX * strafeIntent;
       let wishY = dirY * forwardIntent + rightY * strafeIntent;
@@ -1144,14 +1181,19 @@ const DoomApp = () => {
         wishY /= wishLength;
       }
 
-      const moveTargetSpeed = 0.00375;
-      const moveBlend = wishLength > 0 ? 0.2 : 0.11;
+      const running = keysRef.current.shift;
+      const backpedaling = forwardIntent < 0 && strafeIntent === 0;
+      const moveTargetSpeed =
+        PLAYER_WALK_SPEED *
+        (running ? PLAYER_RUN_MULTIPLIER : 1) *
+        (backpedaling ? PLAYER_BACKPEDAL_MULTIPLIER : 1);
+      const moveBlend = wishLength > 0 ? PLAYER_ACCEL_BLEND : PLAYER_DECEL_BLEND;
       game.player.vx = lerp(game.player.vx, wishX * moveTargetSpeed, moveBlend);
       game.player.vy = lerp(game.player.vy, wishY * moveTargetSpeed, moveBlend);
 
       if (wishLength === 0) {
-        game.player.vx *= 0.78;
-        game.player.vy *= 0.78;
+        game.player.vx *= PLAYER_STOP_FRICTION;
+        game.player.vy *= PLAYER_STOP_FRICTION;
       }
 
       const moved = tryMove(
@@ -1185,21 +1227,21 @@ const DoomApp = () => {
         const attackElapsed = enemy.attackStartAt ? now - enemy.attackStartAt : 0;
 
         if (enemy.attackStartAt) {
-          if (attackElapsed >= 260 && !enemy.firedShot && distance > 1.5) {
+          if (attackElapsed >= tuning.attackWindup && !enemy.firedShot && distance > 1.5) {
             spawnProjectile(enemy, now);
             enemy.firedShot = true;
           }
-          if (attackElapsed >= 620) {
+          if (attackElapsed >= tuning.attackDuration) {
             enemy.attackStartAt = 0;
             enemy.firedShot = false;
           }
         } else if (distance < 1.12 && now - enemy.meleeAt > 720) {
           enemy.meleeAt = now;
-          applyDamage(10 + game.round * 1.4, now);
-        } else if (distance < 8.2 && distance > 1.5 && canSeePlayer && now >= enemy.cooldownUntil) {
+          applyDamage(tuning.meleeDamage, now);
+        } else if (distance < tuning.attackRange && distance > 1.5 && canSeePlayer && now >= enemy.cooldownUntil) {
           enemy.attackStartAt = now;
           enemy.firedShot = false;
-          enemy.cooldownUntil = now + 1050 + game.round * 70;
+          enemy.cooldownUntil = now + tuning.attackDuration + tuning.attackCooldown;
         }
 
         if (!enemy.attackStartAt && distance > 1.1) {
@@ -1227,7 +1269,7 @@ const DoomApp = () => {
 
         const playerDistance = Math.hypot(projectile.x - game.player.x, projectile.y - game.player.y);
         if (playerDistance <= PROJECTILE_RADIUS + PLAYER_RADIUS * 1.1) {
-          applyDamage(12 + game.round * 1.6, now);
+          applyDamage(tuning.projectileDamage, now);
           return false;
         }
 
@@ -1541,7 +1583,7 @@ const DoomApp = () => {
       if (!pointerState.active || pointerState.pointerId !== event.pointerId || !gameRef.current) return;
       const deltaX = event.movementX || event.clientX - pointerState.lastX;
       pointerState.lastX = event.clientX;
-      gameRef.current.player.angle += deltaX * 0.012;
+      gameRef.current.player.angle = normalizeAngle(gameRef.current.player.angle + deltaX * POINTER_LOOK_SPEED);
     };
 
     const handleCanvasPointerUp = (event) => {
@@ -1638,14 +1680,14 @@ const DoomApp = () => {
         </div>
         <img src="/doom-logo.png" alt="Doom logo" className="doom-logo-wide" />
         <p className="doom-note">
-          Click the game screen first, then use <strong>W/S</strong> to move, <strong>A/D</strong> to turn, <strong>Q/E</strong> to strafe, and <strong>1</strong> or <strong>2</strong> to swap weapons. Space fires or punches.
+          Click the game screen first, then use <strong>W/S</strong> to move, <strong>A/D</strong> to turn, <strong>Q/E</strong> to strafe, and <strong>Shift</strong> to run. <strong>1</strong> or <strong>2</strong> swaps weapons. Space fires or punches.
         </p>
       </div>
 
       <div className="doom-shell">
         <div className="doom-shell-topline">
           <span className="doom-top-pill">Macintosh Game Window</span>
-          <span className="doom-top-copy">Click to focus. Drag to look. Imps now actually spawn in-bounds.</span>
+          <span className="doom-top-copy">Click to focus. Drag to look. Survive the slower warm-up waves.</span>
         </div>
         <canvas ref={canvasRef} className="doom-iframe" tabIndex={0} />
       </div>
