@@ -70,7 +70,12 @@ function App() {
   const closeWindow = useCallback((id) => {
     setWindows((prev) => prev.filter((w) => w.id !== id));
     setActiveWindow((curr) => (curr === id ? null : curr));
-  }, []);
+    if (id === 'about-system') {
+      setTimeout(() => {
+        openWindow('help', 'Wiz Tree', <HelpWindow />, true);
+      }, 180);
+    }
+  }, [openWindow]);
 
   const focusWindow = useCallback((id) => {
     setActiveWindow(id);
@@ -143,8 +148,10 @@ function App() {
     openWindow(
       'hd',
       'Macintosh HD',
-      <div className="mac-content-inner">
-        <p>Hard Drive is healthy.</p>
+      <div className="mac-content-inner mac-hd-note">
+        <p className="mac-hd-greeting">This is Mac&nbsp;OS&nbsp;9.</p>
+        <p>I like old stuff — hope you like it too.</p>
+        <p className="mac-hd-sig">— ty</p>
       </div>
     );
   }, [openWindow]);
