@@ -102,13 +102,12 @@ function App() {
     a.click();
   }, []);
 
-  const downloadResume = useCallback(() => {
+  const openResume = useCallback(() => {
     const link = document.createElement('a');
     link.href = '/TylerRiccardiResume.pdf';
-    link.download = 'Resume.pdf';
-    document.body.appendChild(link);
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
     link.click();
-    document.body.removeChild(link);
   }, []);
 
   const openAboutMe = useCallback(() => {
@@ -165,7 +164,7 @@ function App() {
         kind: 'document',
         size: '84 K',
         icon: '📝',
-        action: downloadResume,
+        action: openResume,
       },
       {
         id: 'spotify',
@@ -240,7 +239,7 @@ function App() {
         action: () => openWindow('cv', 'CV', <CVApp />),
       },
     ],
-    [openWindow, downloadResume, openLinkedIn, openAboutMe, openContact, openHD]
+    [openWindow, openResume, openLinkedIn, openAboutMe, openContact, openHD]
   );
 
   const openFinder = useCallback(

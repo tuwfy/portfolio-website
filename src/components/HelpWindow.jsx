@@ -17,7 +17,7 @@ const HelpWindow = () => {
 
       <h3 className="wiz-section-title">What's on the Desktop</h3>
       <ul className="wiz-list">
-        <li><strong>readme.txt</strong> — downloads my résumé.</li>
+        <li><strong>readme.txt</strong> — opens my résumé in a new tab.</li>
         <li><strong>About Me</strong> — a few words on who I am.</li>
         <li><strong>Work</strong> — projects I've built.</li>
         <li><strong>CV</strong> — full résumé in window form.</li>
