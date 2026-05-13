@@ -860,16 +860,18 @@ const DoomApp = () => {
   const bindControl = (key) => ({
     onPointerDown: (event) => {
       event.preventDefault();
+      event.currentTarget.setPointerCapture?.(event.pointerId);
       keysRef.current[key] = true;
     },
     onPointerUp: (event) => {
       event.preventDefault();
+      event.currentTarget.releasePointerCapture?.(event.pointerId);
       keysRef.current[key] = false;
     },
     onPointerCancel: () => {
       keysRef.current[key] = false;
     },
-    onPointerLeave: () => {
+    onLostPointerCapture: () => {
       keysRef.current[key] = false;
     },
     onContextMenu: (event) => {
@@ -1590,7 +1592,9 @@ const DoomApp = () => {
       if (pointerLookRef.current.pointerId === event.pointerId) {
         pointerLookRef.current.active = false;
         pointerLookRef.current.pointerId = null;
-        canvas.releasePointerCapture?.(event.pointerId);
+        if (canvas.hasPointerCapture?.(event.pointerId)) {
+          canvas.releasePointerCapture?.(event.pointerId);
+        }
       }
     };
 
@@ -1648,7 +1652,7 @@ const DoomApp = () => {
       canvas.addEventListener('pointermove', handleCanvasPointerMove);
       canvas.addEventListener('pointerup', handleCanvasPointerUp);
       canvas.addEventListener('pointercancel', handleCanvasPointerUp);
-      canvas.addEventListener('pointerleave', handleCanvasPointerUp);
+      canvas.addEventListener('lostpointercapture', handleCanvasPointerUp);
       rafRef.current = requestAnimationFrame(frame);
     };
 
@@ -1667,7 +1671,7 @@ const DoomApp = () => {
       canvas.removeEventListener('pointermove', handleCanvasPointerMove);
       canvas.removeEventListener('pointerup', handleCanvasPointerUp);
       canvas.removeEventListener('pointercancel', handleCanvasPointerUp);
-      canvas.removeEventListener('pointerleave', handleCanvasPointerUp);
+      canvas.removeEventListener('lostpointercapture', handleCanvasPointerUp);
     };
   }, [restartKey]);
 
@@ -1680,14 +1684,14 @@ const DoomApp = () => {
         </div>
         <img src="/doom-logo.png" alt="Doom logo" className="doom-logo-wide" />
         <p className="doom-note">
-          Click the game screen first, then use <strong>W/S</strong> to move, <strong>A/D</strong> to turn, <strong>Q/E</strong> to strafe, and <strong>Shift</strong> to run. <strong>1</strong> or <strong>2</strong> swaps weapons. Space fires or punches.
+          Tap or click the screen, then drag to look. Use <strong>W/S</strong> or the mobile pad to move, <strong>A/D</strong> to turn, and <strong>Space/FIRE</strong> to attack.
         </p>
       </div>
 
       <div className="doom-shell">
         <div className="doom-shell-topline">
           <span className="doom-top-pill">Macintosh Game Window</span>
-          <span className="doom-top-copy">Click to focus. Drag to look. Survive the slower warm-up waves.</span>
+          <span className="doom-top-copy">Tap to focus. Drag to look. Survive the warm-up waves.</span>
         </div>
         <canvas ref={canvasRef} className="doom-iframe" tabIndex={0} />
       </div>

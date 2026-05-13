@@ -1,30 +1,72 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import FinderLogo from './FinderLogo';
 
 const MenuDropdown = ({ label, items }) => {
   const [active, setActive] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState({});
   const ref = useRef(null);
+
+  const hasFineHover = () =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  const positionDropdown = useCallback(() => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const menuWidth = 220;
+    const viewportPadding = 8;
+    setDropdownStyle({
+      top: `${Math.round(rect.bottom)}px`,
+      left: `${Math.round(Math.max(viewportPadding, Math.min(rect.left, window.innerWidth - menuWidth - viewportPadding)))}px`,
+      minWidth: `${menuWidth}px`
+    });
+  }, []);
+
+  const openDropdown = useCallback(() => {
+    positionDropdown();
+    setActive(true);
+  }, [positionDropdown]);
+
+  const closeDropdown = useCallback(() => setActive(false), []);
 
   useEffect(() => {
     if (!active) return undefined;
     const onDocClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setActive(false);
+      if (ref.current && !ref.current.contains(e.target)) closeDropdown();
     };
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
-  }, [active]);
+    const onViewportChange = () => positionDropdown();
+    document.addEventListener('pointerdown', onDocClick);
+    window.addEventListener('resize', onViewportChange);
+    window.addEventListener('scroll', onViewportChange, true);
+    return () => {
+      document.removeEventListener('pointerdown', onDocClick);
+      window.removeEventListener('resize', onViewportChange);
+      window.removeEventListener('scroll', onViewportChange, true);
+    };
+  }, [active, closeDropdown, positionDropdown]);
 
   return (
     <div
       ref={ref}
       className={`mac-menu-item menu-dropdown-container ${active ? 'active' : ''}`}
-      onMouseEnter={() => setActive(true)}
-      onMouseLeave={() => setActive(false)}
-      onClick={() => setActive((v) => !v)}
+      onMouseEnter={() => {
+        if (hasFineHover()) openDropdown();
+      }}
+      onMouseLeave={() => {
+        if (hasFineHover()) closeDropdown();
+      }}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (active) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      }}
       style={{ cursor: 'pointer' }}
     >
       {label}
-      <div className="menu-dropdown">
+      <div className="menu-dropdown" style={active ? dropdownStyle : undefined}>
         {items.map((item, i) => {
           if (item.divider) return <div key={`d-${i}`} className="menu-dropdown-divider" />;
           const disabled = !!item.disabled;

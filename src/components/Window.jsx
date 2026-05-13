@@ -1,14 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Draggable from 'react-draggable';
 
 const CHROME_WIDTH = 8;
 const CHROME_HEIGHT = 32;
 const VIEWPORT_PADDING = 20;
+const MOBILE_VIEWPORT_PADDING = 8;
 const MIN_WIDTH = 240;
 const MIN_HEIGHT = 150;
 const MAX_WIDTH_RATIO = 0.97;
 
 const getViewportContentHeight = () => (window.visualViewport?.height ?? window.innerHeight) - 28;
+const getViewportPadding = () => (window.innerWidth <= 768 ? MOBILE_VIEWPORT_PADDING : VIEWPORT_PADDING);
 
 const Window = ({ title, children, onClose, zIndex, onClick, minimized = false, onToggleMinimize }) => {
   const nodeRef = useRef(null);
@@ -24,38 +26,41 @@ const Window = ({ title, children, onClose, zIndex, onClick, minimized = false, 
     sizeRef.current = size;
   }, [size]);
 
-  const getViewportLimits = () => {
+  const getViewportLimits = useCallback(() => {
     const viewportWidth = window.innerWidth;
     const viewportHeight = getViewportContentHeight();
+    const viewportPadding = getViewportPadding();
     return {
-      maxWidth: Math.max(MIN_WIDTH, Math.min(viewportWidth - VIEWPORT_PADDING * 2, viewportWidth * MAX_WIDTH_RATIO)),
-      maxHeight: Math.max(MIN_HEIGHT, viewportHeight - VIEWPORT_PADDING * 2)
+      maxWidth: Math.max(MIN_WIDTH, Math.min(viewportWidth - viewportPadding * 2, viewportWidth * MAX_WIDTH_RATIO)),
+      maxHeight: Math.max(MIN_HEIGHT, viewportHeight - viewportPadding * 2)
     };
-  };
+  }, []);
 
-  const clampWindowPosition = (pos, width, height) => {
+  const clampWindowPosition = useCallback((pos, width, height) => {
     const viewportWidth = window.innerWidth;
     const viewportHeight = getViewportContentHeight();
-    const minX = VIEWPORT_PADDING;
-    const minY = VIEWPORT_PADDING;
-    const maxX = Math.max(minX, viewportWidth - width - VIEWPORT_PADDING);
-    const maxY = Math.max(minY, viewportHeight - height - VIEWPORT_PADDING);
+    const viewportPadding = getViewportPadding();
+    const minX = viewportPadding;
+    const minY = viewportPadding;
+    const maxX = Math.max(minX, viewportWidth - width - viewportPadding);
+    const maxY = Math.max(minY, viewportHeight - height - viewportPadding);
     return {
       x: Math.min(Math.max(pos.x, minX), maxX),
       y: Math.min(Math.max(pos.y, minY), maxY)
     };
-  };
+  }, []);
 
-  const getCenteredPosition = (targetSize) => {
+  const getCenteredPosition = useCallback((targetSize) => {
     const viewportWidth = window.innerWidth;
     const viewportHeight = getViewportContentHeight();
+    const viewportPadding = getViewportPadding();
     return {
-      x: Math.max(VIEWPORT_PADDING, Math.floor((viewportWidth - targetSize.width) / 2)),
-      y: Math.max(VIEWPORT_PADDING, Math.floor((viewportHeight - targetSize.height) / 2))
+      x: Math.max(viewportPadding, Math.floor((viewportWidth - targetSize.width) / 2)),
+      y: Math.max(viewportPadding, Math.floor((viewportHeight - targetSize.height) / 2))
     };
-  };
+  }, []);
 
-  const measureAndFit = () => {
+  const measureAndFit = useCallback(() => {
     if (userManuallySizedRef.current) return;
     if (!contentRef.current) return;
     const contentRoot = contentRef.current.firstElementChild || contentRef.current;
@@ -70,7 +75,7 @@ const Window = ({ title, children, onClose, zIndex, onClick, minimized = false, 
     setPosition((prev) =>
       !hasUserMovedRef.current ? getCenteredPosition(fittedSize) : clampWindowPosition(prev, fittedSize.width, fittedSize.height)
     );
-  };
+  }, [clampWindowPosition, getCenteredPosition, getViewportLimits]);
 
   useEffect(() => {
     hasUserMovedRef.current = false;
@@ -83,7 +88,7 @@ const Window = ({ title, children, onClose, zIndex, onClick, minimized = false, 
       cancelAnimationFrame(raf2);
       clearTimeout(delayed);
     };
-  }, [children]);
+  }, [children, measureAndFit]);
 
   useEffect(() => {
     const handleViewportResize = () => {
@@ -125,7 +130,7 @@ const Window = ({ title, children, onClose, zIndex, onClick, minimized = false, 
       }
       if (observer) observer.disconnect();
     };
-  }, [children]);
+  }, [children, clampWindowPosition, getViewportLimits, measureAndFit]);
 
   const handleResizeStart = (e) => {
     e.stopPropagation();

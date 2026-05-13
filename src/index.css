@@ -167,6 +167,10 @@ body {
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
+  max-width: calc(100% - 70px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
 .mac-close-btn {
@@ -1747,10 +1751,10 @@ canvas {
 }
 
 .menu-dropdown {
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 28px;
   left: 0;
-  width: 150px;
+  width: auto;
   background: var(--mac-platinum);
   border: 1px solid #000;
   box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
@@ -1759,7 +1763,6 @@ canvas {
   z-index: 2000;
 }
 
-.menu-dropdown-container:hover .menu-dropdown,
 .menu-dropdown-container.active .menu-dropdown {
   display: flex;
 }
@@ -2142,19 +2145,45 @@ body.os-windows .about9 {
 @media (max-width: 768px) {
   .mac-menubar {
     overflow-x: auto;
+    overflow-y: visible;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
     font-size: 0.92rem;
     padding-bottom: 2px;
+    gap: 0;
   }
 
   .mac-menu-item {
-    padding: 0 8px;
+    padding: 0 6px;
+    min-height: 28px;
+  }
+
+  .mac-menu-item img {
+    margin-right: 2px !important;
+  }
+
+  .finder-label {
+    display: none;
+  }
+
+  .finder-launcher {
+    padding: 0 5px;
+  }
+
+  .menu-dropdown {
+    max-width: calc(100vw - 16px);
+  }
+
+  .menu-dropdown-item {
+    min-height: 42px;
+    padding: 8px 12px 8px 8px;
+    font-size: 1rem;
   }
 
   .mac-titlebar-text {
     font-size: 0.96rem;
     padding: 0 6px;
+    max-width: calc(100% - 64px);
   }
   
   .mac-menubar::-webkit-scrollbar {
@@ -2163,8 +2192,8 @@ body.os-windows .about9 {
 
   .mac-window {
     min-width: unset;
-    width: 95vw !important; /* Force width constraint on mobile */
-    max-width: 95vw;
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px);
   }
   
   .spotify-player {
@@ -2208,6 +2237,34 @@ body.os-windows .about9 {
     width: 100%;
   }
 
+  .cv-content {
+    padding: 14px 14px 18px;
+    font-size: clamp(1rem, 5.1vw, 1.16rem);
+    line-height: 1.34;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .cv-section {
+    margin-bottom: 16px;
+  }
+
+  .cv-header {
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  .doom-app {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .doom-note,
+  .doom-status {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
   .doom-kicker {
     align-self: center;
   }
@@ -2231,8 +2288,9 @@ body.os-windows .about9 {
   }
 
   .doom-iframe {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 3;
     height: auto;
+    min-height: 220px;
   }
 
   .doom-toolbar {
@@ -2254,7 +2312,7 @@ body.os-windows .about9 {
     grid-template-rows: repeat(3, minmax(0, 1fr));
     width: 100%;
     align-items: stretch;
-    gap: 6px;
+    gap: 8px;
   }
 
   .doom-pad-left {
@@ -2286,10 +2344,12 @@ body.os-windows .about9 {
   .doom-mobile-controls .retro-mac-btn,
   .doom-restart-btn {
     min-width: 0;
-    min-height: 40px;
-    padding: 6px 8px;
+    min-height: 52px;
+    padding: 8px 10px;
     font-size: 12px;
     touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .work-app-scroll {
@@ -2304,7 +2364,7 @@ body.os-windows .about9 {
   .doom-mobile-controls .retro-mac-btn {
     min-width: 0;
     height: 100%;
-    font-size: 17px;
+    font-size: 15px;
     line-height: 1;
   }
 }
