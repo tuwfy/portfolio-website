@@ -1,10 +1,23 @@
 import React from 'react';
 
+const isTouchDevice = () =>
+  typeof window !== 'undefined' &&
+  ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
 const FinderApp = ({ apps = [], viewMode = 'icons' }) => {
   const diskSizeKB = apps.length * 42 + 128;
 
   const handleActivate = (app) => {
     if (app && app.action) app.action();
+  };
+
+  const handleItemClick = (e, app) => {
+    if (isTouchDevice()) {
+      handleActivate(app);
+      return;
+    }
+    if (e.detail >= 2) return;
+    e.currentTarget.classList.toggle('selected');
   };
 
   const renderIcon = (app) => {
@@ -16,6 +29,8 @@ const FinderApp = ({ apps = [], viewMode = 'icons' }) => {
     }
     return <span className="finder-app-icon-glyph">{app.icon}</span>;
   };
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   return (
     <div className="finder-app">
@@ -41,10 +56,7 @@ const FinderApp = ({ apps = [], viewMode = 'icons' }) => {
                 key={app.id}
                 className="finder-app-list-row"
                 onDoubleClick={() => handleActivate(app)}
-                onClick={(e) => {
-                  if (e.detail >= 2) return;
-                  e.currentTarget.classList.toggle('selected');
-                }}
+                onClick={(e) => handleItemClick(e, app)}
               >
                 <span className="finder-col finder-col-name">
                   <span className="finder-app-list-icon">{renderIcon(app)}</span>
@@ -63,9 +75,7 @@ const FinderApp = ({ apps = [], viewMode = 'icons' }) => {
               key={app.id}
               className="finder-app-tile"
               onDoubleClick={() => handleActivate(app)}
-              onClick={(e) => {
-                e.currentTarget.classList.toggle('selected');
-              }}
+              onClick={(e) => handleItemClick(e, app)}
               title={app.label}
             >
               <div className="finder-app-tile-icon">{renderIcon(app)}</div>
@@ -76,7 +86,7 @@ const FinderApp = ({ apps = [], viewMode = 'icons' }) => {
       )}
 
       <div className="finder-app-footer">
-        <span>Double-click any item to launch it.</span>
+        <span>{isMobile ? 'Tap any item to launch it.' : 'Double-click any item to launch it.'}</span>
       </div>
     </div>
   );

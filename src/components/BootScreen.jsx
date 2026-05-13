@@ -12,11 +12,12 @@ const BootScreen = ({ onBoot }) => {
     const audio = new window.Audio('/Mac Startup Sound.mp3');
     audio.play().catch(() => {});
 
-    // Critical: wait for the audio to ring out before transitioning
     setTimeout(() => {
       onBoot();
     }, 1800);
   };
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   return (
     <div
@@ -41,7 +42,9 @@ const BootScreen = ({ onBoot }) => {
     >
       <img src="/apple-logo.svg" alt="" className="boot-apple-logo" />
       <h2>Welcome to Mac OS.</h2>
-      <p style={{ marginTop: '20px', color: '#aaaaaa' }}>{booting ? 'Booting...' : '(Click anywhere to Startup)'}</p>
+      <p style={{ marginTop: '20px', color: '#aaaaaa' }}>
+        {booting ? 'Booting...' : isMobile ? '(Tap anywhere to Startup)' : '(Click anywhere to Startup)'}
+      </p>
     </div>
   );
 };

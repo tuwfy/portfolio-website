@@ -404,9 +404,10 @@ function App() {
 
   const screenW = typeof window !== 'undefined' ? window.innerWidth : 1000;
   const isMobile = screenW <= 768;
-  const leftColumnX = isMobile ? 12 : 24;
-  const rightColumnX = isMobile ? Math.max(108, screenW - 96) : Math.max(120, screenW - 108);
-  const iconY = (row) => (isMobile ? 14 + row * 78 : 20 + row * 82);
+  const isSmall = screenW <= 480;
+  const leftColumnX = isSmall ? 8 : isMobile ? 12 : 24;
+  const rightColumnX = isSmall ? Math.max(80, screenW - 76) : isMobile ? Math.max(100, screenW - 88) : Math.max(120, screenW - 108);
+  const iconY = (row) => (isSmall ? 10 + row * 70 : isMobile ? 12 + row * 76 : 20 + row * 82);
 
   const leftColumnIds = ['readme', 'spotify', 'about', 'doom'];
   const leftApps = leftColumnIds

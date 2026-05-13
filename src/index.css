@@ -20,6 +20,7 @@ html {
   height: 100%;
   height: -webkit-fill-available;
   -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
 }
 
 body {
@@ -33,6 +34,8 @@ body {
   overflow: hidden;
   background-color: var(--mac-bg);
   overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #root {
@@ -123,6 +126,18 @@ body {
   min-width: 250px;
   min-height: 150px;
   overflow: hidden;
+  animation: window-open 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes window-open {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .mac-titlebar {
@@ -431,6 +446,8 @@ body {
   font-size: 1.2rem;
   background: #cfcfcf;
   -webkit-overflow-scrolling: touch;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .mac-content-inner {
@@ -1385,6 +1402,12 @@ body {
   right: 0;
   bottom: 0;
   padding: 10px;
+  animation: desktop-fadein 0.6s ease-out;
+}
+
+@keyframes desktop-fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .doom-app {
@@ -1614,6 +1637,11 @@ body {
   justify-content: center;
   font-size: 24px;
   margin-bottom: 5px;
+  transition: transform 0.1s ease;
+}
+
+.icon-container:active .icon-box {
+  transform: scale(0.92);
 }
 
 .desktop-icon-image {
@@ -1695,7 +1723,7 @@ canvas {
   padding: 0;
   box-shadow: 1px 1px 0 #fff inset, 2px 2px 4px rgba(0,0,0,0.5);
   z-index: 500;
-  height: 24px;
+  height: 28px;
 }
 
 .control-strip-handle {
@@ -2097,6 +2125,15 @@ canvas {
   transition: opacity 1.5s ease-in-out;
 }
 
+.boot-screen p {
+  animation: boot-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes boot-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
 .boot-apple-logo {
   width: 72px;
   height: 72px;
@@ -2154,8 +2191,9 @@ body.os-windows .about9 {
   }
 
   .mac-menu-item {
-    padding: 0 6px;
+    padding: 0 8px;
     min-height: 28px;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .mac-menu-item img {
@@ -2175,9 +2213,10 @@ body.os-windows .about9 {
   }
 
   .menu-dropdown-item {
-    min-height: 42px;
-    padding: 8px 12px 8px 8px;
-    font-size: 1rem;
+    min-height: 44px;
+    padding: 10px 14px 10px 8px;
+    font-size: 1.05rem;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .mac-titlebar-text {
@@ -2185,9 +2224,20 @@ body.os-windows .about9 {
     padding: 0 6px;
     max-width: calc(100% - 64px);
   }
+
+  .mac-titlebar {
+    height: 28px;
+  }
+
+  .mac-close-btn,
+  .mac-zoom-btn {
+    width: 18px;
+    height: 18px;
+    -webkit-tap-highlight-color: transparent;
+  }
   
   .mac-menubar::-webkit-scrollbar {
-    height: 4px; /* Tiny scrollbar for the menu bar on mobile */
+    height: 0px;
   }
 
   .mac-window {
@@ -2195,10 +2245,10 @@ body.os-windows .about9 {
     width: calc(100vw - 16px) !important;
     max-width: calc(100vw - 16px);
   }
-  
-  .spotify-player {
-    width: 95vw;
-    max-width: 320px;
+
+  .winamp-player {
+    width: 100%;
+    max-width: 100%;
   }
   
   .about-header {
@@ -2215,18 +2265,44 @@ body.os-windows .about9 {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding: 10px;
+    gap: 10px;
   }
 
   .about9-title {
     font-size: 34px;
   }
 
+  .about9-stats {
+    font-size: 12px;
+  }
+
   .about9-copyright {
     text-align: center;
+    font-size: 10px;
   }
 
   .about9-mem-row {
     flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .about9-mem-name {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+    font-size: 11px;
+  }
+
+  .about9-mem-size {
+    width: auto;
+    font-size: 11px;
+  }
+
+  .about9-mem-bar-track {
+    min-width: 60px;
+    width: 100%;
+    flex-basis: 100%;
   }
 
   .about9,
@@ -2239,10 +2315,11 @@ body.os-windows .about9 {
 
   .cv-content {
     padding: 14px 14px 18px;
-    font-size: clamp(1rem, 5.1vw, 1.16rem);
-    line-height: 1.34;
+    font-size: clamp(1rem, 4.5vw, 1.16rem);
+    line-height: 1.4;
     overflow-wrap: anywhere;
     word-break: normal;
+    min-width: 0;
   }
 
   .cv-section {
@@ -2257,6 +2334,7 @@ body.os-windows .about9 {
   .doom-app {
     padding: 8px;
     gap: 8px;
+    min-width: 0;
   }
 
   .doom-note,
@@ -2285,6 +2363,19 @@ body.os-windows .about9 {
 
   .quant-demo {
     grid-template-columns: 1fr;
+  }
+
+  .quant-code {
+    font-size: 9px;
+    padding: 6px 8px;
+    min-height: 160px;
+    max-height: 220px;
+  }
+
+  .quant-terminal-body {
+    font-size: 8px;
+    min-height: 160px;
+    max-height: 220px;
   }
 
   .doom-iframe {
@@ -2353,12 +2444,68 @@ body.os-windows .about9 {
   }
 
   .work-app-scroll {
-    min-height: 420px;
+    min-height: 320px;
     padding: 8px;
   }
 
+  .work-projects-intro h2 {
+    font-size: 1.1rem;
+  }
+
+  .work-projects-intro p {
+    font-size: 0.85rem;
+  }
+
+  .work-card h3 {
+    font-size: 15px;
+  }
+
+  .work-card-desc {
+    font-size: 11px;
+  }
+
+  .work-fourseat-mini-viewport {
+    height: 160px;
+  }
+
+  .icon-container {
+    width: 72px;
+  }
+
+  .icon-container .icon-box {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+
+  .desktop-icon-image {
+    width: 42px;
+    height: 42px;
+  }
+
   .icon-label {
-    font-size: 0.9rem;
+    font-size: 0.82rem;
+    padding: 0 4px;
+  }
+
+  .control-strip {
+    height: 32px;
+  }
+
+  .control-strip-btn {
+    width: 32px;
+    height: 100%;
+    font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .control-strip-module span {
+    font-size: 11px !important;
+  }
+
+  .mac-resize-handle {
+    width: 32px;
+    height: 32px;
   }
 
   .doom-mobile-controls .retro-mac-btn {
@@ -2366,6 +2513,30 @@ body.os-windows .about9 {
     height: 100%;
     font-size: 15px;
     line-height: 1;
+  }
+
+  .wiz {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .mac-hd-note {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .mac-content-inner {
+    padding: 8px;
+  }
+
+  .finder-app-footer {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .finder-app-footer span {
+    display: block;
+    text-align: center;
   }
 }
 
@@ -2466,4 +2637,41 @@ body.os-windows .about9 {
   }
   .wiz-title { font-size: 1.9rem; }
   .wiz-section-title { font-size: 1.25rem; }
+
+  .boot-apple-logo {
+    width: 56px;
+    height: 56px;
+  }
+
+  .boot-screen h2 {
+    font-size: 1.1rem;
+  }
+
+  .about9-title {
+    font-size: 28px;
+  }
+
+  .about9-stats {
+    font-size: 11px;
+  }
+
+  .icon-container {
+    width: 64px;
+  }
+
+  .icon-container .icon-box {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .desktop-icon-image {
+    width: 38px;
+    height: 38px;
+  }
+
+  .icon-label {
+    font-size: 0.75rem;
+    padding: 0 3px;
+  }
 }
