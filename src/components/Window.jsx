@@ -12,15 +12,28 @@ const MAX_WIDTH_RATIO = 0.97;
 const getViewportContentHeight = () => (window.visualViewport?.height ?? window.innerHeight) - 28;
 const getViewportPadding = () => (window.innerWidth <= 768 ? MOBILE_VIEWPORT_PADDING : VIEWPORT_PADDING);
 
+const DEFAULT_WINDOW_SIZE = { width: 420, height: 280 };
+
+function computeCenteredTopLeft(targetSize) {
+  if (typeof window === 'undefined') return { x: 100, y: 80 };
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = getViewportContentHeight();
+  const viewportPadding = getViewportPadding();
+  return {
+    x: Math.max(viewportPadding, Math.floor((viewportWidth - targetSize.width) / 2)),
+    y: Math.max(viewportPadding, Math.floor((viewportHeight - targetSize.height) / 2))
+  };
+}
+
 const Window = ({ title, children, onClose, zIndex, onClick, minimized = false, onToggleMinimize }) => {
   const nodeRef = useRef(null);
   const isResizing = useRef(false);
   const contentRef = useRef(null);
   const hasUserMovedRef = useRef(false);
   const userManuallySizedRef = useRef(false);
-  const sizeRef = useRef({ width: 420, height: 280 });
-  const [size, setSize] = useState({ width: 420, height: 280 });
-  const [position, setPosition] = useState({ x: 100, y: 80 });
+  const sizeRef = useRef(DEFAULT_WINDOW_SIZE);
+  const [size, setSize] = useState(DEFAULT_WINDOW_SIZE);
+  const [position, setPosition] = useState(() => computeCenteredTopLeft(DEFAULT_WINDOW_SIZE));
 
   useEffect(() => {
     sizeRef.current = size;
@@ -50,16 +63,6 @@ const Window = ({ title, children, onClose, zIndex, onClick, minimized = false, 
     };
   }, []);
 
-  const getCenteredPosition = useCallback((targetSize) => {
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = getViewportContentHeight();
-    const viewportPadding = getViewportPadding();
-    return {
-      x: Math.max(viewportPadding, Math.floor((viewportWidth - targetSize.width) / 2)),
-      y: Math.max(viewportPadding, Math.floor((viewportHeight - targetSize.height) / 2))
-    };
-  }, []);
-
   const measureAndFit = useCallback(() => {
     if (userManuallySizedRef.current) return;
     if (!contentRef.current) return;
@@ -71,23 +74,29 @@ const Window = ({ title, children, onClose, zIndex, onClick, minimized = false, 
       width: Math.min(maxWidth, Math.max(MIN_WIDTH, measuredWidth)),
       height: Math.min(maxHeight, Math.max(MIN_HEIGHT, measuredHeight))
     };
+    const prevSize = sizeRef.current;
     setSize(fittedSize);
-    setPosition((prev) =>
-      !hasUserMovedRef.current ? getCenteredPosition(fittedSize) : clampWindowPosition(prev, fittedSize.width, fittedSize.height)
-    );
-  }, [clampWindowPosition, getCenteredPosition, getViewportLimits]);
+    setPosition((prev) => {
+      if (hasUserMovedRef.current) {
+        return clampWindowPosition(prev, fittedSize.width, fittedSize.height);
+      }
+      const cx = prev.x + prevSize.width / 2;
+      const cy = prev.y + prevSize.height / 2;
+      const next = {
+        x: Math.round(cx - fittedSize.width / 2),
+        y: Math.round(cy - fittedSize.height / 2)
+      };
+      return clampWindowPosition(next, fittedSize.width, fittedSize.height);
+    });
+  }, [clampWindowPosition, getViewportLimits]);
 
   useEffect(() => {
     hasUserMovedRef.current = false;
     userManuallySizedRef.current = false;
-    const raf1 = requestAnimationFrame(measureAndFit);
-    const raf2 = requestAnimationFrame(measureAndFit);
-    const delayed = setTimeout(measureAndFit, 120);
-    return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-      clearTimeout(delayed);
-    };
+    const raf = requestAnimationFrame(() => {
+      measureAndFit();
+    });
+    return () => cancelAnimationFrame(raf);
   }, [children, measureAndFit]);
 
   useEffect(() => {

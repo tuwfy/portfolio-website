@@ -126,17 +126,17 @@ body {
   min-width: 250px;
   min-height: 150px;
   overflow: hidden;
-  animation: window-open 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: window-open 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Opacity only: react-draggable sets transform: translate() on this node, so animating
+   transform here fights the drag layer and makes the centered title bar jump. */
 @keyframes window-open {
   from {
     opacity: 0;
-    transform: scale(0.92);
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
