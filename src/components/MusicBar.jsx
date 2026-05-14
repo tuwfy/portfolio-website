@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { AudioContext } from '../AudioProvider';
+import { AudioContext } from '../AudioContext';
 
 const MusicBar = () => {
   const { currentTrack, isPlaying, togglePlay, isMuted, toggleMute } = useContext(AudioContext);

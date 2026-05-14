@@ -1,14 +1,13 @@
-import React, { createContext, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { AudioContext } from './AudioContext';
 
-export const AudioContext = createContext();
+const TRACKS = [
+  { name: 'Avril 14th', src: '/Aphex Twin - Avril 14th.mp3', color: '#ffd1dc' },
+  { name: 'Show Me', src: '/show me.mp3', color: '#fff9ae' },
+  { name: 'Objects in the Mirror', src: '/Mac Miller - Objects in the Mirror (SPOTISAVER).mp3', color: '#a2cffe' }
+];
 
 export const AudioProvider = ({ children }) => {
-  const tracks = [
-    { name: 'Avril 14th', src: '/Aphex Twin - Avril 14th.mp3', color: '#ffd1dc' },
-    { name: 'Show Me', src: '/show me.mp3', color: '#fff9ae' },
-    { name: 'Objects in the Mirror', src: '/Mac Miller - Objects in the Mirror (SPOTISAVER).mp3', color: '#a2cffe' }
-  ];
-
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -18,21 +17,29 @@ export const AudioProvider = ({ children }) => {
 
   const audioRef = useRef(null);
 
+  const nextTrack = useCallback(() => {
+    setCurrentTrackIndex((prev) => (prev + 1) % TRACKS.length);
+    setIsPlaying(true);
+  }, []);
+
+  const prevTrack = useCallback(() => {
+    setCurrentTrackIndex((prev) => (prev - 1 + TRACKS.length) % TRACKS.length);
+    setIsPlaying(true);
+  }, []);
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      audioRef.current = new window.Audio();
-      audioRef.current.preload = 'auto';
-    }
+    if (typeof window === 'undefined') return undefined;
 
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.src = tracks[currentTrackIndex].src;
-    audio.volume = isMuted ? 0 : volume;
+    const audio = new window.Audio();
+    audio.preload = 'auto';
+    audioRef.current = audio;
 
     const setAudioData = () => setDuration(audio.duration);
     const setAudioTime = () => setCurrentTime(audio.currentTime);
-    const handleEnded = () => nextTrack();
+    const handleEnded = () => {
+      setCurrentTrackIndex((prev) => (prev + 1) % TRACKS.length);
+      setIsPlaying(true);
+    };
 
     audio.addEventListener('loadedmetadata', setAudioData);
     audio.addEventListener('timeupdate', setAudioTime);
@@ -43,54 +50,49 @@ export const AudioProvider = ({ children }) => {
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleEnded);
       audio.pause();
+      audioRef.current = null;
     };
   }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
-    
-    const currentSrc = tracks[currentTrackIndex].src;
+    if (!audio) return undefined;
+
+    const currentSrc = TRACKS[currentTrackIndex].src;
     if (!audio.src.endsWith(encodeURI(currentSrc))) {
       audio.pause();
       audio.src = currentSrc;
       audio.load();
       if (isPlaying) {
-        audio.play().catch(e => console.log("Playback error:", e));
+        audio.play().catch(() => {});
       }
     }
-  }, [currentTrackIndex]);
+    return undefined;
+  }, [currentTrackIndex, isPlaying]);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.muted = isMuted;
-      audioRef.current.volume = isMuted ? 0 : volume;
-    }
+    const audio = audioRef.current;
+    if (!audio) return undefined;
+
+    audio.muted = isMuted;
+    audio.volume = isMuted ? 0 : volume;
+    return undefined;
   }, [isMuted, volume]);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio) return undefined;
 
     if (isPlaying) {
-      audio.play().catch(e => console.log("Playback error:", e));
+      audio.play().catch(() => {});
     } else {
       audio.pause();
     }
+    return undefined;
   }, [isPlaying]);
 
-  const togglePlay = () => setIsPlaying(!isPlaying);
-  const toggleMute = () => setIsMuted(!isMuted);
-
-  const nextTrack = () => {
-    setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
-    setIsPlaying(true);
-  };
-
-  const prevTrack = () => {
-    setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length);
-    setIsPlaying(true);
-  };
+  const togglePlay = () => setIsPlaying((p) => !p);
+  const toggleMute = () => setIsMuted((m) => !m);
 
   const seek = (time) => {
     if (audioRef.current) {
@@ -99,24 +101,26 @@ export const AudioProvider = ({ children }) => {
     }
   };
 
-  const currentTrack = tracks[currentTrackIndex];
+  const currentTrack = TRACKS[currentTrackIndex];
 
   return (
-    <AudioContext.Provider value={{
-      currentTrack,
-      currentTrackIndex,
-      isPlaying,
-      isMuted,
-      volume,
-      currentTime,
-      duration,
-      togglePlay,
-      toggleMute,
-      setVolume,
-      nextTrack,
-      prevTrack,
-      seek
-    }}>
+    <AudioContext.Provider
+      value={{
+        currentTrack,
+        currentTrackIndex,
+        isPlaying,
+        isMuted,
+        volume,
+        currentTime,
+        duration,
+        togglePlay,
+        toggleMute,
+        setVolume,
+        nextTrack,
+        prevTrack,
+        seek
+      }}
+    >
       {children}
     </AudioContext.Provider>
   );

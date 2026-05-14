@@ -888,7 +888,8 @@ const DoomApp = () => {
     buffer.width = VIEW_WIDTH;
     buffer.height = VIEW_HEIGHT;
     const bctx = buffer.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     bctx.imageSmoothingEnabled = false;
 
     let disposed = false;
@@ -1079,14 +1080,14 @@ const DoomApp = () => {
     };
 
     const resizeCanvas = () => {
-      const dprLimit = window.matchMedia('(max-width: 768px)').matches ? 1.25 : 2;
-      const dpr = Math.min(window.devicePixelRatio || 1, dprLimit);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       frameWidth = canvas.clientWidth;
       frameHeight = canvas.clientHeight;
       canvas.width = Math.round(frameWidth * dpr);
       canvas.height = Math.round(frameHeight * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.imageSmoothingEnabled = false;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
     };
 
     const tryShoot = (now) => {
@@ -1678,13 +1679,9 @@ const DoomApp = () => {
   return (
     <div className="mac-content-inner doom-app">
       <div className="doom-header">
-        <div className="doom-kicker">
-          <span className="doom-kicker-light"></span>
-          <span>E1M1 PORTFOLIO BUILD</span>
-        </div>
         <img src="/doom-logo.png" alt="Doom logo" className="doom-logo-wide" />
         <p className="doom-note">
-          Tap or click the screen, then drag to look. Use <strong>W/S</strong> or the mobile pad to move, <strong>A/D</strong> to turn, and <strong>Space/FIRE</strong> to attack.
+          Drag the screen to look. Use <strong>W/S</strong> to move, <strong>A/D</strong> to turn, and <strong>FIRE</strong> to attack.
         </p>
       </div>
 
@@ -1721,7 +1718,7 @@ const DoomApp = () => {
             aria-label="Turn left"
             {...bindControl('arrowleft')}
           >
-            LEFT
+            A
           </button>
           <button
             type="button"
@@ -1729,7 +1726,7 @@ const DoomApp = () => {
             aria-label="Move forward"
             {...bindControl('arrowup')}
           >
-            FWD
+            W
           </button>
           <button
             type="button"
@@ -1737,7 +1734,7 @@ const DoomApp = () => {
             aria-label="Turn right"
             {...bindControl('arrowright')}
           >
-            RIGHT
+            D
           </button>
           <button
             type="button"
@@ -1745,7 +1742,7 @@ const DoomApp = () => {
             aria-label="Move backward"
             {...bindControl('arrowdown')}
           >
-            BACK
+            S
           </button>
           <button
             type="button"
