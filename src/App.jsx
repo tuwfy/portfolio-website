@@ -8,7 +8,8 @@ import AboutWindow from './components/AboutWindow';
 import HelpWindow from './components/HelpWindow';
 import SpotifyApp from './components/SpotifyApp';
 import WorkApp from './components/WorkApp';
-import ReadmeCvApp from './components/ReadmeCvApp';
+import ReadmeResumeApp from './components/ReadmeResumeApp';
+import CVApp from './components/CVApp';
 import DoomApp from './components/DoomApp';
 import FinderApp from './components/FinderApp';
 import { AudioProvider } from './AudioProvider';
@@ -102,8 +103,8 @@ function App() {
     a.click();
   }, []);
 
-  const openReadmeCvWindow = useCallback(() => {
-    openWindow('readme-cv', 'readme.txt', <ReadmeCvApp />, true);
+  const openReadmeResume = useCallback(() => {
+    openWindow('readme-resume', 'readme.txt', <ReadmeResumeApp />, true);
   }, [openWindow]);
 
   const openAboutMe = useCallback(() => {
@@ -160,7 +161,7 @@ function App() {
         kind: 'document',
         size: '84 K',
         icon: '📝',
-        action: openReadmeCvWindow,
+        action: openReadmeResume,
       },
       {
         id: 'spotify',
@@ -232,10 +233,10 @@ function App() {
         kind: 'document',
         size: '42 K',
         icon: '📄',
-        action: openReadmeCvWindow,
+        action: () => openWindow('cv', 'CV', <CVApp />, true),
       },
     ],
-    [openWindow, openReadmeCvWindow, openLinkedIn, openAboutMe, openContact, openHD]
+    [openWindow, openReadmeResume, openLinkedIn, openAboutMe, openContact, openHD]
   );
 
   const openFinder = useCallback(

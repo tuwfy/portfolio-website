@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { CVSections } from './CVApp';
 
 const PDF_PATH = '/TylerRiccardiResume.pdf';
 
-const ReadmeCvApp = () => {
+const ReadmeResumeApp = () => {
   const [frameSrc, setFrameSrc] = useState(null);
   const [loadError, setLoadError] = useState(false);
 
@@ -32,7 +31,7 @@ const ReadmeCvApp = () => {
   }, []);
 
   return (
-    <div className="mac-content-inner readme-cv readme-resume word95">
+    <div className="mac-content-inner readme-resume word95">
       <div className="word95-menu-row" aria-label="Word menu bar">
         <span>File</span>
         <span>Edit</span>
@@ -64,7 +63,7 @@ const ReadmeCvApp = () => {
         ))}
       </div>
 
-      <div className="word95-document-shell word95-document-shell--pdf">
+      <div className="word95-document-shell">
         {loadError && (
           <div className="word95-pdf-fallback">
             <p>Could not load the PDF in this window.</p>
@@ -82,24 +81,17 @@ const ReadmeCvApp = () => {
         {!loadError && frameSrc && (
           <iframe className="word95-resume-frame" src={frameSrc} title="Tyler Riccardi resume PDF" />
         )}
-        {!loadError && !frameSrc && <div className="word95-pdf-loading">Loading document…</div>}
-      </div>
-
-      <div className="readme-cv-body">
-        <div className="readme-cv-heading">CV (plain text)</div>
-        <div className="cv-content readme-cv-text">
-          <CVSections />
-        </div>
+        {!loadError && !frameSrc && <div className="word95-pdf-loading">Loading document...</div>}
       </div>
 
       <div className="word95-statusbar">
         <span>Page 1</span>
         <span>Sec 1</span>
-        <span>Words: Resume + CV</span>
+        <span>Words: Resume</span>
         <span>Zoom: 100%</span>
       </div>
     </div>
   );
 };
 
-export default ReadmeCvApp;
+export default ReadmeResumeApp;

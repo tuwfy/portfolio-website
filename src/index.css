@@ -1406,21 +1406,14 @@ body {
   color: #000;
 }
 
-.readme-cv.readme-resume {
+.readme-resume.word95 {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  min-height: min(78vh, 800px);
+  min-height: min(70vh, 720px);
 }
 
-.readme-cv .word95 {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.readme-cv .word95-document-shell--pdf {
+.readme-resume .word95-document-shell {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
@@ -1429,41 +1422,12 @@ body {
   padding: 8px 10px 12px;
 }
 
-.readme-cv .word95-resume-frame {
+.readme-resume .word95-resume-frame {
   flex: 1 1 auto;
   width: 100%;
   max-width: none;
-  min-height: min(48vh, 520px);
+  min-height: min(48vh, 480px);
   margin: 0;
-}
-
-.readme-cv-body {
-  flex: 0 1 auto;
-  max-height: min(42vh, 380px);
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  border-top: 2px solid #666;
-  background: linear-gradient(#ececec, #dcdcdc);
-}
-
-.readme-cv-heading {
-  padding: 8px 12px 4px;
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-family: Geneva, Arial, Helvetica, sans-serif;
-  color: #222;
-}
-
-.readme-cv-text.cv-content {
-  margin: 0;
-  padding: 6px 14px 16px;
-  min-width: 0;
-  border: none;
-  box-shadow: none;
-  background: #f6f6f6;
 }
 
 .word95 {
@@ -2530,7 +2494,6 @@ body.os-windows .about9 {
   .about9,
   .cv-content,
   .readme-resume,
-  .readme-cv,
   .work-app-scroll,
   .doom-app {
     min-width: 0;
@@ -2589,22 +2552,18 @@ body.os-windows .about9 {
     padding: 10px 8px 12px;
   }
 
-  .readme-cv.readme-resume {
+  .readme-resume.word95 {
     min-height: 0;
   }
 
-  .readme-cv .word95-document-shell.word95-document-shell--pdf {
+  .readme-resume .word95-document-shell {
     height: auto;
     min-height: min(44vh, 400px);
     flex: 1 1 auto;
   }
 
-  .readme-cv .word95-resume-frame {
+  .readme-resume .word95-resume-frame {
     min-height: min(40vh, 360px);
-  }
-
-  .readme-cv-body {
-    max-height: min(34vh, 280px);
   }
 
   .word95-resume-frame {

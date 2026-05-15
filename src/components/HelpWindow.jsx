@@ -17,10 +17,10 @@ const HelpWindow = () => {
 
       <h3 className="wiz-section-title">What's on the Desktop</h3>
       <ul className="wiz-list">
-        <li><strong>readme.txt</strong> - opens the résumé PDF and CV text in one window.</li>
+        <li><strong>readme.txt</strong> - résumé PDF in a Word-style window (Save / Open to download).</li>
         <li><strong>About Me</strong> - a few words on who I am.</li>
         <li><strong>Work</strong> - projects I've built.</li>
-        <li><strong>CV</strong> - same combined résumé window as readme.txt.</li>
+        <li><strong>CV</strong> - plain text résumé in a simple window.</li>
         <li><strong>spotify.exe</strong> - tunes for browsing.</li>
         <li><strong>Doom</strong> - a small portfolio mini-game.</li>
         <li><strong>Contact</strong> - how to reach me.</li>
