@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import FinderLogo from './FinderLogo';
 
 const MenuDropdown = ({ label, items }) => {
   const [active, setActive] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState({});
   const ref = useRef(null);
+  const portalRef = useRef(null);
 
   const hasFineHover = () =>
     typeof window !== 'undefined' &&
@@ -31,64 +33,90 @@ const MenuDropdown = ({ label, items }) => {
 
   useEffect(() => {
     if (!active) return undefined;
-    const onDocClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) closeDropdown();
+    const onDocPointerDown = (e) => {
+      const t = e.target;
+      if (ref.current?.contains(t) || portalRef.current?.contains(t)) return;
+      closeDropdown();
     };
     const onViewportChange = () => positionDropdown();
-    document.addEventListener('pointerdown', onDocClick);
+    document.addEventListener('pointerdown', onDocPointerDown);
     window.addEventListener('resize', onViewportChange);
-    window.addEventListener('scroll', onViewportChange, true);
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      window.visualViewport.addEventListener('resize', onViewportChange);
+    }
+    if (hasFineHover()) {
+      window.addEventListener('scroll', onViewportChange, true);
+    }
     return () => {
-      document.removeEventListener('pointerdown', onDocClick);
+      document.removeEventListener('pointerdown', onDocPointerDown);
       window.removeEventListener('resize', onViewportChange);
+      if (typeof window !== 'undefined' && window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', onViewportChange);
+      }
       window.removeEventListener('scroll', onViewportChange, true);
     };
   }, [active, closeDropdown, positionDropdown]);
 
+  const dropdownNode =
+    active && typeof document !== 'undefined'
+      ? createPortal(
+          <div
+            ref={portalRef}
+            className="menu-dropdown menu-dropdown--portal"
+            style={dropdownStyle}
+            role="menu"
+          >
+            {items.map((item, i) => {
+              if (item.divider) return <div key={`d-${i}`} className="menu-dropdown-divider" />;
+              const disabled = !!item.disabled;
+              return (
+                <div
+                  key={item.label + i}
+                  role="menuitem"
+                  className={`menu-dropdown-item${disabled ? ' disabled' : ''}${item.checked ? ' checked' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (disabled) return;
+                    setActive(false);
+                    if (typeof item.onClick === 'function') item.onClick();
+                  }}
+                >
+                  <span className="menu-dropdown-check">{item.checked ? '✓' : ''}</span>
+                  <span className="menu-dropdown-label">{item.label}</span>
+                  {item.shortcut && <span className="menu-dropdown-shortcut">{item.shortcut}</span>}
+                </div>
+              );
+            })}
+          </div>,
+          document.body
+        )
+      : null;
+
   return (
-    <div
-      ref={ref}
-      className={`mac-menu-item menu-dropdown-container ${active ? 'active' : ''}`}
-      onMouseEnter={() => {
-        if (hasFineHover()) openDropdown();
-      }}
-      onMouseLeave={() => {
-        if (hasFineHover()) closeDropdown();
-      }}
-      onClick={(event) => {
-        event.stopPropagation();
-        if (active) {
-          closeDropdown();
-        } else {
-          openDropdown();
-        }
-      }}
-      style={{ cursor: 'pointer' }}
-    >
-      {label}
-      <div className="menu-dropdown" style={active ? dropdownStyle : undefined}>
-        {items.map((item, i) => {
-          if (item.divider) return <div key={`d-${i}`} className="menu-dropdown-divider" />;
-          const disabled = !!item.disabled;
-          return (
-            <div
-              key={item.label + i}
-              className={`menu-dropdown-item${disabled ? ' disabled' : ''}${item.checked ? ' checked' : ''}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (disabled) return;
-                setActive(false);
-                if (typeof item.onClick === 'function') item.onClick();
-              }}
-            >
-              <span className="menu-dropdown-check">{item.checked ? '✓' : ''}</span>
-              <span className="menu-dropdown-label">{item.label}</span>
-              {item.shortcut && <span className="menu-dropdown-shortcut">{item.shortcut}</span>}
-            </div>
-          );
-        })}
+    <>
+      <div
+        ref={ref}
+        className={`mac-menu-item menu-dropdown-container ${active ? 'active' : ''}`}
+        onMouseEnter={() => {
+          if (hasFineHover()) openDropdown();
+        }}
+        onMouseLeave={() => {
+          if (hasFineHover()) closeDropdown();
+        }}
+        onClick={(event) => {
+          event.stopPropagation();
+          if (active) {
+            closeDropdown();
+          } else {
+            openDropdown();
+          }
+        }}
+        style={{ cursor: 'pointer' }}
+      >
+        {label}
       </div>
-    </div>
+      {dropdownNode}
+    </>
   );
 };
 

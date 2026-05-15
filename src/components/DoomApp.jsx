@@ -888,8 +888,14 @@ const DoomApp = () => {
     buffer.width = VIEW_WIDTH;
     buffer.height = VIEW_HEIGHT;
     const bctx = buffer.getContext('2d');
+    const isLowPower =
+      (typeof window !== 'undefined' && window.innerWidth <= 768) ||
+      (typeof window !== 'undefined' &&
+        window.matchMedia &&
+        window.matchMedia('(pointer: coarse)').matches);
+    const planeWallStride = isLowPower ? 2 : 1;
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = isLowPower ? 'low' : 'high';
     bctx.imageSmoothingEnabled = false;
 
     let disposed = false;
@@ -1080,14 +1086,14 @@ const DoomApp = () => {
     };
 
     const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, isLowPower ? 1 : 2);
       frameWidth = canvas.clientWidth;
       frameHeight = canvas.clientHeight;
       canvas.width = Math.round(frameWidth * dpr);
       canvas.height = Math.round(frameHeight * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      ctx.imageSmoothingQuality = isLowPower ? 'low' : 'high';
     };
 
     const tryShoot = (now) => {
@@ -1324,7 +1330,7 @@ const DoomApp = () => {
         let worldX = game.player.x + rowDistance * leftRayX;
         let worldY = game.player.y + rowDistance * leftRayY;
 
-        for (let x = 0; x < VIEW_WIDTH; x += 1) {
+        for (let x = 0; x < VIEW_WIDTH; x += planeWallStride) {
           const textureKey = isFloor ? getFloorTextureKey(worldX, worldY) : getCeilingTextureKey(worldX, worldY);
           const texture = isFloor ? floorTextures[textureKey] : ceilingTextures[textureKey];
           const shade = clamp(
@@ -1334,10 +1340,10 @@ const DoomApp = () => {
           );
 
           bctx.fillStyle = sampleTextureColor(texture, worldX * 0.25, worldY * 0.25, shade);
-          bctx.fillRect(x, y, 1, 1);
+          bctx.fillRect(x, y, planeWallStride, 1);
 
-          worldX += stepX;
-          worldY += stepY;
+          worldX += stepX * planeWallStride;
+          worldY += stepY * planeWallStride;
         }
       }
     };
@@ -1351,11 +1357,13 @@ const DoomApp = () => {
       drawPlane(false, horizon);
       drawPlane(true, horizon);
 
-      for (let x = 0; x < VIEW_WIDTH; x += 1) {
+      for (let x = 0; x < VIEW_WIDTH; x += planeWallStride) {
         const rayAngle = game.player.angle + ((x / VIEW_WIDTH) - 0.5) * FOV;
         const hit = castRay(game.player.x, game.player.y, rayAngle);
         const perpendicularDistance = hit.distance * Math.cos(rayAngle - game.player.angle);
-        zBuffer[x] = perpendicularDistance;
+        for (let xx = x; xx < Math.min(VIEW_WIDTH, x + planeWallStride); xx += 1) {
+          zBuffer[xx] = perpendicularDistance;
+        }
 
         const wallTexture = wallTextures[hit.cell] || wallTextures['1'];
         const wallHeight = clamp(Math.floor(VIEWPORT_HEIGHT / perpendicularDistance), 8, VIEWPORT_HEIGHT * 1.8);
@@ -1373,7 +1381,7 @@ const DoomApp = () => {
                 : 1;
           const shade = depthShadeBase * sideShade * pulse;
           bctx.fillStyle = sampleTextureColor(wallTexture, hit.textureU, textureV, shade);
-          bctx.fillRect(x, wallTop + y, 1, 1);
+          bctx.fillRect(x, wallTop + y, planeWallStride, 1);
         }
       }
 
@@ -1395,15 +1403,16 @@ const DoomApp = () => {
         const right = projection.screenX + drawWidth / 2;
         const startX = clamp(Math.floor(left), 0, VIEW_WIDTH - 1);
         const endX = clamp(Math.ceil(right), 0, VIEW_WIDTH - 1);
+        const stripeStep = isLowPower ? 2 : 1;
 
         bctx.save();
         bctx.globalAlpha = alpha;
-        for (let stripe = startX; stripe <= endX; stripe += 1) {
+        for (let stripe = startX; stripe <= endX; stripe += stripeStep) {
           if (projection.depth > zBuffer[stripe] + 0.06) continue;
           const spriteU = (stripe - left) / drawWidth;
           if (spriteU < 0 || spriteU > 1) continue;
           const sourceX = clamp(Math.floor(spriteU * image.width), 0, image.width - 1);
-          bctx.drawImage(image, sourceX, 0, 1, image.height, stripe, drawY, 1, drawHeight);
+          bctx.drawImage(image, sourceX, 0, 1, image.height, stripe, drawY, stripeStep, drawHeight);
         }
         bctx.restore();
       };
@@ -1476,7 +1485,7 @@ const DoomApp = () => {
         );
       }
 
-      if (actionActive && game.player.weapon === 'pistol') {
+      if (actionActive && game.player.weapon === 'pistol' && !isLowPower) {
         const flashGradient = bctx.createRadialGradient(SCREEN_CENTER_X, 108, 10, SCREEN_CENTER_X, 108, 96);
         flashGradient.addColorStop(0, 'rgba(255, 182, 64, 0.3)');
         flashGradient.addColorStop(1, 'rgba(255, 182, 64, 0)');
@@ -1484,19 +1493,21 @@ const DoomApp = () => {
         bctx.fillRect(0, 0, VIEW_WIDTH, VIEWPORT_HEIGHT);
       }
 
-      const topFade = bctx.createLinearGradient(0, 0, 0, 28);
-      topFade.addColorStop(0, 'rgba(0,0,0,0.45)');
-      topFade.addColorStop(1, 'rgba(0,0,0,0)');
-      bctx.fillStyle = topFade;
-      bctx.fillRect(0, 0, VIEW_WIDTH, 28);
+      if (!isLowPower) {
+        const topFade = bctx.createLinearGradient(0, 0, 0, 28);
+        topFade.addColorStop(0, 'rgba(0,0,0,0.45)');
+        topFade.addColorStop(1, 'rgba(0,0,0,0)');
+        bctx.fillStyle = topFade;
+        bctx.fillRect(0, 0, VIEW_WIDTH, 28);
 
-      const edgeFade = bctx.createLinearGradient(0, 0, VIEW_WIDTH, 0);
-      edgeFade.addColorStop(0, 'rgba(0,0,0,0.28)');
-      edgeFade.addColorStop(0.15, 'rgba(0,0,0,0)');
-      edgeFade.addColorStop(0.85, 'rgba(0,0,0,0)');
-      edgeFade.addColorStop(1, 'rgba(0,0,0,0.28)');
-      bctx.fillStyle = edgeFade;
-      bctx.fillRect(0, 0, VIEW_WIDTH, VIEWPORT_HEIGHT);
+        const edgeFade = bctx.createLinearGradient(0, 0, VIEW_WIDTH, 0);
+        edgeFade.addColorStop(0, 'rgba(0,0,0,0.28)');
+        edgeFade.addColorStop(0.15, 'rgba(0,0,0,0)');
+        edgeFade.addColorStop(0.85, 'rgba(0,0,0,0)');
+        edgeFade.addColorStop(1, 'rgba(0,0,0,0.28)');
+        bctx.fillStyle = edgeFade;
+        bctx.fillRect(0, 0, VIEW_WIDTH, VIEWPORT_HEIGHT);
+      }
 
       drawSprite(bctx, assets.hud, ASSET_RECTS.hud, 0, HUD_Y, VIEW_WIDTH, VIEW_HEIGHT - HUD_Y);
       drawHudText(bctx, String(Math.round(game.player.ammo)).padStart(2, '0'), 14, 165, 3);
@@ -1514,7 +1525,7 @@ const DoomApp = () => {
       if (now - game.player.hurtAt < 110) {
         bctx.fillStyle = 'rgba(190, 0, 0, 0.2)';
         bctx.fillRect(0, 0, VIEW_WIDTH, VIEWPORT_HEIGHT);
-      } else if (game.player.hp < 28) {
+      } else if (game.player.hp < 28 && !isLowPower) {
         bctx.fillStyle = `rgba(120, 0, 0, ${0.05 + (Math.sin(now * 0.008) + 1) * 0.03})`;
         bctx.fillRect(0, 0, VIEW_WIDTH, VIEWPORT_HEIGHT);
       }
@@ -1537,6 +1548,10 @@ const DoomApp = () => {
       const delta = Math.min(48, timestamp - game.lastFrameAt);
       game.lastFrameAt = timestamp;
       game.accumulator += delta;
+      const maxCatchUp = FIXED_TIMESTEP * (isLowPower ? 3 : 5);
+      if (game.accumulator > maxCatchUp) {
+        game.accumulator = maxCatchUp;
+      }
 
       while (game.accumulator >= FIXED_TIMESTEP) {
         game.simTime += FIXED_TIMESTEP;
@@ -1605,6 +1620,8 @@ const DoomApp = () => {
       pointerLookRef.current.pointerId = null;
     };
 
+    const pointerMoveOpts = { passive: true };
+
     const boot = async () => {
       const hud = await loadImage(ASSET_RECTS.hud.src);
       if (disposed) return;
@@ -1650,7 +1667,7 @@ const DoomApp = () => {
       window.addEventListener('blur', clearInput);
       window.addEventListener('resize', resizeCanvas);
       canvas.addEventListener('pointerdown', handleCanvasPointerDown);
-      canvas.addEventListener('pointermove', handleCanvasPointerMove);
+      canvas.addEventListener('pointermove', handleCanvasPointerMove, pointerMoveOpts);
       canvas.addEventListener('pointerup', handleCanvasPointerUp);
       canvas.addEventListener('pointercancel', handleCanvasPointerUp);
       canvas.addEventListener('lostpointercapture', handleCanvasPointerUp);
@@ -1669,7 +1686,7 @@ const DoomApp = () => {
       window.removeEventListener('blur', clearInput);
       window.removeEventListener('resize', resizeCanvas);
       canvas.removeEventListener('pointerdown', handleCanvasPointerDown);
-      canvas.removeEventListener('pointermove', handleCanvasPointerMove);
+      canvas.removeEventListener('pointermove', handleCanvasPointerMove, pointerMoveOpts);
       canvas.removeEventListener('pointerup', handleCanvasPointerUp);
       canvas.removeEventListener('pointercancel', handleCanvasPointerUp);
       canvas.removeEventListener('lostpointercapture', handleCanvasPointerUp);

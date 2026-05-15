@@ -89,9 +89,23 @@ body {
   align-items: center;
 }
 
-.mac-menu-item:hover, .mac-menu-item.active {
+.mac-menu-item.active {
   background: var(--mac-black);
   color: var(--mac-white);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mac-menu-item:hover {
+    background: var(--mac-black);
+    color: var(--mac-white);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .mac-menu-item:not(.menu-dropdown-container):active {
+    background: var(--mac-black);
+    color: var(--mac-white);
+  }
 }
 
 .finder-logo {
@@ -2431,6 +2445,7 @@ canvas {
   top: 28px;
   left: 0;
   width: auto;
+  min-width: 180px;
   background: var(--mac-platinum);
   border: 1px solid #000;
   box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
@@ -2439,8 +2454,10 @@ canvas {
   z-index: 2000;
 }
 
-.menu-dropdown-container.active .menu-dropdown {
+.menu-dropdown.menu-dropdown--portal {
   display: flex;
+  flex-direction: column;
+  z-index: 10050;
 }
 
 .menu-dropdown-item {
@@ -2458,6 +2475,18 @@ canvas {
 .menu-dropdown-item:hover:not(.disabled) {
   background: #000ea5;
   color: #fff;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .menu-dropdown-item:hover:not(.disabled) {
+    background: transparent;
+    color: #000;
+  }
+
+  .menu-dropdown-item:active:not(.disabled) {
+    background: #000ea5;
+    color: #fff;
+  }
 }
 
 .menu-dropdown-item.disabled {
@@ -2492,17 +2521,14 @@ canvas {
   background: #888;
 }
 
-.menu-dropdown-container .menu-dropdown {
-  min-width: 180px;
-  width: auto;
-}
-
 .finder-launcher {
   gap: 4px;
 }
 
-.finder-launcher:hover .finder-logo {
-  filter: invert(1);
+@media (hover: hover) and (pointer: fine) {
+  .finder-launcher:hover .finder-logo {
+    filter: invert(1);
+  }
 }
 
 /* Windowshade (minimized window) */
@@ -2833,6 +2859,7 @@ body.os-windows .about9 {
     overflow-y: visible;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
     font-size: 0.92rem;
     padding-bottom: 2px;
     gap: 0;
@@ -2857,7 +2884,7 @@ body.os-windows .about9 {
   }
 
   .menu-dropdown {
-    max-width: calc(100vw - 16px);
+    max-width: calc(100vw - 56px);
   }
 
   .menu-dropdown-item {
