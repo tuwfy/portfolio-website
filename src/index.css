@@ -2793,31 +2793,19 @@ canvas {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  overflow: hidden;
+  transition: opacity 1.5s ease-in-out;
 }
 
-.boot-screen--idle {
-  cursor: pointer;
+.boot-screen p {
+  animation: boot-pulse 2.4s ease-in-out infinite;
 }
 
-.boot-screen--loading,
-.boot-screen--face {
-  background-color: #b8b8b8;
-}
-
-.boot-screen--exit {
-  background-color: #b8b8b8;
-  opacity: 0;
-  transition: opacity 0.55s ease-in-out;
-}
-
-.boot-idle {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+@keyframes boot-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 .boot-apple-logo {
@@ -2831,130 +2819,6 @@ canvas {
   margin: 0;
   font-size: 1.35rem;
   font-weight: 400;
-}
-
-/* --- Phase: Loading splash --- */
-.boot-loading {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, #c8c8c8 0%, #a8a8a8 100%);
-  animation: boot-stage-fade-in 0.35s ease-out;
-}
-
-.boot-loading-splash {
-  background: #ffffff;
-  border: 2px solid #000;
-  box-shadow:
-    3px 3px 0 #000,
-    inset 1px 1px 0 #fff,
-    inset -1px -1px 0 #8c8c8c;
-  padding: 24px 28px 20px;
-  width: 380px;
-  max-width: 88vw;
-  text-align: center;
-  color: #000;
-  animation: boot-splash-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.boot-loading-title {
-  font-family: Chicago, Charcoal, 'Geneva', 'Lucida Grande', system-ui, sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  margin-bottom: 18px;
-  -webkit-font-smoothing: antialiased;
-}
-
-.boot-loading-bar {
-  height: 14px;
-  border: 1px solid #000;
-  background: #ececec;
-  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-}
-
-.boot-loading-bar-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(180deg, #98ecff 0%, #45c3ff 28%, #1f95e4 62%, #166fbf 100%);
-  border-right: 1px solid rgba(0, 0, 0, 0.45);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
-  animation: boot-bar-fill 1.55s cubic-bezier(0.4, 0, 0.6, 1) forwards;
-}
-
-.boot-loading-status {
-  margin-top: 12px;
-  font-family: Chicago, Charcoal, 'Geneva', 'Lucida Grande', system-ui, sans-serif;
-  font-size: 13px;
-  color: #333;
-}
-
-@keyframes boot-bar-fill {
-  0%   { width: 0%; }
-  35%  { width: 22%; }
-  70%  { width: 68%; }
-  100% { width: 100%; }
-}
-
-@keyframes boot-splash-pop {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes boot-stage-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* --- Phase: Finder face --- */
-.boot-face-stage {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #b8b8b8;
-  animation: boot-stage-fade-in 0.3s ease-out;
-}
-
-.boot-face-wrap {
-  animation: boot-face-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.finder-face {
-  width: 156px;
-  height: 156px;
-  display: block;
-}
-
-.finder-eye {
-  fill: #000;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: finder-eye-blink 2.5s ease-in-out 0.7s infinite;
-}
-
-@keyframes boot-face-pop {
-  0%   { opacity: 0; transform: scale(0.5); }
-  60%  { opacity: 1; transform: scale(1.06); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-@keyframes finder-eye-blink {
-  0%, 36%, 44%, 70%, 78%, 100% { transform: scaleY(1); }
-  40%, 74%                     { transform: scaleY(0.08); }
-}
-
-@media (max-width: 480px) {
-  .boot-loading-splash {
-    width: 300px;
-    padding: 20px 22px 16px;
-  }
-  .boot-loading-title { font-size: 17px; }
-  .finder-face { width: 128px; height: 128px; }
 }
 
 /* Windows-only compatibility + performance visuals
