@@ -1379,20 +1379,145 @@ body {
 }
 
 .cv-content {
-  min-width: 620px;
-  padding: 16px 18px;
-  line-height: 1.45;
-  font-size: 1.35rem;
+  min-width: 720px;
+  width: min(860px, 86vw);
+  padding: 0;
+  overflow: hidden;
+  background: #bfbfbf;
+  border-color: #000;
+  color: #000;
 }
 
-.cv-section {
-  margin-bottom: 18px;
+.word95 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
 }
 
-.cv-header {
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
+.word95-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 28px;
+  padding: 0 6px;
+  background: #c0c0c0;
+  border-bottom: 1px solid #8b8b8b;
+  color: #000;
+  white-space: nowrap;
+}
+
+.word95-menu-row span {
+  padding: 4px 7px;
+}
+
+.word95-menu-active {
+  background: #000080;
+  color: #fff;
+}
+
+.word95-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 34px;
+  padding: 4px 6px;
+  background: #c0c0c0;
+  border-bottom: 1px solid #7f7f7f;
+  box-shadow: inset 0 1px 0 #fff;
+  overflow-x: auto;
+}
+
+.word95-icon-btn {
+  height: 24px;
+  min-width: 54px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  background: #d6d6d6;
+}
+
+.word95-toolbar-separator {
+  width: 1px;
+  align-self: stretch;
+  margin: 0 3px;
+  background: #808080;
+  border-right: 1px solid #fff;
+}
+
+.word95-select {
+  height: 22px;
+  min-width: 54px;
+  padding: 3px 18px 2px 4px;
+  border: 1px solid #808080;
+  border-top-color: #fff;
+  border-left-color: #fff;
+  background: #fff;
+  box-shadow: inset -1px -1px 0 #808080;
+  font-family: 'Times New Roman', Times, serif;
+  line-height: 1;
+}
+
+.word95-font-select {
+  min-width: 132px;
+}
+
+.word95-ruler {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  height: 24px;
+  margin-left: 28px;
+  background: #d6d6d6;
+  border-bottom: 1px solid #808080;
+  border-left: 1px solid #808080;
+  color: #333;
+  font-size: 10px;
+}
+
+.word95-ruler span {
+  border-left: 1px solid #909090;
+  padding-left: 3px;
+}
+
+.word95-document-shell {
+  position: relative;
+  flex: 1;
+  height: clamp(430px, 66vh, 650px);
+  padding: 16px 18px 18px;
+  overflow: hidden;
+  background: #7f7f7f;
+  border-top: 1px solid #fff;
+}
+
+.word95-resume-frame {
+  display: block;
+  width: min(100%, 680px);
+  height: 100%;
+  margin: 0 auto;
+  border: 1px solid #4a4a4a;
+  background: #fff;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.28);
+}
+
+.word95-pdf-fallback {
+  display: none;
+}
+
+.word95-statusbar {
+  display: flex;
+  gap: 4px;
+  min-height: 24px;
+  padding: 3px 5px;
+  background: #c0c0c0;
+  border-top: 1px solid #808080;
+  font-size: 11px;
+  color: #222;
+}
+
+.word95-statusbar span {
+  padding: 2px 6px;
+  border: 1px solid #808080;
+  border-top-color: #fff;
+  border-left-color: #fff;
 }
 
 .desktop-area {
@@ -2314,21 +2439,53 @@ body.os-windows .about9 {
   }
 
   .cv-content {
-    padding: 14px 14px 18px;
-    font-size: clamp(1rem, 4.5vw, 1.16rem);
-    line-height: 1.4;
-    overflow-wrap: anywhere;
-    word-break: normal;
     min-width: 0;
+    width: 100%;
   }
 
-  .cv-section {
-    margin-bottom: 16px;
+  .word95-menu-row {
+    height: 26px;
+    padding: 0 3px;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
-  .cv-header {
-    margin-bottom: 8px;
-    letter-spacing: 0.03em;
+  .word95-menu-row::-webkit-scrollbar,
+  .word95-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .word95-menu-row span {
+    padding: 4px 6px;
+  }
+
+  .word95-toolbar {
+    min-height: 32px;
+    padding: 4px;
+  }
+
+  .word95-font-select {
+    min-width: 116px;
+  }
+
+  .word95-ruler {
+    height: 20px;
+    margin-left: 12px;
+  }
+
+  .word95-document-shell {
+    height: min(58vh, 470px);
+    padding: 10px 8px 12px;
+  }
+
+  .word95-resume-frame {
+    width: 100%;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .word95-statusbar {
+    overflow-x: auto;
+    white-space: nowrap;
   }
 
   .doom-app {

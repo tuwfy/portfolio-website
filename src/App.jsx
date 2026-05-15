@@ -103,12 +103,8 @@ function App() {
   }, []);
 
   const openResume = useCallback(() => {
-    const link = document.createElement('a');
-    link.href = '/TylerRiccardiResume.pdf';
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.click();
-  }, []);
+    openWindow('cv', 'Microsoft Word.exe', <CVApp />, true);
+  }, [openWindow]);
 
   const openAboutMe = useCallback(() => {
     openWindow(
@@ -236,7 +232,7 @@ function App() {
         kind: 'document',
         size: '42 K',
         icon: '📄',
-        action: () => openWindow('cv', 'CV', <CVApp />),
+        action: openResume,
       },
     ],
     [openWindow, openResume, openLinkedIn, openAboutMe, openContact, openHD]
