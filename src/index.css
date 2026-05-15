@@ -1379,6 +1379,23 @@ body {
 }
 
 .cv-content {
+  min-width: 620px;
+  padding: 16px 18px;
+  line-height: 1.45;
+  font-size: 1.35rem;
+}
+
+.cv-section {
+  margin-bottom: 18px;
+}
+
+.cv-header {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.readme-resume {
   min-width: 720px;
   width: min(860px, 86vw);
   padding: 0;
@@ -1496,10 +1513,6 @@ body {
   border: 1px solid #4a4a4a;
   background: #fff;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.28);
-}
-
-.word95-pdf-fallback {
-  display: none;
 }
 
 .word95-statusbar {
@@ -2432,6 +2445,7 @@ body.os-windows .about9 {
 
   .about9,
   .cv-content,
+  .readme-resume,
   .work-app-scroll,
   .doom-app {
     min-width: 0;
@@ -2439,8 +2453,20 @@ body.os-windows .about9 {
   }
 
   .cv-content {
-    min-width: 0;
-    width: 100%;
+    padding: 14px 14px 18px;
+    font-size: clamp(1rem, 4.5vw, 1.16rem);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .cv-section {
+    margin-bottom: 16px;
+  }
+
+  .cv-header {
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
   }
 
   .word95-menu-row {

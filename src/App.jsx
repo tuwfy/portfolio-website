@@ -9,6 +9,7 @@ import HelpWindow from './components/HelpWindow';
 import SpotifyApp from './components/SpotifyApp';
 import WorkApp from './components/WorkApp';
 import CVApp from './components/CVApp';
+import ReadmeResumeApp from './components/ReadmeResumeApp';
 import DoomApp from './components/DoomApp';
 import FinderApp from './components/FinderApp';
 import { AudioProvider } from './AudioProvider';
@@ -102,8 +103,8 @@ function App() {
     a.click();
   }, []);
 
-  const openResume = useCallback(() => {
-    openWindow('cv', 'Microsoft Word.exe', <CVApp />, true);
+  const openReadmeResume = useCallback(() => {
+    openWindow('readme-resume', 'readme.txt', <ReadmeResumeApp />, true);
   }, [openWindow]);
 
   const openAboutMe = useCallback(() => {
@@ -154,13 +155,7 @@ function App() {
   const desktopApps = useMemo(
     () => [
       {
-        id: 'readme',
-        label: 'readme.txt',
-        shortName: 'Resume',
-        kind: 'document',
-        size: '84 K',
-        icon: '📝',
-        action: openResume,
+        action: openReadmeResume,
       },
       {
         id: 'spotify',
@@ -226,16 +221,10 @@ function App() {
         action: () => openWindow('work', 'Work', <WorkApp />),
       },
       {
-        id: 'cv',
-        label: 'CV',
-        shortName: 'CV',
-        kind: 'document',
-        size: '42 K',
-        icon: '📄',
-        action: openResume,
+        action: () => openWindow('cv', 'CV', <CVApp />),
       },
     ],
-    [openWindow, openResume, openLinkedIn, openAboutMe, openContact, openHD]
+    [openWindow, openReadmeResume, openLinkedIn, openAboutMe, openContact, openHD]
   );
 
   const openFinder = useCallback(
