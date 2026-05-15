@@ -1582,31 +1582,47 @@ body {
 }
 
 .linkedin-macos {
+  --linkedin-mac-navy: #143a5c;
+  --linkedin-mac-blue: #0a66c2;
+  --linkedin-mac-sky: #d4e8f7;
+  --linkedin-mac-paper: #feffff;
+
   width: min(580px, 96vw);
   min-width: 260px;
   padding: 10px 12px 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-family: Charcoal, Geneva, 'Lucida Grande', Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  line-height: 1.35;
-  color: #000;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    Geneva,
+    sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #0a0a0a;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .linkedin-macos-disclaimer {
   margin: 0;
-  font-size: 10px;
-  line-height: 1.35;
-  color: #444;
-  font-family: Monaco, Menlo, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #1a3550;
+  font-family: inherit;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-site {
-  border: 1px solid #000;
-  background: #ececec;
-  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #9a9a9a;
+  border: 1px solid #0d2d47;
+  background: linear-gradient(180deg, #e8f1fa 0%, #dce8f2 35%, #d0dde8 100%);
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #9aa8b8;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -1619,8 +1635,8 @@ body {
   justify-content: space-between;
   gap: 8px 12px;
   padding: 8px 10px 6px;
-  background: linear-gradient(#fbfbfb, #dcdcdc);
-  border-bottom: 1px solid #000;
+  background: linear-gradient(#f5faff, #cfe0f2);
+  border-bottom: 1px solid #0d2d47;
 }
 
 .linkedin-macos-brand {
@@ -1632,31 +1648,36 @@ body {
 
 .linkedin-macos-logo-in {
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #000;
-  background: linear-gradient(#0a66c2, #004471);
+  border: 1px solid #001a2e;
+  background: linear-gradient(#1a7fd4, var(--linkedin-mac-navy));
   color: #fff;
-  font-weight: 800;
-  font-size: 13px;
-  letter-spacing: -0.04em;
-  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.35);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  font-variant: normal;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .linkedin-macos-tagline-era {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.3;
   max-width: 14rem;
+  color: #082438;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-welcome {
-  font-size: 11px;
+  font-size: 12px;
   white-space: nowrap;
+  color: #082438;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-welcome-sep {
@@ -1664,7 +1685,7 @@ body {
 }
 
 .linkedin-macos-fake-link {
-  color: #0000cc;
+  color: #003d99;
   text-decoration: underline;
   cursor: default;
 }
@@ -1674,7 +1695,7 @@ body {
   flex-wrap: wrap;
   gap: 0;
   padding: 0 4px;
-  background: #b4b4b4;
+  background: linear-gradient(#1e5a8c, var(--linkedin-mac-navy));
   border-bottom: 1px solid #000;
 }
 
@@ -1682,29 +1703,34 @@ body {
   padding: 5px 10px 4px;
   font-size: 11px;
   font-weight: 700;
-  color: #111;
-  border: 1px solid #000;
+  color: #f2f8ff;
+  border: 1px solid #0a1f30;
   border-bottom: none;
   margin: 4px 2px 0 0;
-  background: linear-gradient(#d6d6d6, #b0b0b0);
-  box-shadow: inset 1px 1px 0 #eee;
+  background: linear-gradient(#3a78ad, #1e4d78);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.2);
   border-radius: 2px 2px 0 0;
+  letter-spacing: 0.02em;
 }
 
 .linkedin-macos-tab--active {
   margin-bottom: -1px;
   padding-bottom: 5px;
-  background: linear-gradient(#f4f4f4, #dcdcdc);
-  border-bottom: 1px solid #dcdcdc;
+  color: #061018;
+  background: linear-gradient(#f2f8ff, var(--linkedin-mac-sky));
+  border-color: #000;
+  border-bottom: 1px solid var(--linkedin-mac-sky);
+  box-shadow: inset 1px 1px 0 #fff;
   z-index: 1;
   position: relative;
 }
 
 .linkedin-macos-subnav {
   padding: 4px 10px 6px;
-  background: linear-gradient(#e4e4e4, #d0d0d0);
-  border-bottom: 1px solid #888;
-  font-size: 11px;
+  background: linear-gradient(#dbeaf9, #c5daf0);
+  border-bottom: 1px solid #5a7fa0;
+  font-size: 12px;
+  color: #082438;
 }
 
 .linkedin-macos-subnav-link--active {
@@ -1721,7 +1747,7 @@ body {
   gap: 10px;
   padding: 10px;
   align-items: flex-start;
-  background: #dcdcdc;
+  background: linear-gradient(165deg, #b9d4ee 0%, #a8c8e8 45%, #9db9d8 100%);
   min-width: 0;
 }
 
@@ -1744,9 +1770,10 @@ body {
 .linkedin-macos-widget {
   margin: 0 0 10px;
   padding: 8px 8px 10px;
-  border: 1px solid #000;
-  background: var(--mac-platinum);
-  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #9a9a9a;
+  border: 1px solid #1a3550;
+  background: linear-gradient(180deg, var(--linkedin-mac-paper) 0%, #eef5fb 100%);
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #9eb6cc;
+  border-left: 3px solid var(--linkedin-mac-blue);
 }
 
 .linkedin-macos-widget:last-child {
@@ -1755,8 +1782,10 @@ body {
 
 .linkedin-macos-widget legend {
   padding: 0 4px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
+  color: #082438;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-search-head {
@@ -1764,9 +1793,10 @@ body {
 }
 
 .linkedin-macos-search-hint {
-  font-size: 10px;
-  color: #444;
+  font-size: 11px;
+  color: #1a3550;
   font-style: italic;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-widget-icon {
@@ -1778,18 +1808,20 @@ body {
 
 .linkedin-macos-widget-text {
   margin: 0 0 6px;
-  font-size: 11px;
-  line-height: 1.35;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #111;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-select {
   display: block;
   width: 100%;
   margin: 0 0 6px;
-  font-family: Geneva, Arial, Helvetica, sans-serif;
-  font-size: 11px;
+  font-family: inherit;
+  font-size: 12px;
   padding: 2px 4px;
-  border: 1px solid #000;
+  border: 1px solid #1a3550;
   background: #fff;
   box-shadow: inset 1px 1px 0 #808080;
 }
@@ -1799,10 +1831,10 @@ body {
   width: 100%;
   box-sizing: border-box;
   margin: 0 0 6px;
-  font-family: Geneva, Arial, Helvetica, sans-serif;
-  font-size: 11px;
+  font-family: inherit;
+  font-size: 12px;
   padding: 3px 5px;
-  border: 1px solid #000;
+  border: 1px solid #1a3550;
   background: #fff;
   box-shadow: inset 1px 1px 0 #808080;
 }
@@ -1822,27 +1854,28 @@ body {
 
 .linkedin-macos-badge {
   flex-shrink: 0;
-  width: 72px;
-  height: 72px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  border: 2px solid #000;
-  background: linear-gradient(#f8f8f8, #c8c8c8);
+  border: 2px solid #1a3550;
+  background: linear-gradient(#fff8e8, #f0d8a8);
   box-shadow: inset 1px 1px 0 #fff, 1px 1px 0 rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1.15;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
   text-decoration: none;
-  color: #000;
+  color: #0a0a0a;
   padding: 4px;
+  letter-spacing: 0.02em;
   -webkit-tap-highlight-color: transparent;
 }
 
 .linkedin-macos-badge:hover {
-  background: linear-gradient(#fffef0, #d8d8a8);
+  background: linear-gradient(#fffef4, #f5e4b8);
 }
 
 .linkedin-macos-badge:active {
@@ -1851,27 +1884,31 @@ body {
 
 .linkedin-macos-panel {
   padding: 10px 10px 12px;
-  border: 1px solid #000;
-  background: #f4f4f4;
-  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #b0b0b0;
+  border: 1px solid #1a3550;
+  background: linear-gradient(180deg, var(--linkedin-mac-paper) 0%, #eef4fb 100%);
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #a8bdd4;
+  border-top: 2px solid var(--linkedin-mac-blue);
 }
 
 .linkedin-macos-panel-title {
   margin: 0 0 6px;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1.25;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #082438;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-panel-lead {
   margin: 0 0 10px;
-  font-size: 11px;
-  color: #222;
-  line-height: 1.4;
+  font-size: 12px;
+  color: #1a2833;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-panel--profile {
-  background: linear-gradient(#fafafa, #e8e8e8);
+  background: linear-gradient(180deg, #fafcff 0%, #e4eef8 100%);
 }
 
 .linkedin-macos-profile-hit {
@@ -1903,32 +1940,36 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #000;
-  background: linear-gradient(#0a66c2, #004471);
+  border: 2px solid #001a2e;
+  background: linear-gradient(#1a7fd4, var(--linkedin-mac-navy));
   color: #fff;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 16px;
-  letter-spacing: -0.02em;
-  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.04em;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .linkedin-macos-profile-name {
-  font-weight: 800;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #082438;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-profile-headline {
   margin-top: 2px;
-  font-size: 11px;
-  color: #333;
-  line-height: 1.35;
+  font-size: 12px;
+  color: #1a3550;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-bullets {
   margin: 8px 0 0;
   padding-left: 1.1em;
-  font-size: 11px;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
 }
 
 .linkedin-macos-bullets li {
@@ -1941,14 +1982,15 @@ body {
   justify-content: center;
   min-height: 26px;
   padding: 3px 14px;
-  font-family: Charcoal, Geneva, 'Lucida Grande', Arial, Helvetica, sans-serif;
-  font-size: 11px;
+  font-family: inherit;
+  font-size: 12px;
   font-weight: 700;
   text-decoration: none;
-  color: #000;
-  border: 1px solid #000;
-  background: var(--mac-platinum);
+  color: #0a0a0a;
+  border: 1px solid #1a3550;
+  background: linear-gradient(#f0f0f0, #c8d0d8);
   box-shadow: inset 1px 1px 0 #fff, 1px 1px 0 rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.02em;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -1969,13 +2011,14 @@ body {
 }
 
 .linkedin-macos-btn-era--primary {
-  background: linear-gradient(#6cb4ff, #0a66c2);
+  background: linear-gradient(#5cb0ff, #0a66c2);
   color: #fff;
-  border-color: #000;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
-  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.45), 1px 1px 0 rgba(0, 0, 0, 0.25);
+  border-color: #001a2e;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.5), 1px 1px 0 rgba(0, 0, 0, 0.25);
   min-height: 32px;
-  font-size: 12px;
+  font-size: 13px;
+  letter-spacing: 0.03em;
 }
 
 .linkedin-macos-btn-era--primary:hover {
@@ -1988,13 +2031,15 @@ body {
 
 .linkedin-macos-url-line {
   margin: 10px 0 0;
-  font-size: 10px;
-  color: #333;
+  font-size: 11px;
+  color: #1a3550;
 }
 
 .linkedin-macos-url-mono {
-  font-family: Monaco, Menlo, Consolas, monospace;
-  font-size: 10px;
+  font-family: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  font-weight: 500;
   word-break: break-all;
 }
 
