@@ -12,6 +12,7 @@ import ReadmeResumeApp from './components/ReadmeResumeApp';
 import CVApp from './components/CVApp';
 import DoomApp from './components/DoomApp';
 import FinderApp from './components/FinderApp';
+import LinkedInApp from './components/LinkedInApp';
 import { AudioProvider } from './AudioProvider';
 
 const clickDownAudio = typeof window !== 'undefined' ? new window.Audio('/click-down.mp3') : null;
@@ -93,15 +94,6 @@ function App() {
       openWindow('about-system', 'About This Computer', <AboutWindow />, true);
     }, 500);
   };
-
-  const openLinkedIn = useCallback(() => {
-    const url = 'https://www.linkedin.com/in/tylerriccardi/';
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.click();
-  }, []);
 
   const openReadmeResume = useCallback(() => {
     openWindow('readme-resume', 'readme.txt', <ReadmeResumeApp />, true);
@@ -206,7 +198,7 @@ function App() {
         kind: 'alias',
         size: '2 K',
         icon: '🔗',
-        action: openLinkedIn,
+        action: () => openWindow('linkedin', 'LinkedIn', <LinkedInApp />, true),
       },
       {
         id: 'contact',
@@ -236,7 +228,7 @@ function App() {
         action: () => openWindow('cv', 'CV', <CVApp />, true),
       },
     ],
-    [openWindow, openReadmeResume, openLinkedIn, openAboutMe, openContact, openHD]
+    [openWindow, openReadmeResume, openAboutMe, openContact, openHD]
   );
 
   const openFinder = useCallback(

@@ -24,7 +24,7 @@ const HelpWindow = () => {
         <li><strong>spotify.exe</strong> - tunes for browsing.</li>
         <li><strong>Doom</strong> - a small portfolio mini-game.</li>
         <li><strong>Contact</strong> - how to reach me.</li>
-        <li><strong>LinkedIn</strong> - opens my profile in a new tab.</li>
+        <li><strong>LinkedIn</strong> - opens a small retro LinkedIn window; click the card or button to open my real profile.</li>
       </ul>
 
       <p className="wiz-footer">Enjoy your stay in the retro web.</p>
