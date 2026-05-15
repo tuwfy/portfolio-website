@@ -145,8 +145,8 @@ function App() {
       'Macintosh HD',
       <div className="mac-content-inner mac-hd-note">
         <p className="mac-hd-greeting">This is Mac&nbsp;OS&nbsp;9.</p>
-        <p>I like old stuff — hope you like it too.</p>
-        <p className="mac-hd-sig">— ty</p>
+        <p>I like old stuff - hope you like it too.</p>
+        <p className="mac-hd-sig">- ty</p>
       </div>
     );
   }, [openWindow]);
@@ -194,7 +194,7 @@ function App() {
         label: 'Macintosh HD',
         shortName: 'HD',
         kind: 'disk',
-        size: '—',
+        size: '-',
         icon: '💾',
         action: openHD,
       },
@@ -221,7 +221,7 @@ function App() {
         label: 'Work',
         shortName: 'Work',
         kind: 'folder',
-        size: '—',
+        size: '-',
         icon: '📂',
         action: () => openWindow('work', 'Work', <WorkApp />),
       },

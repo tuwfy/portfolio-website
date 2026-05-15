@@ -211,7 +211,7 @@ function FourSeatMiniPreview() {
         </div>
         <div className="work-fourseat-mini-viewport">
           {/*
-            Live site uses X-Frame-Options: DENY — embed a compact animated mock
+            Live site uses X-Frame-Options: DENY; embed a compact animated mock
             of the marketing page; click still opens the real app.
           */}
           <div className="work-fourseat-faux" aria-hidden="true">
@@ -245,7 +245,7 @@ function FourSeatMiniPreview() {
         </div>
       </div>
       <span className="work-fourseat-mini-caption">
-        Mini landing (animated) — opens <strong>fourseat.dev</strong> in a new tab
+        Mini landing (animated) - opens <strong>fourseat.dev</strong> in a new tab
       </span>
     </a>
   );
@@ -297,7 +297,7 @@ function QuantCodeDemo() {
         </pre>
       </div>
       <div className="quant-terminal">
-        <MpwTitlebar title="MPW Shell — Output" />
+        <MpwTitlebar title="MPW Shell - Output" />
         <div className={`quant-terminal-body${lineIdx >= CODE_LINES.length ? ' quant-terminal-body--live' : ''}`}>
           {lineIdx >= CODE_LINES.length
             && TERMINAL_LINES.map((t, i) => (
@@ -319,7 +319,7 @@ const WorkApp = () => (
   <div className="mac-content-inner work-app-scroll work-projects">
     <header className="work-projects-intro">
       <h2>Projects</h2>
-      <p>Product work and quantitative tooling—links open in a new tab.</p>
+      <p>Product work and quantitative tooling; links open in a new tab.</p>
     </header>
 
     <div className="work-projects-grid">
@@ -331,7 +331,7 @@ const WorkApp = () => (
             <h3>FourSeat</h3>
             <p className="work-card-desc">
               FourSeat is an AI-powered decision-making platform that gives founders and operators a personal board of directors.
-              Instead of one flat model reply or pure instinct, every decision runs through four independent AI members—then they debate,
+              Instead of one flat model reply or pure instinct, every decision runs through four independent AI members, then they debate,
               and a Chairman synthesizes the thread into a single verdict with risks, opportunities, and concrete next steps.
             </p>
             <div className="work-fourseat-roles" aria-label="Board members">
@@ -346,7 +346,7 @@ const WorkApp = () => (
               ))}
             </div>
             <p className="work-card-desc work-card-desc--compact">
-              Each seat challenges the others before the Chairman locks the plan—so you get structured disagreement, not groupthink.
+              Each seat challenges the others before the Chairman locks the plan, so you get structured disagreement, not groupthink.
             </p>
             <FourSeatMiniPreview />
             <a className="work-card-link work-card-link--mac" href={FOURSEAT_URL} target="_blank" rel="noopener noreferrer">
@@ -363,7 +363,7 @@ const WorkApp = () => (
             <p className="work-card-kicker">Quant research</p>
             <h3>Quant algo project</h3>
             <p className="work-card-desc">
-              Private research codebase I iterate on solo—multi-window walk-forward validation, rank IC and factor hygiene, CVaR-style
+              Private research codebase I iterate on solo: multi-window walk-forward validation, rank IC and factor hygiene, CVaR-style
               objectives with turnover and leverage constraints, post-cost simulation, and regime-aware blends. Nothing here is a public
               product; the link below is just my GitHub profile.
             </p>

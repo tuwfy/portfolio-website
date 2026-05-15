@@ -1155,7 +1155,7 @@ body {
   min-height: 1.5em;
 }
 
-/* VS Code Dark+–style syntax (unchanged hues) */
+/* VS Code Dark+ style syntax (unchanged hues) */
 .q-kw { color: #ff7b72; }
 .q-fn { color: #d2a8ff; }
 .q-var { color: #79c0ff; }
@@ -2325,7 +2325,7 @@ canvas {
   }
 }
 
-/* Boot screen — fixed so it fills the viewport even if #root height is wrong on iPad Safari */
+/* Boot screen: fixed so it fills the viewport even if #root height is wrong on iPad Safari */
 .boot-screen {
   position: fixed;
   inset: 0;
