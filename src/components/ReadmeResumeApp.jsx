@@ -1,12 +1,34 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const PDF_PATH = '/TylerRiccardiResume.pdf';
 
-const getPdfUrl = () =>
-  typeof window !== 'undefined' ? new URL(PDF_PATH, window.location.href).href : PDF_PATH;
-
 const ReadmeResumeApp = () => {
-  const pdfUrl = useMemo(() => getPdfUrl(), []);
+  const [frameSrc, setFrameSrc] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const blobUrlRef = { current: null };
+
+    const load = async () => {
+      try {
+        const response = await fetch(PDF_PATH, { credentials: 'same-origin' });
+        if (!response.ok) throw new Error('bad status');
+        const blob = await response.blob();
+        if (cancelled) return;
+        blobUrlRef.current = URL.createObjectURL(blob);
+        setFrameSrc(blobUrlRef.current);
+      } catch {
+        if (!cancelled) setLoadError(true);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    };
+  }, []);
 
   return (
     <div className="mac-content-inner readme-resume word95">
@@ -26,7 +48,12 @@ const ReadmeResumeApp = () => {
         <a className="retro-mac-btn word95-icon-btn" href={PDF_PATH} download="TylerRiccardiResume.pdf">
           Save
         </a>
-        <a className="retro-mac-btn word95-icon-btn" href={pdfUrl} target="_blank" rel="noopener noreferrer">
+        <a
+          className="retro-mac-btn word95-icon-btn"
+          href={PDF_PATH}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Open
         </a>
         <span className="word95-toolbar-separator"></span>
@@ -42,7 +69,24 @@ const ReadmeResumeApp = () => {
       </div>
 
       <div className="word95-document-shell">
-        <iframe className="word95-resume-frame" src={pdfUrl} title="Tyler Riccardi resume PDF" />
+        {loadError && (
+          <div className="word95-pdf-fallback">
+            <p>Could not load the PDF in this window.</p>
+            <p>
+              <a href={PDF_PATH} download="TylerRiccardiResume.pdf">
+                Download
+              </a>
+              {' · '}
+              <a href={PDF_PATH} target="_blank" rel="noopener noreferrer">
+                Open in new tab
+              </a>
+            </p>
+          </div>
+        )}
+        {!loadError && frameSrc && (
+          <iframe className="word95-resume-frame" src={frameSrc} title="Tyler Riccardi resume PDF" />
+        )}
+        {!loadError && !frameSrc && <div className="word95-pdf-loading">Loading document…</div>}
       </div>
 
       <div className="word95-statusbar">
