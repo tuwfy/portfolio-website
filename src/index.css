@@ -2888,10 +2888,11 @@ body.os-windows .about9 {
     height: 0px;
   }
 
+  /* Inset from screen edges so the desktop shows through and the close box is easier to tap. Gutter must match Window.jsx MOBILE_VIEWPORT_PADDING (28px each side). */
   .mac-window {
     min-width: unset;
-    width: calc(100vw - 16px) !important;
-    max-width: calc(100vw - 16px);
+    width: calc(100vw - 56px) !important;
+    max-width: calc(100vw - 56px);
   }
 
   .winamp-player {

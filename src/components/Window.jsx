@@ -4,10 +4,13 @@ import Draggable from 'react-draggable';
 const CHROME_WIDTH = 8;
 const CHROME_HEIGHT = 32;
 const VIEWPORT_PADDING = 20;
-const MOBILE_VIEWPORT_PADDING = 8;
+/** Horizontal and vertical inset from the desktop edge on small screens (must match CSS `.mac-window` gutter). */
+const MOBILE_VIEWPORT_PADDING = 28;
 const MIN_WIDTH = 240;
 const MIN_HEIGHT = 150;
 const MAX_WIDTH_RATIO = 0.97;
+/** On mobile, cap width so windows stay visibly inset even when content is wide. */
+const MOBILE_MAX_WIDTH_RATIO = 0.92;
 
 const getViewportContentHeight = () => (window.visualViewport?.height ?? window.innerHeight) - 28;
 const getViewportPadding = () => (window.innerWidth <= 768 ? MOBILE_VIEWPORT_PADDING : VIEWPORT_PADDING);
@@ -43,8 +46,13 @@ const Window = ({ title, children, onClose, zIndex, onClick, minimized = false, 
     const viewportWidth = window.innerWidth;
     const viewportHeight = getViewportContentHeight();
     const viewportPadding = getViewportPadding();
+    const isMobile = viewportWidth <= 768;
+    const maxWidthRatio = isMobile ? MOBILE_MAX_WIDTH_RATIO : MAX_WIDTH_RATIO;
     return {
-      maxWidth: Math.max(MIN_WIDTH, Math.min(viewportWidth - viewportPadding * 2, viewportWidth * MAX_WIDTH_RATIO)),
+      maxWidth: Math.max(
+        MIN_WIDTH,
+        Math.min(viewportWidth - viewportPadding * 2, viewportWidth * maxWidthRatio)
+      ),
       maxHeight: Math.max(MIN_HEIGHT, viewportHeight - viewportPadding * 2)
     };
   }, []);
