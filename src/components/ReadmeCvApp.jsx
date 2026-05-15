@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { CVSections } from './CVApp';
 
 const PDF_PATH = '/TylerRiccardiResume.pdf';
 
-const ReadmeResumeApp = () => {
+const ReadmeCvApp = () => {
   const [frameSrc, setFrameSrc] = useState(null);
   const [loadError, setLoadError] = useState(false);
 
@@ -31,7 +32,7 @@ const ReadmeResumeApp = () => {
   }, []);
 
   return (
-    <div className="mac-content-inner readme-resume word95">
+    <div className="mac-content-inner readme-cv readme-resume word95">
       <div className="word95-menu-row" aria-label="Word menu bar">
         <span>File</span>
         <span>Edit</span>
@@ -48,12 +49,7 @@ const ReadmeResumeApp = () => {
         <a className="retro-mac-btn word95-icon-btn" href={PDF_PATH} download="TylerRiccardiResume.pdf">
           Save
         </a>
-        <a
-          className="retro-mac-btn word95-icon-btn"
-          href={PDF_PATH}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a className="retro-mac-btn word95-icon-btn" href={PDF_PATH} target="_blank" rel="noopener noreferrer">
           Open
         </a>
         <span className="word95-toolbar-separator"></span>
@@ -68,7 +64,7 @@ const ReadmeResumeApp = () => {
         ))}
       </div>
 
-      <div className="word95-document-shell">
+      <div className="word95-document-shell word95-document-shell--pdf">
         {loadError && (
           <div className="word95-pdf-fallback">
             <p>Could not load the PDF in this window.</p>
@@ -89,14 +85,21 @@ const ReadmeResumeApp = () => {
         {!loadError && !frameSrc && <div className="word95-pdf-loading">Loading document…</div>}
       </div>
 
+      <div className="readme-cv-body">
+        <div className="readme-cv-heading">CV (plain text)</div>
+        <div className="cv-content readme-cv-text">
+          <CVSections />
+        </div>
+      </div>
+
       <div className="word95-statusbar">
         <span>Page 1</span>
         <span>Sec 1</span>
-        <span>Words: Resume</span>
+        <span>Words: Resume + CV</span>
         <span>Zoom: 100%</span>
       </div>
     </div>
   );
 };
 
-export default ReadmeResumeApp;
+export default ReadmeCvApp;
