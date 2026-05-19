@@ -3136,8 +3136,11 @@ canvas {
    Step 1 - Welcome preview
    ============================================================ */
 
-/* Welcome preview now embeds the real About-This-Computer panel,
-   scaled down to fit inside the preview pane. */
+/* Welcome preview embeds the real About-This-Computer panel,
+   scaled down to fit inside the preview pane. We use the classic
+   absolute + translate(-50%,-50%) + scale() centering pattern --
+   flex/justify-content centering does not work here because the
+   transform does not change the laid-out box size. */
 .wiz9-prev--welcome {
   background: #d8d8d8;
 }
@@ -3145,33 +3148,30 @@ canvas {
 .wiz9-prev-about {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: #d8d8d8;
-  padding: 6px;
   overflow: hidden;
 }
 
 .wiz9-prev-about .about9 {
-  zoom: 0.40;
-  flex-shrink: 0;
-  max-width: none;
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.25);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 540px !important;
+  max-width: none !important;
+  transform: translate(-50%, -50%) scale(0.42);
+  transform-origin: center center;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
   animation: wiz9-about-fade-in 0.4s ease-out;
 }
 
 @keyframes wiz9-about-fade-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Safari pre-17 fallback for `zoom` */
-@supports not (zoom: 1) {
-  .wiz9-prev-about .about9 {
-    zoom: unset;
-    transform: scale(0.40);
-    transform-origin: center center;
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.36);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.42);
   }
 }
 
