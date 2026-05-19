@@ -2821,6 +2821,657 @@ canvas {
   font-weight: 400;
 }
 
+/* ============================================================
+   Setup Assistant Wizard (Mac OS 9 styled onboarding)
+   ============================================================ */
+
+.wiz9 {
+  width: 640px;
+  max-width: 96vw;
+  height: 400px;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  background: #d8d8d8;
+  font-family: Charcoal, 'Geneva', 'Lucida Grande', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #000;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wiz9-body {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  padding: 14px 16px 0;
+  min-height: 0;
+}
+
+.wiz9-preview {
+  flex: 0 0 240px;
+  width: 240px;
+  height: 100%;
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #999;
+  background: #5d7e8f;
+  position: relative;
+  overflow: hidden;
+}
+
+.wiz9-content {
+  flex: 1;
+  min-width: 0;
+  padding-right: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.wiz9-step-title {
+  font-family: Chicago, Charcoal, 'Geneva', 'Lucida Grande', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin: 0 0 12px;
+  line-height: 1.1;
+}
+
+.wiz9-step-body {
+  flex: 1;
+  font-size: 13px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.wiz9-step-body p {
+  margin: 0 0 10px;
+}
+
+.wiz9-step-body p:last-child {
+  margin-bottom: 0;
+}
+
+.wiz9-italic {
+  font-style: italic;
+}
+
+.wiz9-section-label {
+  margin-top: 12px !important;
+}
+
+.wiz9-tour-list,
+.wiz9-bullets {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  list-style: none;
+  font-size: 13px;
+}
+
+.wiz9-tour-list li {
+  color: #888;
+  padding: 2px 0 2px 12px;
+  position: relative;
+}
+
+.wiz9-tour-item--active {
+  color: #000 !important;
+  font-weight: 700;
+}
+
+.wiz9-tour-marker {
+  position: absolute;
+  left: 0;
+  top: 2px;
+}
+
+.wiz9-bullets {
+  list-style: disc;
+  padding-left: 22px;
+}
+
+.wiz9-bullets li {
+  margin: 2px 0;
+}
+
+/* Footer / buttons */
+.wiz9-footer {
+  flex-shrink: 0;
+  padding: 12px 16px 14px;
+}
+
+.wiz9-footer-rule {
+  height: 0;
+  border-top: 1px solid #8a8a8a;
+  border-bottom: 1px solid #ffffff;
+  margin: 0 0 12px;
+}
+
+.wiz9-footer-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.wiz9-btn {
+  font-family: Chicago, Charcoal, 'Geneva', 'Lucida Grande', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #000;
+  background: linear-gradient(#f4f4f4, #c8c8c8);
+  border: 1px solid #000;
+  border-radius: 7px;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.85),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.18),
+    1px 1px 0 rgba(0, 0, 0, 0.25);
+  padding: 5px 16px;
+  min-width: 76px;
+  cursor: pointer;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wiz9-btn:hover:not(:disabled) {
+  background: linear-gradient(#ffffff, #d4d4d4);
+}
+
+.wiz9-btn:active:not(:disabled) {
+  background: linear-gradient(#bdbdbd, #d8d8d8);
+  box-shadow:
+    inset 1px 1px 2px rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.wiz9-btn:disabled {
+  color: #888;
+  background: linear-gradient(#e8e8e8, #cfcfcf);
+  cursor: default;
+}
+
+.wiz9-btn--default {
+  /* Mac OS 9 default button: thick black outer ring with pulse */
+  position: relative;
+  outline: 2px solid #1a4e9c;
+  outline-offset: 2px;
+  animation: wiz9-default-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes wiz9-default-pulse {
+  0%, 100% { outline-color: #1a4e9c; }
+  50%      { outline-color: #5d9bf0; }
+}
+
+.wiz9-btn--finish {
+  background: linear-gradient(#ffd4e7, #ff7eb8);
+  color: #4a0028;
+}
+
+.wiz9-btn--finish:hover {
+  background: linear-gradient(#ffe2ef, #ff9ac8);
+}
+
+/* ============================================================
+   Preview panel internals - shared
+   ============================================================ */
+
+.wiz9-prev {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wiz9-prev-desk {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse at top, #6f93a8 0%, #466478 60%, #2c4659 100%);
+}
+
+/* Cursor */
+.wiz9-cursor {
+  position: absolute;
+  width: 14px;
+  height: 18px;
+  pointer-events: none;
+  filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.4));
+}
+
+/* Mini windows */
+.wiz9-mini-window {
+  position: absolute;
+  width: 120px;
+  background: #d8d8d8;
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 #000, inset 1px 1px 0 #fff, inset -1px -1px 0 #999;
+  font-family: Chicago, Charcoal, 'Geneva', 'Lucida Grande', system-ui, sans-serif;
+}
+
+.wiz9-mini-titlebar {
+  height: 14px;
+  background: #cfcfcf;
+  border-bottom: 1px solid #000;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 3px;
+}
+
+.wiz9-mini-close {
+  width: 7px;
+  height: 7px;
+  background: #ff605c;
+  border: 1px solid #000;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.wiz9-mini-stripes {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 14px;
+  right: 4px;
+  background-image: repeating-linear-gradient(
+    180deg,
+    #000,
+    #000 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 1;
+}
+
+.wiz9-mini-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #cfcfcf;
+  padding: 0 4px;
+  font-size: 8px;
+  font-weight: 700;
+  z-index: 2;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wiz9-mini-body {
+  background: #f4f4f4;
+  padding: 6px 5px;
+  min-height: 50px;
+}
+
+.wiz9-mini-row {
+  height: 4px;
+  background: #c4c4c4;
+  margin-bottom: 4px;
+  border-radius: 1px;
+}
+
+.wiz9-mini-row--short {
+  width: 60%;
+}
+
+/* ============================================================
+   Step 1 - Welcome preview
+   ============================================================ */
+
+.wiz9-prev--welcome .wiz9-prev-apple {
+  position: absolute;
+  top: 28%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 56px;
+  animation: wiz9-welcome-pulse 2.6s ease-in-out infinite;
+}
+
+.wiz9-prev-welcome-text {
+  position: absolute;
+  top: 56%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: Chicago, Charcoal, system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+.wiz9-prev-welcome-sub {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: Chicago, Charcoal, system-ui, sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 1px;
+}
+
+@keyframes wiz9-welcome-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-50%, -50%) scale(1.08); }
+}
+
+/* ============================================================
+   Step 2 - Open icon preview
+   ============================================================ */
+
+.wiz9-prev-icon {
+  position: absolute;
+  top: 14px;
+  left: 18px;
+  width: 60px;
+  text-align: center;
+  color: #fff;
+  font-family: Chicago, Charcoal, system-ui, sans-serif;
+}
+
+.wiz9-prev-icon-glyph {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.wiz9-prev-icon-label {
+  margin-top: 2px;
+  font-size: 10px;
+  background: rgba(0, 0, 0, 0.0);
+  padding: 1px 4px;
+  display: inline-block;
+}
+
+.wiz9-prev-icon--anim {
+  animation: wiz9-icon-select 4s ease-in-out infinite;
+}
+
+@keyframes wiz9-icon-select {
+  0%, 30%, 90%, 100% {
+    transform: scale(1);
+  }
+  35%, 45% {
+    transform: scale(0.92);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
+
+.wiz9-prev-window-anim {
+  position: absolute;
+  top: 50px;
+  left: 70px;
+  opacity: 0;
+  transform: scale(0.5);
+  transform-origin: top left;
+  animation: wiz9-window-open 4s ease-in-out infinite;
+}
+
+@keyframes wiz9-window-open {
+  0%, 48% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  56% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  62%, 88% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  96%, 100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+.wiz9-cursor--open {
+  animation: wiz9-cursor-open 4s ease-in-out infinite;
+}
+
+@keyframes wiz9-cursor-open {
+  0% {
+    left: 170px;
+    top: 130px;
+  }
+  30% {
+    left: 38px;
+    top: 32px;
+  }
+  35%, 45% {
+    left: 38px;
+    top: 32px;
+    transform: scale(0.85);
+  }
+  60%, 90% {
+    left: 38px;
+    top: 32px;
+    transform: scale(1);
+  }
+  100% {
+    left: 170px;
+    top: 130px;
+  }
+}
+
+/* ============================================================
+   Step 3 - Move window preview
+   ============================================================ */
+
+.wiz9-prev-drag-window {
+  position: absolute;
+  top: 36px;
+  left: 14px;
+  animation: wiz9-window-drag 5s ease-in-out infinite;
+}
+
+@keyframes wiz9-window-drag {
+  0%, 8% {
+    left: 14px;
+    top: 36px;
+  }
+  44% {
+    left: 100px;
+    top: 70px;
+  }
+  56% {
+    left: 100px;
+    top: 70px;
+  }
+  92%, 100% {
+    left: 14px;
+    top: 36px;
+  }
+}
+
+.wiz9-cursor--drag {
+  animation: wiz9-cursor-drag 5s ease-in-out infinite;
+}
+
+@keyframes wiz9-cursor-drag {
+  0% {
+    left: 80px;
+    top: 130px;
+  }
+  10% {
+    left: 50px;
+    top: 32px;
+  }
+  44% {
+    left: 136px;
+    top: 66px;
+  }
+  56% {
+    left: 136px;
+    top: 66px;
+  }
+  92% {
+    left: 50px;
+    top: 32px;
+  }
+  100% {
+    left: 80px;
+    top: 130px;
+  }
+}
+
+/* ============================================================
+   Step 4 - Apps preview
+   ============================================================ */
+
+.wiz9-prev--apps .wiz9-prev-desk {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.wiz9-prev-app-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px 14px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.wiz9-prev-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  font-family: Chicago, Charcoal, system-ui, sans-serif;
+  font-size: 9px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+  opacity: 0.65;
+}
+
+.wiz9-prev-app-ico {
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+
+.wiz9-prev-app-lab {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0 3px;
+  border-radius: 1px;
+}
+
+/* Stagger highlight across the icons */
+.wiz9-prev-app--1 { animation: wiz9-app-pulse 3.6s ease-in-out infinite 0.0s; }
+.wiz9-prev-app--2 { animation: wiz9-app-pulse 3.6s ease-in-out infinite 0.4s; }
+.wiz9-prev-app--3 { animation: wiz9-app-pulse 3.6s ease-in-out infinite 0.8s; }
+.wiz9-prev-app--4 { animation: wiz9-app-pulse 3.6s ease-in-out infinite 1.2s; }
+.wiz9-prev-app--5 { animation: wiz9-app-pulse 3.6s ease-in-out infinite 1.6s; }
+.wiz9-prev-app--6 { animation: wiz9-app-pulse 3.6s ease-in-out infinite 2.0s; }
+
+@keyframes wiz9-app-pulse {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  30% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+}
+
+/* ============================================================
+   Step 5 - Setup Complete preview
+   ============================================================ */
+
+.wiz9-prev-stack {
+  position: absolute;
+}
+
+.wiz9-prev-stack--back {
+  top: 24px;
+  left: 16px;
+  animation: wiz9-complete-rise 2.4s ease-out;
+}
+
+.wiz9-prev-stack--front {
+  top: 56px;
+  left: 60px;
+  animation: wiz9-complete-rise 2.4s ease-out 0.3s backwards;
+}
+
+@keyframes wiz9-complete-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.wiz9-prev-complete-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  background: #2ea34a;
+  color: #fff;
+  border: 1px solid #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Chicago, Charcoal, system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    1px 1px 0 rgba(0, 0, 0, 0.5);
+  animation: wiz9-badge-pop 1.6s ease-out 0.5s backwards;
+}
+
+@keyframes wiz9-badge-pop {
+  0%   { opacity: 0; transform: scale(0.2) rotate(-30deg); }
+  60%  { opacity: 1; transform: scale(1.2) rotate(8deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+/* ============================================================
+   Wizard - mobile
+   ============================================================ */
+
+@media (max-width: 640px) {
+  .wiz9 {
+    width: 96vw;
+    height: auto;
+    max-height: 80vh;
+  }
+  .wiz9-body {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .wiz9-preview {
+    flex: 0 0 160px;
+    width: 100%;
+    height: 160px;
+  }
+  .wiz9-step-title {
+    font-size: 18px;
+  }
+  .wiz9-btn {
+    min-width: 64px;
+    padding: 5px 12px;
+  }
+}
+
 /* Windows-only compatibility + performance visuals
    Keep macOS appearance untouched. */
 body.os-windows * {

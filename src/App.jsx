@@ -6,6 +6,7 @@ import Window from './components/Window';
 import MusicBar from './components/MusicBar';
 import AboutWindow from './components/AboutWindow';
 import HelpWindow from './components/HelpWindow';
+import SetupWizard from './components/SetupWizard';
 import SpotifyApp from './components/SpotifyApp';
 import WorkApp from './components/WorkApp';
 import ReadmeResumeApp from './components/ReadmeResumeApp';
@@ -69,15 +70,29 @@ function App() {
     setActiveWindow(id);
   }, []);
 
-  const closeWindow = useCallback((id) => {
+  const closeWindowById = useCallback((id) => {
     setWindows((prev) => prev.filter((w) => w.id !== id));
     setActiveWindow((curr) => (curr === id ? null : curr));
+  }, []);
+
+  const openSetupWizard = useCallback(() => {
+    const close = () => closeWindowById('wizard');
+    openWindow(
+      'wizard',
+      'Setup Assistant',
+      <SetupWizard onFinish={close} onCancel={close} />,
+      true
+    );
+  }, [openWindow, closeWindowById]);
+
+  const closeWindow = useCallback((id) => {
+    closeWindowById(id);
     if (id === 'about-system') {
       setTimeout(() => {
-        openWindow('help', 'Wiz Tree', <HelpWindow />, true);
+        openSetupWizard();
       }, 180);
     }
-  }, [openWindow]);
+  }, [closeWindowById, openSetupWizard]);
 
   const focusWindow = useCallback((id) => {
     setActiveWindow(id);
