@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import AboutWindow from './AboutWindow';
 
 // Mini SVG arrow cursor used inside the preview panels
 const PreviewCursor = ({ className = '' }) => (
@@ -34,15 +35,8 @@ const MiniWindow = ({ title, children, className = '', showResize = false }) => 
 
 const PreviewWelcome = () => (
   <div className="wiz9-prev wiz9-prev--welcome">
-    <div className="wiz9-prev-desk">
-      <img
-        src="/apple-logo.svg"
-        alt=""
-        className="wiz9-prev-apple-logo"
-        aria-hidden="true"
-      />
-      <div className="wiz9-prev-welcome-text">Mac&nbsp;OS&nbsp;9</div>
-      <div className="wiz9-prev-welcome-sub">welcome</div>
+    <div className="wiz9-prev-about">
+      <AboutWindow />
     </div>
   </div>
 );

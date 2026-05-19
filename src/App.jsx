@@ -4,7 +4,6 @@ import MenuBar from './components/MenuBar';
 import DesktopIcon from './components/DesktopIcon';
 import Window from './components/Window';
 import MusicBar from './components/MusicBar';
-import AboutWindow from './components/AboutWindow';
 import HelpWindow from './components/HelpWindow';
 import SetupWizard from './components/SetupWizard';
 import SpotifyApp from './components/SpotifyApp';
@@ -87,12 +86,7 @@ function App() {
 
   const closeWindow = useCallback((id) => {
     closeWindowById(id);
-    if (id === 'about-system') {
-      setTimeout(() => {
-        openSetupWizard();
-      }, 180);
-    }
-  }, [closeWindowById, openSetupWizard]);
+  }, [closeWindowById]);
 
   const focusWindow = useCallback((id) => {
     setActiveWindow(id);
@@ -106,7 +100,7 @@ function App() {
   const handleBoot = () => {
     setBooted(true);
     setTimeout(() => {
-      openWindow('about-system', 'About This Computer', <AboutWindow />, true);
+      openSetupWizard();
     }, 500);
   };
 

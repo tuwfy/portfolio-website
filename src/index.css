@@ -3136,46 +3136,43 @@ canvas {
    Step 1 - Welcome preview
    ============================================================ */
 
-.wiz9-prev-apple-logo {
-  position: absolute;
-  top: 28%;
-  left: 50%;
-  width: 70px;
-  height: 70px;
-  object-fit: contain;
-  transform: translate(-50%, -50%);
-  filter: drop-shadow(1px 2px 0 rgba(0, 0, 0, 0.35));
-  animation: wiz9-welcome-pulse 2.6s ease-in-out infinite;
+/* Welcome preview now embeds the real About-This-Computer panel,
+   scaled down to fit inside the preview pane. */
+.wiz9-prev--welcome {
+  background: #d8d8d8;
 }
 
-.wiz9-prev-welcome-text {
+.wiz9-prev-about {
   position: absolute;
-  top: 56%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: Chicago, Charcoal, system-ui, sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.5px;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
-  white-space: nowrap;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #d8d8d8;
+  padding: 6px;
+  overflow: hidden;
 }
 
-.wiz9-prev-welcome-sub {
-  position: absolute;
-  top: 70%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: Chicago, Charcoal, system-ui, sans-serif;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.85);
-  letter-spacing: 1px;
+.wiz9-prev-about .about9 {
+  zoom: 0.40;
+  flex-shrink: 0;
+  max-width: none;
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.25);
+  animation: wiz9-about-fade-in 0.4s ease-out;
 }
 
-@keyframes wiz9-welcome-pulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50%      { transform: translate(-50%, -50%) scale(1.08); }
+@keyframes wiz9-about-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Safari pre-17 fallback for `zoom` */
+@supports not (zoom: 1) {
+  .wiz9-prev-about .about9 {
+    zoom: unset;
+    transform: scale(0.40);
+    transform-origin: center center;
+  }
 }
 
 /* ============================================================
