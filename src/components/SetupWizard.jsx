@@ -18,7 +18,7 @@ const PreviewCursor = ({ className = '' }) => (
   </svg>
 );
 
-const MiniWindow = ({ title, children, className = '' }) => (
+const MiniWindow = ({ title, children, className = '', showResize = false }) => (
   <div className={`wiz9-mini-window ${className}`}>
     <div className="wiz9-mini-titlebar">
       <span className="wiz9-mini-close" />
@@ -26,6 +26,7 @@ const MiniWindow = ({ title, children, className = '' }) => (
       <span className="wiz9-mini-title">{title}</span>
     </div>
     <div className="wiz9-mini-body">{children}</div>
+    {showResize && <span className="wiz9-mini-resize" aria-hidden="true" />}
   </div>
 );
 
@@ -54,7 +55,7 @@ const PreviewOpenIcon = () => (
         <div className="wiz9-prev-icon-label">Work</div>
       </div>
       <div className="wiz9-prev-window-anim">
-        <MiniWindow title="Work">
+        <MiniWindow title="Work" showResize>
           <div className="wiz9-mini-row" />
           <div className="wiz9-mini-row wiz9-mini-row--short" />
           <div className="wiz9-mini-row" />
@@ -70,7 +71,7 @@ const PreviewMoveWindow = () => (
   <div className="wiz9-prev wiz9-prev--move">
     <div className="wiz9-prev-desk">
       <div className="wiz9-prev-drag-window">
-        <MiniWindow title="About Me">
+        <MiniWindow title="About Me" showResize>
           <div className="wiz9-mini-row" />
           <div className="wiz9-mini-row wiz9-mini-row--short" />
           <div className="wiz9-mini-row" />
@@ -135,13 +136,13 @@ const PreviewComplete = () => (
   <div className="wiz9-prev wiz9-prev--complete">
     <div className="wiz9-prev-desk">
       <div className="wiz9-prev-stack wiz9-prev-stack--back">
-        <MiniWindow title="Work">
+        <MiniWindow title="Work" showResize>
           <div className="wiz9-mini-row" />
           <div className="wiz9-mini-row wiz9-mini-row--short" />
         </MiniWindow>
       </div>
       <div className="wiz9-prev-stack wiz9-prev-stack--front">
-        <MiniWindow title="About Me">
+        <MiniWindow title="About Me" showResize>
           <div className="wiz9-mini-row" />
           <div className="wiz9-mini-row wiz9-mini-row--short" />
           <div className="wiz9-mini-row" />
