@@ -34,7 +34,12 @@ const MiniWindow = ({ title, children, className = '' }) => (
 const PreviewWelcome = () => (
   <div className="wiz9-prev wiz9-prev--welcome">
     <div className="wiz9-prev-desk">
-      <div className="wiz9-prev-apple">🍎</div>
+      <img
+        src="/apple-logo.svg"
+        alt=""
+        className="wiz9-prev-apple-logo"
+        aria-hidden="true"
+      />
       <div className="wiz9-prev-welcome-text">Mac&nbsp;OS&nbsp;9</div>
       <div className="wiz9-prev-welcome-sub">welcome</div>
     </div>
@@ -81,28 +86,45 @@ const PreviewApps = () => (
     <div className="wiz9-prev-desk">
       <div className="wiz9-prev-app-grid">
         <div className="wiz9-prev-app wiz9-prev-app--1">
-          <span className="wiz9-prev-app-ico">🎵</span>
-          <span className="wiz9-prev-app-lab">spotify</span>
+          <span className="wiz9-prev-app-ico">📝</span>
+          <span className="wiz9-prev-app-lab">readme.txt</span>
         </div>
         <div className="wiz9-prev-app wiz9-prev-app--2">
-          <span className="wiz9-prev-app-ico">🎮</span>
-          <span className="wiz9-prev-app-lab">Doom</span>
+          <span className="wiz9-prev-app-ico">💾</span>
+          <span className="wiz9-prev-app-lab">Mac&nbsp;HD</span>
         </div>
         <div className="wiz9-prev-app wiz9-prev-app--3">
-          <span className="wiz9-prev-app-ico">📝</span>
-          <span className="wiz9-prev-app-lab">readme</span>
+          <span className="wiz9-prev-app-ico">🎵</span>
+          <span className="wiz9-prev-app-lab">spotify.exe</span>
         </div>
         <div className="wiz9-prev-app wiz9-prev-app--4">
-          <span className="wiz9-prev-app-ico">📂</span>
-          <span className="wiz9-prev-app-lab">Work</span>
+          <span className="wiz9-prev-app-ico">🔗</span>
+          <span className="wiz9-prev-app-lab">LinkedIn</span>
         </div>
         <div className="wiz9-prev-app wiz9-prev-app--5">
-          <span className="wiz9-prev-app-ico">📄</span>
-          <span className="wiz9-prev-app-lab">CV</span>
+          <span className="wiz9-prev-app-ico">👤</span>
+          <span className="wiz9-prev-app-lab">About&nbsp;Me</span>
         </div>
         <div className="wiz9-prev-app wiz9-prev-app--6">
           <span className="wiz9-prev-app-ico">✉️</span>
           <span className="wiz9-prev-app-lab">Contact</span>
+        </div>
+        <div className="wiz9-prev-app wiz9-prev-app--7">
+          <img
+            src="/doom-icon.png"
+            alt=""
+            className="wiz9-prev-app-ico wiz9-prev-app-ico--img"
+            aria-hidden="true"
+          />
+          <span className="wiz9-prev-app-lab">Doom</span>
+        </div>
+        <div className="wiz9-prev-app wiz9-prev-app--8">
+          <span className="wiz9-prev-app-ico">📂</span>
+          <span className="wiz9-prev-app-lab">Work</span>
+        </div>
+        <div className="wiz9-prev-app wiz9-prev-app--9">
+          <span className="wiz9-prev-app-ico">📄</span>
+          <span className="wiz9-prev-app-lab">CV</span>
         </div>
       </div>
     </div>
