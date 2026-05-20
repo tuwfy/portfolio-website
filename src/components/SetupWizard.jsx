@@ -274,18 +274,28 @@ const SetupWizard = ({ onFinish, onCancel }) => {
   }, [onCancel]);
 
   const Preview = STEPS[step].preview;
+  const isWelcome = step === 0;
 
   return (
-    <div className="wiz9" key={step}>
-      <div className="wiz9-body">
-        <div className="wiz9-preview">
-          <Preview />
+    <div className={`wiz9 ${isWelcome ? 'wiz9--welcome' : ''}`} key={step}>
+      {isWelcome ? (
+        <div className="wiz9-body wiz9-body--welcome">
+          <div className="wiz9-welcome-hero">
+            <AboutWindow />
+          </div>
+          <h2 className="wiz9-welcome-heading">{STEPS[step].title}</h2>
         </div>
-        <div className="wiz9-content">
-          <h2 className="wiz9-step-title">{STEPS[step].title}</h2>
-          <div className="wiz9-step-body">{STEPS[step].body(step + 1)}</div>
+      ) : (
+        <div className="wiz9-body">
+          <div className="wiz9-preview">
+            <Preview />
+          </div>
+          <div className="wiz9-content">
+            <h2 className="wiz9-step-title">{STEPS[step].title}</h2>
+            <div className="wiz9-step-body">{STEPS[step].body(step + 1)}</div>
+          </div>
         </div>
-      </div>
+      )}
       <div className="wiz9-footer">
         <div className="wiz9-footer-rule" />
         <div className="wiz9-footer-buttons">
